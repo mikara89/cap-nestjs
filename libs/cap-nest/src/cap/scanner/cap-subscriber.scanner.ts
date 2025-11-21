@@ -15,7 +15,7 @@ export class CapSubscriberScanner implements OnModuleInit {
     private readonly modules: ModulesContainer, // all loaded modules
     private readonly reflector: Reflector, // read decorator metadata
     private readonly cap: CapService, // facade (storage+transport)
-  ) { }
+  ) {}
 
   onModuleInit() {
     // Walk every provider instance in the app
@@ -64,7 +64,7 @@ export class CapSubscriberScanner implements OnModuleInit {
 
       this.log.debug(
         `@CapSubscribe → ${target.constructor.name}.${key} ` +
-        `(${topic}|${group || 'broadcast'})`,
+          `(${topic}|${group || 'broadcast'})`,
       );
 
       this.cap.subscribe(topic, group, async (payload: unknown) => {
