@@ -76,25 +76,28 @@ export function discoverSubscriptions(
     .map((key) => {
       // Try multiple metadata locations: method (descriptor value), prototype property, or instance property
       // This mirrors how Nest's SetMetadata/Reflector may attach metadata.
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       const fn = proto[key] ?? instance[key];
       // Try metadata on the function itself (common when SetMetadata applied to method)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const meta =
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         Reflect.getMetadata(CAP_SUBSCRIBE_METADATA, fn) ||
         // Fallback to metadata on the instance property (older patterns)
         Reflect.getMetadata(CAP_SUBSCRIBE_METADATA, instance, key) ||
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         Reflect.getMetadata(CAP_SUBSCRIBE_METADATA, proto, key);
 
       if (!meta) return undefined;
       return {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
         topic: meta.topic,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
         group: meta.group ?? undefined,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
         filter: meta.filter,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        handler: instance[key].bind(instance),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        handler: (fn as (...args: unknown[]) => unknown).bind(instance),
       } as DiscoveredSubscription;
     })
     .filter(Boolean) as DiscoveredSubscription[];

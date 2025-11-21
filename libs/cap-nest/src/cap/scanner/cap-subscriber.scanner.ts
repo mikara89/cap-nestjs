@@ -59,7 +59,6 @@ export class CapSubscriberScanner implements OnModuleInit {
       );
 
       this.cap.subscribe(topic, group, async (payload: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const validated = pipe ? pipe.transform(payload) : payload;
         if (!filter || (await filter(validated))) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call
