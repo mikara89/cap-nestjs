@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/cap-test-app/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/cap-test-app/tsconfig.app.json"
+  },
+  "projects": {
+    "cap-nest": {
+      "type": "library",
+      "root": "libs/cap-nest",
+      "entryFile": "index",
+      "sourceRoot": "libs/cap-nest/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/cap-nest/tsconfig.lib.json"
+      }
+    },
+    "cap-test-app": {
+      "type": "application",
+      "root": "apps/cap-test-app",
+      "entryFile": "main",
+      "sourceRoot": "apps/cap-test-app/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/cap-test-app/tsconfig.app.json"
+      }
+    }
+  },
+  "monorepo": true,
+  "root": "apps/cap"
+}
