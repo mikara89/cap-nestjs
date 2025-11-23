@@ -1,27 +1,27 @@
 {
-    "name": "@cap/azure-servicebus-transport",
-    "version": "0.4.0",
-    "description": "Azure Service Bus transport adapter for CAP NestJS library",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "scripts": {
-        "build": "tsc",
-        "prepare": "npm run build",
-        "test": "jest",
-        "lint": "eslint \"src/**/*.ts\" --fix"
-    },
-    "dependencies": {
-        "@azure/service-bus": "^7.9.0"
-    },
-    "peerDependencies": {
-        "@cap/cap-nest": "^0.2.0",
-        "@nestjs/common": "^11.0.0",
-        "@nestjs/core": "^11.0.0",
-        "reflect-metadata": "^0.2.0"
-    },
-    "devDependencies": {
-        "@cap/cap-nest": "file:../cap-nest",
-        "@types/node": "^22.0.0",
-        "typescript": "^5.7.0"
-    }
+  "name": "@cap/azure-servicebus-transport",
+  "version": "0.5.0",
+  "description": "Azure Service Bus transport adapter for CAP NestJS library",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "test": "jest",
+    "lint": "eslint \"src/**/*.ts\" --fix"
+  },
+  "dependencies": {
+    "@azure/service-bus": "^7.9.0"
+  },
+  "peerDependencies": {
+    "@cap/cap-nest": "^0.2.0",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "reflect-metadata": "^0.2.0"
+  },
+  "devDependencies": {
+    "@cap/cap-nest": "file:../cap-nest",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
 }

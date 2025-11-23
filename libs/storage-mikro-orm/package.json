@@ -1,30 +1,30 @@
 {
-    "name": "@cap/mikroorm-storage",
-    "version": "0.4.0",
-    "description": "MikroORM storage adapter for CAP NestJS library",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "scripts": {
-        "build": "tsc",
-        "prepare": "npm run build",
-        "test": "jest",
-        "lint": "eslint \"src/**/*.ts\" --fix"
-    },
-    "dependencies": {
-        "uuid": "^11.0.0"
-    },
-    "peerDependencies": {
-        "@cap/cap-nest": "^0.2.0",
-        "@mikro-orm/core": "^6.0.0",
-        "@mikro-orm/nestjs": "^6.0.0",
-        "@nestjs/common": "^11.0.0",
-        "@nestjs/core": "^11.0.0",
-        "reflect-metadata": "^0.2.0"
-    },
-    "devDependencies": {
-        "@cap/cap-nest": "file:../cap-nest",
-        "@types/node": "^22.0.0",
-        "@types/uuid": "^10.0.0",
-        "typescript": "^5.7.0"
-    }
+  "name": "@cap/mikroorm-storage",
+  "version": "0.5.0",
+  "description": "MikroORM storage adapter for CAP NestJS library",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "test": "jest",
+    "lint": "eslint \"src/**/*.ts\" --fix"
+  },
+  "dependencies": {
+    "uuid": "^11.0.0"
+  },
+  "peerDependencies": {
+    "@cap/cap-nest": "^0.2.0",
+    "@mikro-orm/core": "^6.0.0",
+    "@mikro-orm/nestjs": "^6.0.0",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "reflect-metadata": "^0.2.0"
+  },
+  "devDependencies": {
+    "@cap/cap-nest": "file:../cap-nest",
+    "@types/node": "^22.0.0",
+    "@types/uuid": "^10.0.0",
+    "typescript": "^5.7.0"
+  }
 }
