@@ -21,6 +21,16 @@ export interface IPublishStorage {
 
   /** Fetch N unpublished rows – used by retry-scheduler */
   getUnpublished(limit: number): Promise<Array<CapPublishEvent>>;
+
+  /** Optional: find a published record by id (dashboard helpers) */
+  findPublishById?(id: string): Promise<CapPublishEvent | undefined>;
+
+  /** Optional: paginated listing for dashboards and admin UIs */
+  listPublish?(opts: {
+    limit?: number;
+    offset?: number;
+    topic?: string;
+  }): Promise<{ items: Array<CapPublishEvent>; total?: number }>;
 }
 
 /*------------------------------------------------------------------
@@ -64,5 +74,16 @@ export interface IReceivedStorage {
    * @param nextRetry - The next scheduled retry time.
    */
   scheduleRetry(id: string, retryCount: number, nextRetry: Date): Promise<void>;
+
+  /** Optional: find a received record by id (dashboard helpers) */
+  findReceivedById?(id: string): Promise<CapReceivedEvent | undefined>;
+
+  /** Optional: paginated listing for dashboards and admin UIs */
+  listReceived?(opts: {
+    limit?: number;
+    offset?: number;
+    topic?: string;
+    due?: boolean;
+  }): Promise<{ items: Array<CapReceivedEvent>; total?: number }>;
 }
 export { CapReceivedEvent };

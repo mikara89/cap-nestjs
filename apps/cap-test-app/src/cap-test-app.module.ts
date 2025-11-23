@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+// path utilities are no longer required here; CapDashboardModule will resolve defaults
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import type { Options as MikroOptions } from '@mikro-orm/core';
-import { SqliteDriver } from '@mikro-orm/sqlite';
+import { BetterSqliteDriver } from '@mikro-orm/better-sqlite';
 import { CapTestAppController } from './cap-test-app.controller';
 import { CapTestAppService } from './cap-test-app.service';
 import { CapModule, CapAdapterModule } from '@cap/cap-nest';
@@ -13,6 +14,7 @@ import {
 } from '../../../libs/storage-mikro-orm/src';
 // Note: schema creation is handled via CapModule init options.
 import { ServiceBusTransportModule } from '@cap/azure-servicebus-transport';
+import { CapDashboardModule } from '@cap/cap-dashboard';
 
 // create the dynamic transport module instance so we can pass its
 // provider array to the CapModule helper. Avoid accessing the class
@@ -38,7 +40,7 @@ const serviceBusTransport = ServiceBusTransportModule.forRoot({
     MikroOrmModule.forRootAsync({
       useFactory: (): MikroOptions =>
         ({
-          driver: SqliteDriver,
+          driver: BetterSqliteDriver,
           dbName: ':memory:',
           entities: [CapPublishEntity, CapReceivedEntity],
           allowGlobalContext: true,
@@ -55,9 +57,18 @@ const serviceBusTransport = ServiceBusTransportModule.forRoot({
       {
         autoInit: false,
         createQueues: false,
-        createSchema: false,
+        createSchema: true,
       },
     ),
+    CapDashboardModule.forRoot({
+      guard: {
+        provide: 'CAP_DASHBOARD_DEMO_GUARD',
+        useValue: { canActivate: () => true },
+      },
+      routePrefix: '/api/cap', // default
+      uiRoute: '/cap-dashboard', // default
+      serveStatic: true, // default true
+    }),
   ],
   controllers: [CapTestAppController],
   providers: [CapTestAppService, CapExampleHandler],

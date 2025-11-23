@@ -35,6 +35,15 @@
         "tsConfigPath": "libs/transport-azure-servicebus/tsconfig.lib.json"
       }
     },
+    "cap-dashboard": {
+      "type": "library",
+      "root": "libs/cap-dashboard",
+      "entryFile": "index",
+      "sourceRoot": "libs/cap-dashboard/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/cap-dashboard/tsconfig.lib.json"
+      }
+    },
     "cap-test-app": {
       "type": "application",
       "root": "apps/cap-test-app",

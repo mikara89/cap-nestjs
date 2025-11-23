@@ -184,6 +184,24 @@ export class CapModule {
               .slice(0, n),
           );
         }
+        async findPublishById(
+          id: string,
+        ): Promise<CapPublishEvent<unknown> | undefined> {
+          return Promise.resolve(this.m.get(id));
+        }
+
+        async listPublish(
+          opts: { limit?: number; offset?: number; topic?: string } = {},
+        ) {
+          const all = [...this.m.values()];
+          const filtered = opts.topic
+            ? all.filter((v) => v.topic === opts.topic)
+            : all;
+          const total = filtered.length;
+          const offset = opts.offset ?? 0;
+          const items = filtered.slice(offset, offset + (opts.limit ?? total));
+          return Promise.resolve({ items, total });
+        }
       },
     };
 
@@ -239,6 +257,34 @@ export class CapModule {
             });
           }
           return Promise.resolve(pendingRetries);
+        }
+        async findReceivedById(
+          id: string,
+        ): Promise<CapReceivedEvent<unknown> | undefined> {
+          return Promise.resolve(this.m.get(id));
+        }
+
+        async listReceived(
+          opts: {
+            limit?: number;
+            offset?: number;
+            topic?: string;
+            due?: boolean;
+          } = {},
+        ) {
+          let all = [...this.m.values()];
+          if (opts.topic) all = all.filter((r) => r.topic === opts.topic);
+          if (opts.due) {
+            const now = Date.now();
+            all = all.filter(
+              (r) =>
+                !r.processed && r.nextRetry && r.nextRetry.getTime() <= now,
+            );
+          }
+          const total = all.length;
+          const offset = opts.offset ?? 0;
+          const items = all.slice(offset, offset + (opts.limit ?? total));
+          return Promise.resolve({ items, total });
         }
       },
     };

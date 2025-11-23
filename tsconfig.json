@@ -35,6 +35,12 @@
       ],
       "@cap/azure-servicebus-transport/*": [
         "libs/transport-azure-servicebus/dist/*"
+      ],
+      "@cap/cap-dashboard": [
+        "libs/cap-dashboard/dist"
+      ],
+      "@cap/cap-dashboard/*": [
+        "libs/cap-dashboard/dist/*"
       ]
     }
   },
