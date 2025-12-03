@@ -1,5 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { ServiceBusClient } from '@azure/service-bus';
+import { ServiceBusClientLifecycle } from './servicebus-client.lifecycle';
 import { PUBLISHER, SUBSCRIBER } from '@cap/cap-nest';
 import { ServiceBusPublisher } from './transport/servicebus-publisher';
 import { ServiceBusSubscriber } from './transport/servicebus-subscriber';
@@ -35,8 +36,29 @@ export class ServiceBusTransportModule {
       providers: [
         {
           provide: 'SERVICEBUS_CLIENT',
+          useFactory: () => {
+            // In test runs, avoid opening real network connections — return a no-op/dummy client.
+            if (process.env.NODE_ENV === 'test') {
+              const dummy: Partial<ServiceBusClient> = {
+                createReceiver: () => ({
+                  subscribe: () => ({ close: async () => { } }),
+                  close: async () => { },
+                }) as any,
+                createSender: () => ({
+                  sendMessages: async () => { },
+                  close: async () => { },
+                }) as any,
+                close: async () => { },
+              };
+              return dummy as ServiceBusClient;
+            }
 
-          useFactory: () => new ServiceBusClient(config.connectionString),
+            return new ServiceBusClient(config.connectionString);
+          },
+        },
+        {
+          provide: 'SERVICEBUS_CLIENT_LIFECYCLE',
+          useClass: require('./servicebus-client.lifecycle').ServiceBusClientLifecycle,
         },
         {
           provide: PUBLISHER,

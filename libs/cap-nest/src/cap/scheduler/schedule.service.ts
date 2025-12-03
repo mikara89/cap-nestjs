@@ -1,6 +1,6 @@
 // src/cap/scheduler/schedule.service.ts
-import { Injectable, Inject, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Injectable, Inject, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 
 import {
   PUBLISH_STORAGE,
@@ -12,7 +12,7 @@ import { PUBLISHER, IPublisher } from '../abstractions/transport.interface';
 import { CapService } from '../cap.service';
 
 @Injectable()
-export class RetrySchedulerService {
+export class RetrySchedulerService implements OnModuleDestroy {
   private readonly log = new Logger(RetrySchedulerService.name);
 
   constructor(
@@ -20,7 +20,30 @@ export class RetrySchedulerService {
     @Inject(PUBLISHER) private readonly publisher: IPublisher,
     @Inject(RECEIVED_STORAGE) private readonly recStore: IReceivedStorage,
     private readonly cap: CapService,
-  ) {}
+    private readonly schedulerRegistry?: SchedulerRegistry,
+  ) { this.constructorCleanup(); }
+
+  constructorCleanup(): void {
+    const registry = this.schedulerRegistry;
+    if (!registry) return;
+    const cleanup = () => {
+      try {
+        const jobs = registry.getCronJobs();
+        jobs.forEach((job, name) => {
+          try {
+            job.stop();
+            registry.deleteCronJob(name);
+            this.log.debug(`Stopped and removed cron job (process cleanup): ${name}`);
+          } catch (err) {
+            // ignore
+          }
+        });
+      } catch (err) {
+        // ignore
+      }
+    };
+    process.once('beforeExit', cleanup);
+  }
 
   /** every 30 s flush the outbox */
   @Cron(CronExpression.EVERY_30_SECONDS)
@@ -67,6 +90,24 @@ export class RetrySchedulerService {
 
     for (const rec of batch) {
       await this.cap.retryReceived(rec);
+    }
+  }
+  onModuleDestroy(): void {
+    try {
+      const schedulerRegistry = this.schedulerRegistry;
+      if (!schedulerRegistry) return;
+      const jobs = schedulerRegistry.getCronJobs();
+      jobs.forEach((job, name) => {
+        try {
+          job.stop();
+          schedulerRegistry.deleteCronJob(name);
+          this.log.debug(`Stopped and removed cron job: ${name}`);
+        } catch (err) {
+          this.log.warn(`Failed to stop/delete cron job ${name}: ${String(err)}`);
+        }
+      });
+    } catch (err) {
+      this.log.debug('No cron jobs to clean up or failed to access scheduler registry');
     }
   }
 }
