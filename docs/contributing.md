@@ -1,32 +1,76 @@
-# Contributing & Development
+# Contributing
 
-Local workflow
+## Local Workflow
+
+Install dependencies:
 
 ```powershell
-# Install dependencies (monorepo workspace)
 npm install
+```
 
-# Lint (auto-fix where possible)
-npm run lint
+Run tests:
 
-# Run unit tests
+```powershell
 npm test
+```
 
-# Build
+Build:
+
+```powershell
 npm run build
 ```
 
-Coding guidelines
+Run lint with auto-fix:
 
-- Maintain compatibility with NestJS DI patterns — prefer Symbol tokens for the
-  CAP abstractions.
-- Keep runtime code free of `eslint-disable` unless absolutely necessary; prefer
-  fixing tests/helpers types.
-- Add unit tests for new behavior and update `docs/` pages when you change
-  public APIs.
+```powershell
+npm run lint
+```
 
-Pull request checklist
+## Focused Test Commands
 
-- [ ] Lint passes (`npm run lint`).
-- [ ] Unit tests pass (`npm test`).
-- [ ] Update `docs/` where public API or behavior changed.
+Core library tests:
+
+```powershell
+npm run test:lib:cap-nest
+```
+
+Integration tests:
+
+```powershell
+npm run test:integration
+```
+
+Focused coverage for `cap-nest`:
+
+```powershell
+npx jest --coverage --roots libs/cap-nest/src --collectCoverageFrom "libs/cap-nest/src/cap/**/*.ts"
+```
+
+## Coding Guidelines
+
+- Preserve NestJS dependency injection patterns.
+- Use the exported Symbol tokens for CAP abstractions.
+- Keep runtime code strongly typed where possible; prefer `unknown` and narrow
+  it before use.
+- Add or update tests when changing behavior.
+- Keep adapter behavior behind storage and transport interfaces.
+- Avoid committing generated artifacts such as nested `node_modules`, `dist`,
+  coverage output, or `tsbuildinfo`.
+
+## Documentation Guidelines
+
+- Update root `README.md` for public positioning or package-map changes.
+- Update `docs/architecture.md` when core flows change.
+- Update `docs/adapters.md` when adapter contracts or first-party adapters
+  change.
+- Update `docs/cap-dashboard.md` when dashboard routes or security behavior
+  change.
+- Add or update an ADR for durable architecture decisions.
+- Update `docs/roadmap.md` when MVP/Beta/v1/Later scope changes.
+
+## Pull Request Checklist
+
+- Tests pass or skipped tests are explained.
+- Build passes when public exports, package setup, or examples changed.
+- Documentation is updated for public API or behavior changes.
+- ADR is added or updated for architecture-level decisions.

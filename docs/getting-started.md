@@ -1,43 +1,123 @@
-# Getting Started — CAP NestJS Library
+# Getting Started
 
-Quick start to use the CAP library in a NestJS application.
+Use this guide to wire CAP into a NestJS application.
 
-1. Install (if using this monorepo, add the library via workspace path)
+## Local In-Memory Setup
 
-2. Use the in-memory bundle for local development or tests
+The in-memory bundle is the fastest way to try CAP in tests or local examples.
+It keeps outbox/inbox records in memory and uses an in-process bus.
 
 ```ts
-import { Module } from "@nestjs/common";
-import { CapModule } from "@cap/cap-nest";
+import { Module } from '@nestjs/common';
+import { CapModule } from '@cap/cap-nest';
 
 @Module({
-    imports: [CapModule.forInMemory()],
+  imports: [CapModule.forInMemory()],
 })
 export class AppModule {}
 ```
 
-3. Publish a message via `CapService`
+Publish from any injectable that receives `CapService`:
 
 ```ts
-// in a controller or service
-constructor(private readonly cap: CapService) {}
+import { Injectable } from '@nestjs/common';
+import { CapService } from '@cap/cap-nest';
 
-await this.cap.publish('user.created', { id: 'u1', name: 'Alice' });
-```
+@Injectable()
+export class UsersService {
+  constructor(private readonly cap: CapService) {}
 
-4. Subscribe using `@CapSubscribe`
-
-```ts
-import { CapSubscribe } from "@cap/cap-nest";
-
-class ExampleHandler {
-    @CapSubscribe({ topic: "user.created", group: "mail-service" })
-    async handle(payload: any) {
-        // process
-    }
+  async createUser(): Promise<void> {
+    await this.cap.publish('user.created', {
+      id: 'u1',
+      email: 'alice@example.com',
+    });
+  }
 }
 ```
 
-5. For production use adaptors: implement and provide `PUBLISH_STORAGE`,
-   `RECEIVED_STORAGE`, `PUBLISHER`, `SUBSCRIBER` and use
-   `CapModule.forRoot(...)` or `forAdapters()`.
+Handle messages with `@CapSubscribe`:
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { CapSubscribe } from '@cap/cap-nest';
+
+@Injectable()
+export class MailHandler {
+  @CapSubscribe({ topic: 'user.created', group: 'mail-service' })
+  async handleUserCreated(payload: { id: string; email: string }) {
+    // send welcome email
+  }
+}
+```
+
+## Production-Style Setup
+
+Production apps should provide durable storage and an external transport. The
+first-party packages are MikroORM storage and Azure Service Bus transport.
+
+```ts
+import { Module } from '@nestjs/common';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { CapModule, CapAdapterModule } from '@cap/cap-nest';
+import {
+  MikroStorageModule,
+  CapPublishEntity,
+  CapReceivedEntity,
+} from '@cap/mikroorm-storage';
+import { ServiceBusTransportModule } from '@cap/azure-servicebus-transport';
+
+const serviceBusTransport = ServiceBusTransportModule.forRoot({
+  connectionString: process.env.AZURE_SERVICEBUS_CONNECTION_STRING!,
+  topicPrefix: 'cap-',
+  subscriptionPrefix: 'sub-',
+});
+
+@Module({
+  imports: [
+    MikroOrmModule.forRoot({
+      dbName: process.env.DB_NAME,
+      entities: [CapPublishEntity, CapReceivedEntity],
+    }),
+    MikroStorageModule,
+    serviceBusTransport,
+    CapModule.forAdapters(
+      MikroStorageModule,
+      serviceBusTransport as unknown as CapAdapterModule,
+      {
+        createSchema: false,
+        createQueues: false,
+      },
+    ),
+  ],
+})
+export class AppModule {}
+```
+
+Use environment variables for secrets. Do not commit Service Bus connection
+strings or database credentials.
+
+## Dashboard Setup
+
+The dashboard is optional and must be protected by a guard.
+
+```ts
+import { CapDashboardModule } from '@cap/cap-dashboard';
+
+@Module({
+  imports: [
+    CapDashboardModule.forRoot({
+      guard: {
+        provide: 'CAP_DASHBOARD_GUARD',
+        useValue: { canActivate: () => true },
+      },
+      routePrefix: '/api/cap',
+      uiRoute: '/cap-dashboard',
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+Replace the sample guard with a real authorization guard before exposing the
+dashboard outside local development.

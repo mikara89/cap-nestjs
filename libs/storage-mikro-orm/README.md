@@ -1,91 +1,52 @@
-# MikroORM Storage Adapter
+# @cap/mikroorm-storage
 
-MikroORM-based storage implementation for the CAP NestJS library. Provides
-persistent outbox and inbox storage using relational databases (PostgreSQL,
-MySQL, SQLite, etc.).
+MikroORM storage adapter for CAP.
 
-## Installation
+This package provides durable outbox and inbox persistence through:
 
-```bash
-npm install @cap/mikroorm-storage @mikro-orm/core @mikro-orm/nestjs
-```
+- `CapPublishEntity`
+- `CapReceivedEntity`
+- `MikroPublishStorage`
+- `MikroReceivedStorage`
+- `MikroStorageModule`
 
-Install the appropriate driver for your database:
-
-```bash
-# PostgreSQL
-npm install @mikro-orm/postgresql
-
-# MySQL
-npm install @mikro-orm/mysql
-
-# SQLite
-npm install @mikro-orm/sqlite
-```
-
-## Usage
+## Usage Shape
 
 ```ts
-import { Module } from "@nestjs/common";
-import { MikroOrmModule } from "@mikro-orm/nestjs";
-import { CapModule } from "@cap/cap-nest";
-import { MikroStorageModule } from "@cap/mikroorm-storage";
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { CapModule, CapAdapterModule } from '@cap/cap-nest';
+import {
+  MikroStorageModule,
+  CapPublishEntity,
+  CapReceivedEntity,
+} from '@cap/mikroorm-storage';
 
 @Module({
-    imports: [
-        MikroOrmModule.forRoot({
-            type: "postgresql",
-            host: "localhost",
-            dbName: "capdb",
-            entities: ["./dist/**/*.entity.js"],
-            entitiesTs: ["./src/**/*.entity.ts"],
-        }),
-        CapModule.forAdapters(MikroStorageModule, transportModule),
-    ],
+  imports: [
+    MikroOrmModule.forRoot({
+      dbName: process.env.DB_NAME,
+      entities: [CapPublishEntity, CapReceivedEntity],
+    }),
+    MikroStorageModule,
+    CapModule.forAdapters(
+      MikroStorageModule,
+      transportModule as unknown as CapAdapterModule,
+    ),
+  ],
 })
 export class AppModule {}
 ```
 
-## Database Schema
+## Notes
 
-The adapter creates two tables:
+- Manage production schemas through migrations or infrastructure tooling.
+- `savePublishWithTx` is available for transactional outbox persistence.
+- Dashboard list/find helpers are an MVP gap.
 
-### `cap_publish` (Outbox)
+## Documentation
 
-- `id` (UUID, PK)
-- `topic` (string)
-- `payload` (JSON)
-- `headers` (JSON, nullable)
-- `status` ('published' | 'failed' | null)
-- `retryCount` (number)
-- `createdAt` (datetime)
-- `updatedAt` (datetime)
-
-### `cap_received` (Inbox)
-
-- `id` (UUID, PK)
-- `topic` (string)
-- `group` (string)
-- `payload` (JSON)
-- `headers` (JSON, nullable)
-- `processed` (boolean)
-- `retryCount` (number)
-- `nextRetry` (datetime, nullable)
-- `createdAt` (datetime)
-- `updatedAt` (datetime)
-
-## Migrations
-
-Generate and run migrations to create the schema:
-
-```bash
-npx mikro-orm migration:create
-npx mikro-orm migration:up
-```
-
-## Performance Considerations
-
-- Indexes are created on `status` and `createdAt` for efficient outbox queries
-- Indexes are created on `processed` and `nextRetry` for inbox retry queries
-- Consider partitioning tables by date for high-volume workloads
-- Use connection pooling for optimal database performance
+- [Repository overview](../../README.md)
+- [Adapters](../../docs/adapters.md)
+- [Architecture](../../docs/architecture.md)
+- [Roadmap](../../docs/roadmap.md)
+- [ADRs](../../docs/adr/README.md)

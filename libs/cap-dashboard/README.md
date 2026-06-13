@@ -1,6 +1,37 @@
-# CAP Dashboard (scaffold)
+# @cap/cap-dashboard
 
-This library provides an admin dashboard for CAP (outbox/inbox management).
+Optional dashboard package for CAP outbox and inbox operations.
 
-This README is a scaffold. See `docs/cap-dashboard.md` in the repository for
-full documentation and usage examples.
+This package provides:
+
+- `CapDashboardModule`
+- REST endpoints for outbox and inbox inspection
+- manual retry and mark actions
+- a lightweight static UI
+- required guard integration for dashboard access
+
+## Usage Shape
+
+```ts
+import { CapDashboardModule } from '@cap/cap-dashboard';
+
+CapDashboardModule.forRoot({
+  guard: {
+    provide: 'CAP_DASHBOARD_GUARD',
+    useValue: { canActivate: () => true },
+  },
+  routePrefix: '/api/cap',
+  uiRoute: '/cap-dashboard',
+});
+```
+
+Replace the sample guard with a real authorization guard before exposing the
+dashboard.
+
+## Documentation
+
+- [Dashboard guide](../../docs/cap-dashboard.md)
+- [Repository overview](../../README.md)
+- [Architecture](../../docs/architecture.md)
+- [Roadmap](../../docs/roadmap.md)
+- [ADRs](../../docs/adr/README.md)

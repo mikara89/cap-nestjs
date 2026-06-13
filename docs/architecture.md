@@ -1,30 +1,124 @@
-# Architecture — CAP NestJS Library
+# Architecture
 
-Core concepts
+CAP provides reliable message publication and consumption for NestJS
+applications. It does this by persisting messages before transport work and by
+retrying failed outbox or inbox work through a scheduler.
 
-- Outbox / Inbox: messages are persisted before transport attempts. Outbox holds
-  pending publishes; inbox (received) stores deliveries for handler execution
-  and retries.
-- Transport abstraction: `IPublisher` and `ISubscriber` tokens decouple
-  transport implementation (Rabbit, Kafka, in-memory LocalBus).
-- Storage abstraction: `IPublishStorage` and `IReceivedStorage` tokens abstract
-  persistence for outbox/inbox.
-- Scheduler: cron-based retrying of outbox and inbox entries using exponential
-  backoff with jitter.
+## System Overview
 
-High-level flow
+```mermaid
+flowchart LR
+  App[Application services] --> CapService[CapService]
+  CapService --> Outbox[(Outbox storage)]
+  CapService --> Publisher[Publisher adapter]
+  Publisher --> Broker[Message broker]
+  Broker --> Subscriber[Subscriber adapter]
+  Subscriber --> Inbox[(Inbox storage)]
+  Inbox --> Handler[CapSubscribe handler]
+  Scheduler[Retry scheduler] --> Outbox
+  Scheduler --> Inbox
+  Dashboard[Dashboard module] --> Outbox
+  Dashboard --> Inbox
+```
 
-1. `CapService.publish()` persists a `CapPublishEvent` then attempts transport
-   via `IPublisher.emit()`.
-2. On success, storage is marked `published`; on failure, the outbox entry
-   remains to be retried by the scheduler.
-3. `ISubscriber.consume()` delivers inbound messages; handlers decorated with
-   `@CapSubscribe` get discovered by the scanner and executed. Failures schedule
-   retries on the `IReceivedStorage`.
+The core package owns orchestration and contracts. Storage and transport are
+provided through NestJS dependency injection tokens:
 
-Design notes
+- `PUBLISH_STORAGE` and `RECEIVED_STORAGE`
+- `PUBLISHER` and `SUBSCRIBER`
 
-- Symbol-based tokens are used for DI to enable adapter modules to wire in
-  provider implementations without direct coupling.
-- The scanner uses Nest `ModulesContainer` + `Reflector` to discover decorated
-  methods at startup and register them with `CapService`.
+First-party adapters currently exist for MikroORM storage and Azure Service Bus
+transport. Applications can provide different adapters by implementing the same
+interfaces.
+
+## Publish Flow
+
+```mermaid
+sequenceDiagram
+  participant App
+  participant CapService
+  participant Outbox
+  participant Publisher
+
+  App->>CapService: publish(topic, payload, headers?)
+  CapService->>Outbox: savePublish(event)
+  CapService->>Publisher: emit(topic, payload)
+  alt emit succeeds
+    CapService->>Outbox: markPublished(id)
+  else emit fails
+    CapService-->>Outbox: leave row unpublished
+  end
+```
+
+The outbox row is always written before an external emit is attempted. If the
+transport fails, the row remains eligible for scheduler retry.
+
+## Subscribe Flow
+
+```mermaid
+sequenceDiagram
+  participant Nest
+  participant Scanner
+  participant CapService
+  participant Subscriber
+  participant Inbox
+  participant Handler
+
+  Nest->>Scanner: onModuleInit
+  Scanner->>CapService: subscribe(topic, group, handler)
+  CapService->>Subscriber: consume(topic, group, callback)
+  Subscriber->>CapService: callback(payload)
+  CapService->>Inbox: saveReceived(event)
+  CapService->>Handler: invoke(payload, headers?)
+  alt handler succeeds
+    CapService->>Inbox: markProcessed(id)
+  else handler fails
+    CapService->>Inbox: scheduleRetry(id, retryCount, nextRetry)
+  end
+```
+
+`CapSubscriberScanner` scans Nest providers for `@CapSubscribe` metadata and
+registers handlers during module initialization. DTO validation is available
+through the `dto` option on `@CapSubscribe`.
+
+## Retry Scheduler
+
+The scheduler is registered by `CapModule` and performs two periodic jobs:
+
+- outbox flush every 30 seconds
+- inbox retry every minute
+
+Outbox retries read unpublished rows and emit them again. Inbox retries read
+due unprocessed rows and re-run the registered handler. Handler retry timing
+uses exponential backoff with jitter.
+
+## Transactions
+
+`CapService.publish(topic, payload, headers?, tx?)` supports optional
+transaction-aware behavior:
+
+- If storage implements `savePublishWithTx` and `tx` is provided, the outbox row
+  is persisted with that transaction/context.
+- If the publisher implements `emitWithTx`, CAP delegates to that method.
+- If `tx` is provided but the publisher is not transaction-aware, CAP leaves the
+  row unpublished so the scheduler can emit after commit.
+
+Recommended production behavior is deferred publication: persist the outbox row
+inside the same database transaction as the domain change, then emit after the
+transaction commits or let the scheduler flush the row.
+
+The helper `withTransactionAndPostCommit` exists for applications that want to
+queue post-commit sends without coupling the core package to a specific ORM.
+
+## Dashboard Role
+
+The dashboard package is optional. It reads the same storage contracts used by
+the scheduler and exposes REST endpoints plus a static UI for inspection and
+manual actions. It must be protected by an application-provided guard.
+
+Dashboard operation is part of MVP, but the current implementation still has
+documented gaps in [the roadmap](roadmap.md).
+
+## Decisions
+
+Durable architecture decisions are documented as ADRs in [docs/adr](adr/README.md).

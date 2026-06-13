@@ -1,18 +1,33 @@
-CAP NestJS Library Documentation
+# CAP Documentation
 
-This `docs/` folder contains developer-facing documentation for the CAP (Cloud
-Access Pattern) NestJS library maintained in `libs/cap-nest`.
+This folder is the developer documentation for CAP, a NestJS reliable messaging
+library built around outbox/inbox persistence, retry scheduling, and pluggable
+adapters.
 
-Files
+## Reading Path
 
-- `getting-started.md` — quick start and usage examples
-- `architecture.md` — high-level architecture and design patterns
-- `modules.md` — per-module overview (CapService, CapModule, Scheduler, Scanner)
-- `testing.md` — how tests are structured and test-helpers
-- `contributing.md` — coding, linting, and testing guidelines
-- `coverage.md` — focused coverage commands and recommendations
-- `adapters-plan.md` — implementation plan for MikroORM storage and Azure
-  Service Bus transport adapters
+1. [Getting started](getting-started.md) - smallest working setup and production
+   registration shape.
+2. [Architecture](architecture.md) - core flow, modules, transactions, and
+   diagrams.
+3. [Adapters](adapters.md) - storage and transport contracts plus the current
+   MikroORM and Azure Service Bus adapters.
+4. [Dashboard](cap-dashboard.md) - admin API and UI behavior.
+5. [Roadmap](roadmap.md) - MVP, Beta, v1, and Later stages.
+6. [ADRs](adr/README.md) - durable architecture decisions.
+7. [Contributing](contributing.md) - local workflow, tests, coverage, and docs
+   rules.
 
-If you'd like one of these expanded into a separate page or a README inside a
-subfolder, tell me which one and I'll expand it.
+## Current Maturity
+
+The repository is pre-MVP. The core publish/subscribe path exists, first-party
+MikroORM and Azure Service Bus adapters exist, and the dashboard package exists.
+The [roadmap](roadmap.md) tracks the remaining work required before the project
+can be considered MVP-ready.
+
+## Documentation Rules
+
+- Keep root `README.md` as the public entry point.
+- Keep package READMEs short and link back here for deeper guidance.
+- Add or update an ADR when a durable architecture decision changes.
+- Update the roadmap when work moves between MVP, Beta, v1, or Later.

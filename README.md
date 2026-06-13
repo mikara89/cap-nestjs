@@ -1,98 +1,86 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# CAP for NestJS
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+CAP is a NestJS library for reliable application messaging. It provides an
+outbox/inbox pattern, pluggable storage and transport adapters, retry scheduling,
+and an optional dashboard for inspecting and operating message state.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This repository is a monorepo that contains the core library, first-party
+adapters, a dashboard package, and a test application.
 
-## Description
+## Current Status
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The project is pre-MVP. The core messaging path is implemented and covered by
+tests, but a few MVP items remain before the packages should be treated as
+production-ready:
 
-## Project setup
+- remove and rotate the committed Azure Service Bus secret in the demo app
+- finish the dashboard scheduler flush action
+- add efficient dashboard list/find methods to the MikroORM adapter
+- decide whether the `CapHeaders` decorator feature belongs in MVP or post-MVP
+- clean tracked generated artifacts such as nested `node_modules` and
+  `tsbuildinfo` files
 
-```bash
-$ npm install
+## Packages
+
+- `@cap/cap-nest` - core NestJS module, abstractions, service, decorators,
+  scanner, scheduler, and in-memory mode.
+- `@cap/mikroorm-storage` - MikroORM storage adapter for outbox and inbox
+  records.
+- `@cap/azure-servicebus-transport` - Azure Service Bus transport adapter.
+- `@cap/cap-dashboard` - optional admin REST API and static dashboard UI.
+- `apps/cap-test-app` - demo and integration test application.
+
+## Quick Start
+
+Install dependencies:
+
+```powershell
+npm install
 ```
 
-## Compile and run the project
+Run tests:
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```powershell
+npm test
 ```
 
-## Run tests
+Build libraries and app:
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```powershell
+npm run build
 ```
 
-## Deployment
+Start the demo app:
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```powershell
+npm run start
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+For the smallest local setup, use the in-memory bundle:
 
-## Resources
+```ts
+import { Module } from '@nestjs/common';
+import { CapModule } from '@cap/cap-nest';
 
-Check out a few resources that may come in handy when working with NestJS:
+@Module({
+  imports: [CapModule.forInMemory()],
+})
+export class AppModule {}
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Documentation
 
-## Support
+- [Documentation index](docs/README.md)
+- [Getting started](docs/getting-started.md)
+- [Architecture](docs/architecture.md)
+- [Adapters](docs/adapters.md)
+- [Dashboard](docs/cap-dashboard.md)
+- [Roadmap](docs/roadmap.md)
+- [ADRs](docs/adr/README.md)
+- [Contributing](docs/contributing.md)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Architecture Decisions
 
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Durable architecture decisions are tracked as Architecture Decision Records in
+[`docs/adr`](docs/adr/README.md). Start there when changing core reliability,
+adapter boundaries, dashboard packaging, or transactional behavior.
