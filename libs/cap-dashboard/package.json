@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.lib.json && node -e \"require('fs').cpSync('src/public','dist/public',{recursive:true})\"",
-    "prepare": "npm run build",
+    "prepack": "npm run build",
     "test": "jest"
   },
   "peerDependencies": {

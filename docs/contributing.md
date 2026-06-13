@@ -58,9 +58,9 @@ Verify publish package contents:
 npm run pack:dry-run
 ```
 
-CI uses `npm ci --ignore-scripts` so workspace package `prepare` scripts do not
-build packages before internal CAP packages are available. Use the explicit
-build commands above after installation.
+CI uses `npm ci --ignore-scripts` so package lifecycle hooks never build
+workspaces during dependency installation. Publishable packages use `prepack`
+to build when package contents are verified or published.
 
 ## Coding Guidelines
 

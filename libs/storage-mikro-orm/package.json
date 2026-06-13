@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.lib.json",
-    "prepare": "npm run build",
+    "prepack": "npm run build",
     "test": "jest",
     "lint": "eslint \"src/**/*.ts\" --fix"
   },
