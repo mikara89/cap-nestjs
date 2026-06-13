@@ -17,8 +17,8 @@ on:
         required: true
         default: false
         type: boolean
-      publish_from_git:
-        description: 'Publish packages from existing Lerna tags without versioning'
+      publish_existing_versions:
+        description: 'Publish package.json versions without versioning'
         required: true
         default: false
         type: boolean
@@ -108,9 +108,9 @@ jobs:
       - name: Publish packages (Lerna)
         shell: bash
         run: |
-          if [ "${{ inputs.publish_from_git }}" = "true" ]; then
+          if [ "${{ inputs.publish_existing_versions }}" = "true" ]; then
             if [ "${{ inputs.graduate }}" = "true" ]; then
-              echo "publish_from_git cannot be combined with graduate." >&2
+              echo "publish_existing_versions cannot be combined with graduate." >&2
               exit 1
             fi
 
@@ -125,7 +125,7 @@ jobs:
               exit 1
             fi
 
-            npx lerna publish from-git --yes --registry "${NPM_REGISTRY_URL}" --dist-tag "${DIST_TAG}"
+            npx lerna publish from-package --yes --registry "${NPM_REGISTRY_URL}" --dist-tag "${DIST_TAG}"
             exit 0
           fi
 
