@@ -17,6 +17,11 @@ on:
         required: true
         default: false
         type: boolean
+      publish_from_git:
+        description: 'Publish packages from existing Lerna tags without versioning'
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -46,7 +51,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: ${{ secrets.NPM_REGISTRY_URL }}
           cache: 'npm'
 
       - name: Configure git
@@ -59,21 +63,30 @@ jobs:
         run: |
           REGISTRY_HOST_PATH="$(echo "${NPM_REGISTRY_URL}" | sed -E 's|https?://||')"
           REGISTRY_HOST_PATH="${REGISTRY_HOST_PATH%/}/"
+          FEED_HOST_PATH="${REGISTRY_HOST_PATH%registry/}"
+          NPM_AUTH_USERNAME="${NPM_USERNAME:-github-actions}"
+          NPM_AUTH_EMAIL="${NPM_EMAIL:-npm@example.com}"
 
           echo "registry=${NPM_REGISTRY_URL}" >> ~/.npmrc
+          echo "@cap:registry=${NPM_REGISTRY_URL}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
-          if [ -n "${NPM_TOKEN_BASE64}" ]; then
-            NPM_AUTH_USERNAME="${NPM_USERNAME:-github-actions}"
-            NPM_AUTH_EMAIL="${NPM_EMAIL:-npm@example.com}"
-            FEED_HOST_PATH="${REGISTRY_HOST_PATH%registry/}"
+          if [[ "${NPM_REGISTRY_URL}" == *"pkgs.visualstudio.com"* || "${NPM_REGISTRY_URL}" == *"pkgs.dev.azure.com"* ]]; then
+            if [ -n "${NPM_TOKEN_BASE64}" ]; then
+              AZURE_NPM_PASSWORD="${NPM_TOKEN_BASE64}"
+            elif [ -n "${NPM_TOKEN}" ]; then
+              AZURE_NPM_PASSWORD="$(printf "%s" "${NPM_TOKEN}" | base64 -w 0)"
+            else
+              echo "NPM_TOKEN or NPM_TOKEN_BASE64 must be configured." >&2
+              exit 1
+            fi
 
             {
               echo "//${REGISTRY_HOST_PATH}:username=${NPM_AUTH_USERNAME}"
-              echo "//${REGISTRY_HOST_PATH}:_password=${NPM_TOKEN_BASE64}"
+              echo "//${REGISTRY_HOST_PATH}:_password=${AZURE_NPM_PASSWORD}"
               echo "//${REGISTRY_HOST_PATH}:email=${NPM_AUTH_EMAIL}"
               echo "//${FEED_HOST_PATH}:username=${NPM_AUTH_USERNAME}"
-              echo "//${FEED_HOST_PATH}:_password=${NPM_TOKEN_BASE64}"
+              echo "//${FEED_HOST_PATH}:_password=${AZURE_NPM_PASSWORD}"
               echo "//${FEED_HOST_PATH}:email=${NPM_AUTH_EMAIL}"
             } >> ~/.npmrc
           elif [ -n "${NPM_TOKEN}" ]; then
@@ -95,6 +108,27 @@ jobs:
       - name: Publish packages (Lerna)
         shell: bash
         run: |
+          if [ "${{ inputs.publish_from_git }}" = "true" ]; then
+            if [ "${{ inputs.graduate }}" = "true" ]; then
+              echo "publish_from_git cannot be combined with graduate." >&2
+              exit 1
+            fi
+
+            if [ "${{ inputs.channel }}" = "stable" ]; then
+              DIST_TAG="latest"
+            elif [ "${{ inputs.channel }}" = "beta" ]; then
+              DIST_TAG="beta"
+            elif [ "${{ inputs.channel }}" = "rc" ]; then
+              DIST_TAG="rc"
+            else
+              echo "Unsupported release channel: ${{ inputs.channel }}" >&2
+              exit 1
+            fi
+
+            npx lerna publish from-git --yes --registry "${NPM_REGISTRY_URL}" --dist-tag "${DIST_TAG}"
+            exit 0
+          fi
+
           LERNA_ARGS=(
             "--conventional-commits"
             "--create-release"
