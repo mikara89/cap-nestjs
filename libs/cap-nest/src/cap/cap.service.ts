@@ -191,8 +191,8 @@ export class CapService {
     ): v is { payload: unknown; headers?: CapHeaders } {
       return Boolean(
         v &&
-          typeof v === 'object' &&
-          'payload' in (v as Record<string, unknown>),
+        typeof v === 'object' &&
+        'payload' in (v as Record<string, unknown>),
       );
     }
 

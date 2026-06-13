@@ -1,8 +1,4 @@
 import { Test } from '@nestjs/testing';
-import {
-  PostgreSqlContainer,
-  type StartedPostgreSqlContainer,
-} from 'testcontainers';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { MikroORM } from '@mikro-orm/core';
 import { type INestApplication } from '@nestjs/common';
@@ -16,17 +12,35 @@ import {
 } from '@cap/mikroorm-storage';
 import { PUBLISH_STORAGE, type IPublishStorage } from '@cap/cap-nest';
 
+type StoppableContainer = {
+  stop(): Promise<unknown>;
+};
+
 // start Postgres container
 async function startPostgres() {
-  const container: StartedPostgreSqlContainer =
-    await new PostgreSqlContainer().start();
+  const { GenericContainer, Wait } = await import('testcontainers');
+  const username = 'test';
+  const password = 'test';
+  const database = 'test';
+  const container = await new GenericContainer('postgres:16-alpine')
+    .withEnvironment({
+      POSTGRES_USER: username,
+      POSTGRES_PASSWORD: password,
+      POSTGRES_DB: database,
+    })
+    .withExposedPorts(5432)
+    .withWaitStrategy(
+      Wait.forLogMessage('database system is ready to accept connections'),
+    )
+    .start();
+
   return {
     container,
     host: container.getHost(),
     port: container.getMappedPort(5432),
-    username: container.getUsername(),
-    password: container.getPassword(),
-    database: container.getDatabase(),
+    username,
+    password,
+    database,
   };
 }
 
@@ -65,7 +79,7 @@ async function createAppWithMikro(opts: {
 }
 
 describe('Integration: withTransactionAndPostCommit (MikroORM + Postgres)', () => {
-  let pg: StartedPostgreSqlContainer | undefined;
+  let pg: StoppableContainer | undefined;
   let app: INestApplication | undefined;
   let orm: MikroORM | undefined;
   let skipReason: string | undefined;
