@@ -40,6 +40,12 @@ export class AppModule {}
 The sample guard is for tests and local demos only. Production apps must provide
 a real NestJS guard with authorization appropriate for admin actions.
 
+MVP must keep dashboard security application-owned. CAP should not prescribe a
+specific identity provider, session model, token format, or role system. The
+host application should be able to pass the NestJS guard or guard composition
+that authenticates incoming dashboard/API requests and authorizes the requested
+operation.
+
 ## Options
 
 - `routePrefix?: string` - REST endpoint base path. Default: `/api/cap`.
@@ -116,6 +122,10 @@ efficient behavior. The MikroORM adapter provides these helpers.
 ## Security Notes
 
 - `guard` is required by `CapDashboardModule.forRoot`.
-- Use a production-grade guard before exposing the dashboard.
+- Use a production-grade guard before exposing the dashboard. The guard should
+  authenticate the incoming request and authorize access according to the host
+  application's policy.
 - Treat retry and mark endpoints as privileged operations.
+- MVP should document and support a clear extension point for application-owned
+  dashboard auth/security.
 - Consider separate read-only and operator roles after MVP.

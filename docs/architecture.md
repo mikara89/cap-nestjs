@@ -4,6 +4,11 @@ CAP provides reliable message publication and consumption for NestJS
 applications. It does this by persisting messages before transport work and by
 retrying failed outbox or inbox work through a scheduler.
 
+CAP sits below application use cases and beside NestJS transport abstractions.
+It is not a replacement for `@nestjs/microservices`; instead, CAP owns durable
+message state while transport adapters decide how messages leave or enter the
+process.
+
 ## System Overview
 
 ```mermaid
@@ -28,8 +33,9 @@ provided through NestJS dependency injection tokens:
 - `PUBLISHER` and `SUBSCRIBER`
 
 First-party adapters currently exist for MikroORM storage and Azure Service Bus
-transport. Applications can provide different adapters by implementing the same
-interfaces.
+transport. MVP also targets a `@cap/nestjs-microservices-transport` adapter for
+publishing through existing NestJS `ClientProxy` registrations. Applications can
+provide different adapters by implementing the same interfaces.
 
 ## Publish Flow
 
@@ -114,7 +120,9 @@ queue post-commit sends without coupling the core package to a specific ORM.
 
 The dashboard package is optional. It reads the same storage contracts used by
 the scheduler and exposes REST endpoints plus a static UI for inspection and
-manual actions. It must be protected by an application-provided guard.
+manual actions. It must be protected by application-provided authentication and
+authorization, exposed through a NestJS guard supplied by the host application.
+CAP owns dashboard behavior; the application owns who may call it.
 
 Dashboard operation is part of MVP, but the current implementation still has
 documented gaps in [the roadmap](roadmap.md).

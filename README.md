@@ -1,8 +1,21 @@
 # CAP for NestJS
 
-CAP is a NestJS library for reliable application messaging. It provides an
+CAP is a NestJS reliability layer for application messaging. It provides an
 outbox/inbox pattern, pluggable storage and transport adapters, retry scheduling,
 and an optional dashboard for inspecting and operating message state.
+
+CAP does not replace NestJS or `@nestjs/microservices`. NestJS gives an
+application structure and transport APIs; `@nestjs/microservices` moves messages
+through brokers; CAP makes those message flows durable by persisting outbox and
+inbox records, retrying failures, and exposing operator visibility.
+
+```txt
+NestJS application code
+  -> CAP reliable publish / subscribe
+      -> outbox + inbox storage
+      -> transport adapter
+          -> Azure Service Bus or NestJS ClientProxy transport
+```
 
 This repository is a monorepo that contains the core library, first-party
 adapters, a dashboard package, and a test application.
@@ -24,6 +37,9 @@ production-ready:
 - `@cap/mikroorm-storage` - MikroORM storage adapter for outbox and inbox
   records.
 - `@cap/azure-servicebus-transport` - Azure Service Bus transport adapter.
+- `@cap/nestjs-microservices-transport` - planned transport adapter that
+  publishes through existing `@nestjs/microservices` `ClientProxy`
+  registrations.
 - `@cap/cap-dashboard` - optional admin REST API and static dashboard UI.
 - `apps/cap-test-app` - demo and integration test application.
 

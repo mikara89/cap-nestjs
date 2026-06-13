@@ -89,6 +89,27 @@ ServiceBusTransportModule.forRoot({
 
 Do not commit real connection strings.
 
+## Planned First-Party Transport: NestJS Microservices
+
+Package: `@cap/nestjs-microservices-transport`
+
+This MVP target will let applications reuse existing
+`@nestjs/microservices` `ClientProxy` registrations while CAP keeps durable
+outbox/inbox state, retries, and dashboard visibility.
+
+Intended role:
+
+- CAP persists the outbox row before publish.
+- CAP scheduler/retry logic decides when unpublished rows are retried.
+- The NestJS microservices adapter delegates the actual emit to a configured
+  `ClientProxy`.
+
+Important reliability note: `ClientProxy.emit()` semantics vary by broker and
+configuration. The adapter must document when an emit means "handed to the
+client library" versus "durably acknowledged by the broker." Broker-aware
+adapters such as Azure Service Bus can still offer stronger transport-specific
+behavior where needed.
+
 ## Initialization
 
 `CapModule` accepts optional initialization flags and forwards them to adapters
