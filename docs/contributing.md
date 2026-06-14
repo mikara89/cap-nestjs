@@ -36,8 +36,10 @@ npm run lint:check
 
 Fallow provides advisory repo health checks for architecture boundaries,
 dependency hygiene, dead code, duplication, and complexity. During the initial
-rollout, CI runs Fallow with `continue-on-error` so findings are visible without
-blocking releases.
+rollout, CI runs the changed-code audit with `continue-on-error` so findings are
+visible without blocking releases. CI also runs a health score gate that fails if
+the repo health score drops below `70`; existing complexity findings remain
+advisory until they are triaged.
 
 Run the changed-code audit:
 
@@ -49,6 +51,12 @@ Review package-level health, hotspots, and refactor targets:
 
 ```powershell
 npm run fallow:health
+```
+
+Run the same score threshold used by CI:
+
+```powershell
+npm run fallow:health:ci
 ```
 
 Review cleanup candidates:

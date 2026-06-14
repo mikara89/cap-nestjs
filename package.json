@@ -24,6 +24,7 @@
     "fallow": "fallow",
     "fallow:audit": "fallow audit",
     "fallow:health": "fallow health --score --hotspots --targets --group-by package",
+    "fallow:health:ci": "node tools/check-fallow-health-score.js 70",
     "fallow:dead-code": "fallow dead-code --group-by package",
     "fallow:dupes": "fallow dupes --group-by package",
     "fallow:ci": "fallow audit --format compact --gate all",

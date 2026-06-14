@@ -30,6 +30,8 @@ jobs:
       - name: Fallow audit
         run: npm run fallow:ci
         continue-on-error: true
+      - name: Fallow health gate
+        run: npm run fallow:health:ci
       - name: Build
         run: npm run build
       - name: Type-check `libs/cap-nest`
