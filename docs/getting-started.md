@@ -40,12 +40,19 @@ Handle messages with `@CapSubscribe`:
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { CapSubscribe } from '@cap/cap-nest';
+import {
+  CapHeaders as CapHeadersParam,
+  CapSubscribe,
+  type CapHeaders,
+} from '@cap/cap-nest';
 
 @Injectable()
 export class MailHandler {
   @CapSubscribe({ topic: 'user.created', group: 'mail-service' })
-  async handleUserCreated(payload: { id: string; email: string }) {
+  async handleUserCreated(
+    payload: { id: string; email: string },
+    @CapHeadersParam() headers?: CapHeaders,
+  ) {
     // send welcome email
   }
 }
@@ -111,6 +118,10 @@ import { CapDashboardModule } from '@cap/cap-dashboard';
         provide: 'CAP_DASHBOARD_GUARD',
         useValue: { canActivate: () => true },
       },
+      authorizer: {
+        provide: 'CAP_DASHBOARD_AUTHORIZER',
+        useValue: ({ permission }) => permission === 'read',
+      },
       routePrefix: '/api/cap',
       uiRoute: '/cap-dashboard',
     }),
@@ -119,5 +130,5 @@ import { CapDashboardModule } from '@cap/cap-dashboard';
 export class AppModule {}
 ```
 
-Replace the sample guard with a real authorization guard before exposing the
-dashboard outside local development.
+Replace the sample guard and authorizer with real application policy before
+exposing the dashboard outside local development.

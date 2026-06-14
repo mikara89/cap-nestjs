@@ -1,12 +1,15 @@
 name: Release
 
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       channel:
         description: 'Release channel'
         required: true
-        default: stable
+        default: beta
         type: choice
         options:
           - stable
@@ -107,21 +110,25 @@ jobs:
 
       - name: Publish packages (Lerna)
         shell: bash
+        env:
+          RELEASE_CHANNEL: ${{ github.event_name == 'push' && 'stable' || inputs.channel }}
+          RELEASE_GRADUATE: ${{ github.event_name == 'workflow_dispatch' && inputs.graduate || false }}
+          RELEASE_PUBLISH_EXISTING: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_existing_versions || false }}
         run: |
-          if [ "${{ inputs.publish_existing_versions }}" = "true" ]; then
-            if [ "${{ inputs.graduate }}" = "true" ]; then
+          if [ "${RELEASE_PUBLISH_EXISTING}" = "true" ]; then
+            if [ "${RELEASE_GRADUATE}" = "true" ]; then
               echo "publish_existing_versions cannot be combined with graduate." >&2
               exit 1
             fi
 
-            if [ "${{ inputs.channel }}" = "stable" ]; then
+            if [ "${RELEASE_CHANNEL}" = "stable" ]; then
               DIST_TAG="latest"
-            elif [ "${{ inputs.channel }}" = "beta" ]; then
+            elif [ "${RELEASE_CHANNEL}" = "beta" ]; then
               DIST_TAG="beta"
-            elif [ "${{ inputs.channel }}" = "rc" ]; then
+            elif [ "${RELEASE_CHANNEL}" = "rc" ]; then
               DIST_TAG="rc"
             else
-              echo "Unsupported release channel: ${{ inputs.channel }}" >&2
+              echo "Unsupported release channel: ${RELEASE_CHANNEL}" >&2
               exit 1
             fi
 
@@ -138,16 +145,16 @@ jobs:
             "${NPM_REGISTRY_URL}"
           )
 
-          if [ "${{ inputs.graduate }}" = "true" ]; then
+          if [ "${RELEASE_GRADUATE}" = "true" ]; then
             LERNA_ARGS+=("--conventional-graduate" "--dist-tag" "latest")
-          elif [ "${{ inputs.channel }}" = "stable" ]; then
+          elif [ "${RELEASE_CHANNEL}" = "stable" ]; then
             LERNA_ARGS+=("--dist-tag" "latest")
-          elif [ "${{ inputs.channel }}" = "beta" ]; then
+          elif [ "${RELEASE_CHANNEL}" = "beta" ]; then
             LERNA_ARGS+=("--conventional-prerelease" "--preid" "beta" "--dist-tag" "beta")
-          elif [ "${{ inputs.channel }}" = "rc" ]; then
+          elif [ "${RELEASE_CHANNEL}" = "rc" ]; then
             LERNA_ARGS+=("--conventional-prerelease" "--preid" "rc" "--dist-tag" "rc")
           else
-            echo "Unsupported release channel: ${{ inputs.channel }}" >&2
+            echo "Unsupported release channel: ${RELEASE_CHANNEL}" >&2
             exit 1
           fi
 

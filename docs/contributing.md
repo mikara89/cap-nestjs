@@ -46,6 +46,15 @@ Integration tests:
 npm run test:integration
 ```
 
+External Azure Service Bus integration gate:
+
+```powershell
+npm run test:integration:servicebus
+```
+
+This command fails if neither `SERVICEBUS_CONNECTION_STRING` nor an available
+emulator path can be used.
+
 Focused coverage for `cap-nest`:
 
 ```powershell

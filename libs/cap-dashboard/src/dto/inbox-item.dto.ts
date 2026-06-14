@@ -6,4 +6,5 @@ export class InboxItemDto {
   nextRetry?: Date;
   payloadPreview?: string;
   payload?: unknown;
+  headers?: unknown;
 }

@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.7.0-beta.0 (2026-06-14)
+
+### Features
+
+- add operation-aware dashboard authorization hooks
+- serve bundled dashboard UI through guarded CAP routes
+- preserve headers during dashboard retry and flush operations
+
 ## [0.6.1-beta.0](https://github.com/mikara89/cap-nestjs/compare/@cap/cap-dashboard@0.6.0...@cap/cap-dashboard@0.6.1-beta.0) (2026-06-13)
 
 ### Bug Fixes

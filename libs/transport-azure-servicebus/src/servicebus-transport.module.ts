@@ -38,7 +38,10 @@ export class ServiceBusTransportModule {
           provide: 'SERVICEBUS_CLIENT',
           useFactory: (): ServiceBusClient => {
             // In test runs, avoid opening real network connections — return a no-op/dummy client.
-            if (process.env.NODE_ENV === 'test') {
+            if (
+              process.env.NODE_ENV === 'test' &&
+              process.env.CAP_USE_REAL_SERVICEBUS_CLIENT !== 'true'
+            ) {
               const dummy = {
                 createReceiver: () => ({
                   subscribe: () => ({

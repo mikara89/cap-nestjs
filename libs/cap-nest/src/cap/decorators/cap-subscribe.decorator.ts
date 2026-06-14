@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { SetMetadata } from '@nestjs/common';
 import { type CapHeaders } from '../models/cap-headers.type';
+import { getCapHeadersParamIndex } from './cap-headers.decorator';
 
 /** ----------------------------------------------------------------
  *  Public decorator API
@@ -110,11 +111,21 @@ export function discoverSubscriptions(
 
     const opts = meta;
 
+    const headersParamIndex = getCapHeadersParamIndex(proto, key);
+
     const boundHandler = async (
       payload: unknown,
       headers?: CapHeaders,
-    ): Promise<unknown> =>
-      Promise.resolve(fn.call(instance, payload, headers) as unknown);
+    ): Promise<unknown> => {
+      if (headersParamIndex === undefined) {
+        return Promise.resolve(fn.call(instance, payload, headers) as unknown);
+      }
+
+      const args = new Array<unknown>(Math.max(headersParamIndex + 1, 1));
+      args[0] = payload;
+      args[headersParamIndex] = headers;
+      return Promise.resolve(fn.apply(instance, args) as unknown);
+    };
 
     subs.push({
       topic: opts.topic,

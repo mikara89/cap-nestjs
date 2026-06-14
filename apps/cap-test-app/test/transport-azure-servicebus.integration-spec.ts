@@ -127,6 +127,10 @@ describe('Integration: transport-azure-servicebus', () => {
         emulatorContainer = started.emulatorContainer ?? null;
         sqlEdgeContainer = started.sqlEdgeContainer ?? null;
       } catch (_err) {
+        if (process.env.CAP_SERVICEBUS_INTEGRATION_REQUIRED === 'true') {
+          throw _err;
+        }
+
         console.warn(
           'Service Bus emulator startup failed, skipping test:',
           _err?.message ?? _err,
@@ -197,9 +201,11 @@ describe('Integration: transport-azure-servicebus', () => {
     const subscriber = moduleRef.get<ISubscriber>(SUBSCRIBER);
 
     let received: unknown = null;
+    let receivedHeaders: unknown = null;
     const receivedPromise = new Promise<unknown>((resolve) => {
-      void subscriber.consume(topic, group, async (payload) => {
+      void subscriber.consume(topic, group, async (payload, headers) => {
         received = payload;
+        receivedHeaders = headers;
         resolve(payload);
         // include await so lint rule `require-await` is satisfied
         await Promise.resolve();
@@ -207,7 +213,8 @@ describe('Integration: transport-azure-servicebus', () => {
     });
 
     const payload = { hello: 'service-bus', ts: Date.now() };
-    await publisher.emit(topic, payload);
+    const headers = { traceId: `trace-${uuid().slice(0, 8)}` };
+    await publisher.emit(topic, payload, headers);
 
     const result = await Promise.race([
       receivedPromise,
@@ -218,6 +225,7 @@ describe('Integration: transport-azure-servicebus', () => {
 
     expect(result).toBeTruthy();
     expect(received).toMatchObject(payload);
+    expect(receivedHeaders).toMatchObject(headers);
 
     // cleanup
     await app.close();

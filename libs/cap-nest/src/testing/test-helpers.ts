@@ -9,18 +9,23 @@ import {
 } from '../cap/abstractions/storage.interface';
 import { type CapPublishEvent } from '../cap/models/cap-publish-event';
 import { type CapReceivedEvent } from '../cap/models/cap-received-event';
+import { type CapHeaders } from '../cap/models/cap-headers.type';
 
 // Typed in-memory spy implementations for tests
 export function createInMemoryPublisher(): IPublisher & {
-  emitted: Array<{ topic: string; payload: unknown }>;
+  emitted: Array<{ topic: string; payload: unknown; headers?: CapHeaders }>;
 } {
-  const emitted: Array<{ topic: string; payload: unknown }> = [];
+  const emitted: Array<{
+    topic: string;
+    payload: unknown;
+    headers?: CapHeaders;
+  }> = [];
   const pub: IPublisher & {
-    emitted: Array<{ topic: string; payload: unknown }>;
+    emitted: Array<{ topic: string; payload: unknown; headers?: CapHeaders }>;
   } = {
     emitted,
-    emit(topic: string, payload: unknown) {
-      emitted.push({ topic, payload });
+    emit(topic: string, payload: unknown, headers?: CapHeaders) {
+      emitted.push({ topic, payload, headers });
       return Promise.resolve();
     },
   };
@@ -28,17 +33,20 @@ export function createInMemoryPublisher(): IPublisher & {
 }
 
 export function createInMemorySubscriber(): ISubscriber & {
-  listeners: Map<string, Set<(p: unknown) => Promise<void>>>;
+  listeners: Map<string, Set<(p: unknown, h?: CapHeaders) => Promise<void>>>;
 } {
-  const listeners = new Map<string, Set<(p: unknown) => Promise<void>>>();
+  const listeners = new Map<
+    string,
+    Set<(p: unknown, h?: CapHeaders) => Promise<void>>
+  >();
   const sub: ISubscriber & {
-    listeners: Map<string, Set<(p: unknown) => Promise<void>>>;
+    listeners: Map<string, Set<(p: unknown, h?: CapHeaders) => Promise<void>>>;
   } = {
     listeners,
     consume(
       topic: string,
       _group: string,
-      onMessage: (payload: unknown) => Promise<void>,
+      onMessage: (payload: unknown, headers?: CapHeaders) => Promise<void>,
     ) {
       if (!listeners.has(topic)) listeners.set(topic, new Set());
       const topicListeners = listeners.get(topic);

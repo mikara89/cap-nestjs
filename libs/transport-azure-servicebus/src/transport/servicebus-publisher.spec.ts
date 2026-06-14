@@ -48,6 +48,18 @@ describe('ServiceBusPublisher', () => {
       );
     });
 
+    it('should send headers as Service Bus application properties', async () => {
+      const headers = { traceId: 'abc', attempt: 1 };
+
+      await publisher.emit('user.created', { userId: 123 }, headers);
+
+      expect(mockSender.sendMessages).toHaveBeenCalledWith(
+        expect.objectContaining({
+          applicationProperties: headers,
+        }),
+      );
+    });
+
     it('should cache sender instances per topic', async () => {
       await publisher.emit('topic-a', {});
       await publisher.emit('topic-a', {});

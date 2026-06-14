@@ -30,12 +30,21 @@ describe('RetrySchedulerService', () => {
   });
 
   it('flushOutbox publishes unpublished messages and marks published', async () => {
-    const evt = { id: '1', topic: 't', payload: { a: 1 } } as any;
+    const evt = {
+      id: '1',
+      topic: 't',
+      payload: { a: 1 },
+      headers: { traceId: 'abc' },
+    } as any;
     (pubStore.getUnpublished as jest.Mock).mockResolvedValueOnce([evt]);
 
     await svc.flushOutbox();
 
-    expect(publisher.emit).toHaveBeenCalledWith('t', { a: 1 });
+    expect(publisher.emit).toHaveBeenCalledWith(
+      't',
+      { a: 1 },
+      { traceId: 'abc' },
+    );
     expect(pubStore.markPublished).toHaveBeenCalledWith('1');
   });
 

@@ -22,13 +22,10 @@ adapters, a dashboard package, and a test application.
 
 ## Current Status
 
-The project is pre-MVP. The core messaging path is implemented and covered by
-tests, but a few MVP items remain before the packages should be treated as
-production-ready:
-
-- decide whether the `CapHeaders` decorator feature belongs in MVP or post-MVP
-- harden external Azure Service Bus integration coverage
-- finish release/version policy for the first public MVP package set
+The project targets the first public MVP package set on the `0.7.0-beta.0`
+line. The core messaging path, first-party adapters, dashboard auth extension
+points, header propagation, and release workflow are implemented for beta/rc
+validation before stable graduation.
 
 ## Packages
 
@@ -37,9 +34,9 @@ production-ready:
 - `@cap/mikroorm-storage` - MikroORM storage adapter for outbox and inbox
   records.
 - `@cap/azure-servicebus-transport` - Azure Service Bus transport adapter.
-- `@cap/nestjs-microservices-transport` - planned transport adapter that
-  publishes through existing `@nestjs/microservices` `ClientProxy`
-  registrations.
+- `@cap/nestjs-microservices-transport` - transport adapter that publishes
+  through existing `@nestjs/microservices` `ClientProxy` registrations and
+  exposes an inbound bridge for application-owned `@EventPattern` handlers.
 - `@cap/cap-dashboard` - optional admin REST API and static dashboard UI.
 - `apps/cap-test-app` - demo and integration test application.
 

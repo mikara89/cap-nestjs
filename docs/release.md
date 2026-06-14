@@ -1,7 +1,8 @@
 # Release Checklist
 
 Releases are manual or tag-triggered. CI validates the repository; the release
-workflow is the only workflow that publishes packages.
+workflow is the only workflow that publishes packages. The first MVP package
+set should be published as beta or rc before stable graduation.
 
 ## Before Release
 
@@ -17,6 +18,13 @@ npm run test:e2e
 npm run pack:dry-run
 ```
 
+- Run the external Azure Service Bus gate when a real namespace or emulator is
+  available:
+
+```powershell
+npm run test:integration:servicebus
+```
+
 - Review package dry-run output and confirm each package includes only expected
   files.
 - Confirm dashboard package output includes `dist/public/index.html`,
@@ -29,6 +37,9 @@ Use one release path only:
 
 - push a version tag matching `v*`, or
 - run the Release workflow manually from GitHub Actions
+
+Manual releases support `beta`, `rc`, and `stable` channels. `v*` tags publish
+as stable. Use `graduate` only when promoting existing prereleases to stable.
 
 The release workflow:
 

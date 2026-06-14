@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy, Inject } from '@nestjs/common';
 import { ServiceBusClient, ServiceBusSender } from '@azure/service-bus';
-import { IPublisher } from '@cap/cap-nest';
+import { IPublisher, type CapHeaders } from '@cap/cap-nest';
 import { ServiceBusConfig } from '../servicebus.config';
 
 /**
@@ -45,7 +45,12 @@ export class ServiceBusPublisher implements IPublisher, OnModuleDestroy {
     }
   }
 
-  async emit(topic: string, payload: unknown, _tx?: unknown): Promise<void> {
+  async emit(
+    topic: string,
+    payload: unknown,
+    headers?: CapHeaders,
+    _tx?: unknown,
+  ): Promise<void> {
     const prefix =
       this.config.mode === 'queue'
         ? (this.config.queuePrefix ?? this.config.topicPrefix ?? '')
@@ -62,6 +67,7 @@ export class ServiceBusPublisher implements IPublisher, OnModuleDestroy {
       await sender.sendMessages({
         body: payload,
         contentType: 'application/json',
+        applicationProperties: headers,
       });
       this.logger.debug(`✓ sent to ${topicName}`);
     } catch (error) {

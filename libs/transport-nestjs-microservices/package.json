@@ -1,7 +1,7 @@
 {
-  "name": "@cap/azure-servicebus-transport",
+  "name": "@cap/nestjs-microservices-transport",
   "version": "0.7.0-beta.0",
-  "description": "Azure Service Bus transport adapter for CAP NestJS library",
+  "description": "NestJS ClientProxy transport adapter for CAP NestJS library",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -15,14 +15,13 @@
     "test": "jest",
     "lint": "eslint \"src/**/*.ts\" --fix"
   },
-  "dependencies": {
-    "@azure/service-bus": "^7.9.0"
-  },
   "peerDependencies": {
     "@cap/cap-nest": "^0.7.0-beta.0",
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
-    "reflect-metadata": "^0.2.0"
+    "@nestjs/microservices": "^11.0.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.0"
   },
   "devDependencies": {
     "@cap/cap-nest": "file:../cap-nest",

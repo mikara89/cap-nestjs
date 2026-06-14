@@ -11,7 +11,7 @@ adapters.
 2. [Architecture](architecture.md) - core flow, modules, transactions, and
    diagrams.
 3. [Adapters](adapters.md) - storage and transport contracts plus the current
-   MikroORM and Azure Service Bus adapters.
+   MikroORM, Azure Service Bus, and NestJS microservices adapters.
 4. [Dashboard](cap-dashboard.md) - admin API and UI behavior.
 5. [Roadmap](roadmap.md) - MVP, Beta, v1, and Later stages.
 6. [Release checklist](release.md) - validation and publishing safety.
@@ -21,10 +21,10 @@ adapters.
 
 ## Current Maturity
 
-The repository is pre-MVP. The core publish/subscribe path exists, first-party
-MikroORM and Azure Service Bus adapters exist, and the dashboard package exists.
-The [roadmap](roadmap.md) tracks remaining hardening work before the project can
-be considered MVP-ready.
+The repository is on the MVP beta track. The core publish/subscribe path,
+first-party adapters, dashboard package, header propagation, and beta release
+workflow are in place. The [roadmap](roadmap.md) tracks remaining maturity work
+for Beta, v1, and Later stages.
 
 ## Documentation Rules
 

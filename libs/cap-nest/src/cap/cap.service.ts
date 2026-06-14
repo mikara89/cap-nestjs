@@ -108,6 +108,7 @@ export class CapService {
           await (this.publisher as ITransactionalPublisher).emitWithTx(
             topic,
             payload,
+            headers,
             tx,
           );
           await this.pubStore.markPublished(dbId);
@@ -122,7 +123,7 @@ export class CapService {
           );
         }
       } else {
-        await this.publisher.emit(topic, payload);
+        await this.publisher.emit(topic, payload, headers);
         await this.pubStore.markPublished(dbId);
         this.log.debug(`✓ published #${dbId} ${topic}`);
       }
@@ -141,8 +142,13 @@ export class CapService {
     this.registerHandler(topic, group, handler as Handler<unknown>);
 
     this.subscriber
-      .consume(topic, group, async (msg) => {
-        const rec = await this.persistReceived<T>(topic, group, msg as T);
+      .consume(topic, group, async (msg, headers) => {
+        const rec = await this.persistReceived<T>(
+          topic,
+          group,
+          msg as T,
+          headers,
+        );
         await this.tryHandle<T>(rec, handler);
       })
       .catch((err) =>
@@ -187,6 +193,7 @@ export class CapService {
     topic: string,
     group: string,
     payload: T,
+    headers?: CapHeaders,
   ): Promise<CapReceivedEvent<T>> {
     function isWrapped(
       v: unknown,
@@ -199,9 +206,9 @@ export class CapService {
     }
 
     let realPayload: unknown = payload;
-    let inferredHeaders: CapHeaders | undefined = undefined;
+    let inferredHeaders: CapHeaders | undefined = headers;
 
-    if (isWrapped(payload)) {
+    if (!inferredHeaders && isWrapped(payload)) {
       realPayload = (payload as { payload: unknown }).payload;
       inferredHeaders = (payload as { headers?: CapHeaders }).headers;
     }

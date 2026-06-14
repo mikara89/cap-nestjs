@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.7.0-beta.0 (2026-06-14)
+
+### Features
+
+- propagate CAP headers through Service Bus application properties
+- apply configured `maxConcurrentCalls` to receivers
+- add explicit external Service Bus integration gate support
+
 ## [0.5.1-beta.0](https://github.com/mikara89/cap-nestjs/compare/@cap/azure-servicebus-transport@0.5.0...@cap/azure-servicebus-transport@0.5.1-beta.0) (2026-06-13)
 
 ### Bug Fixes

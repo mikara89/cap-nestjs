@@ -119,7 +119,7 @@ export class CapDashboardService {
       }
 
       // attempt emit
-      await this.publisher.emit(rec.topic, rec.payload);
+      await this.publisher.emit(rec.topic, rec.payload, rec.headers);
 
       // mark published on success
       await this.pubStorage.markPublished(id);
@@ -261,7 +261,7 @@ export class CapDashboardService {
 
       for (const rec of rows) {
         try {
-          await this.publisher.emit(rec.topic, rec.payload);
+          await this.publisher.emit(rec.topic, rec.payload, rec.headers);
           await this.pubStorage.markPublished(rec.id);
           published++;
         } catch (err) {
@@ -296,6 +296,7 @@ function mapPublishToOutboxDto(
         ? String(JSON.stringify(evt.payload)).slice(0, 300)
         : undefined,
     payload: full ? evt.payload : undefined,
+    headers: full ? evt.headers : undefined,
   };
 }
 
@@ -314,6 +315,7 @@ function mapReceivedToInboxDto(
         ? String(JSON.stringify(evt.payload)).slice(0, 300)
         : undefined,
     payload: full ? evt.payload : undefined,
+    headers: full ? evt.headers : undefined,
   };
 }
 

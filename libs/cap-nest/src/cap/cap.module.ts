@@ -29,6 +29,7 @@ import {
   IPublisher,
   ISubscriber,
 } from './abstractions/transport.interface';
+import type { CapHeaders } from './models/cap-headers.type';
 import type { InitOptions } from './abstractions/initializer.interface';
 import { CapPublishEvent } from './models/cap-publish-event';
 import { AdaptersModule } from './adapters.module';
@@ -419,13 +420,18 @@ export class CapModule {
 export class LocalBus implements IPublisher, ISubscriber {
   private readonly listeners = new Map<
     string,
-    Set<(p: unknown) => Promise<void>>
+    Set<(p: unknown, h?: CapHeaders) => Promise<void>>
   >();
 
-  async emit(topic: string, payload: unknown, _tx?: unknown): Promise<void> {
+  async emit(
+    topic: string,
+    payload: unknown,
+    headers?: CapHeaders,
+    _tx?: unknown,
+  ): Promise<void> {
     const handlers = this.listeners.get(topic);
     if (handlers && handlers.size > 0) {
-      await Promise.all(Array.from(handlers).map((fn) => fn(payload)));
+      await Promise.all(Array.from(handlers).map((fn) => fn(payload, headers)));
     }
     return Promise.resolve();
   }
@@ -433,7 +439,7 @@ export class LocalBus implements IPublisher, ISubscriber {
   async consume(
     topic: string,
     _group: string,
-    on: (payload: unknown) => Promise<void>,
+    on: (payload: unknown, headers?: CapHeaders) => Promise<void>,
   ): Promise<void> {
     if (!this.listeners.has(topic)) this.listeners.set(topic, new Set());
 

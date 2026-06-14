@@ -1,11 +1,15 @@
 import { Test } from '@nestjs/testing';
 import { CapModule } from '@cap/cap-nest';
 import { CapDashboardModule } from '../src/cap-dashboard.module';
+import { CapDashboardController } from '../src/cap-dashboard.controller';
+import { CapDashboardAssetsController } from '../src/cap-dashboard-assets.controller';
 import { CapDashboardService } from '../src/cap-dashboard.service';
+import { CapDashboardGuard } from '../src/guards/cap-dashboard.guard';
 import { PUBLISH_STORAGE, RECEIVED_STORAGE } from '@cap/cap-nest';
 import type { IPublishStorage, IReceivedStorage } from '@cap/cap-nest';
 import type { CapPublishEvent } from '@cap/cap-nest';
 import type { CapReceivedEvent } from '@cap/cap-nest';
+import { Reflector } from '@nestjs/core';
 
 describe('CapDashboard integration (in-memory)', () => {
   let moduleRef: any;
@@ -44,6 +48,7 @@ describe('CapDashboard integration (in-memory)', () => {
       topic: 'user.created',
       occurredAt: new Date().toISOString(),
       payload: { name: 'Alice' },
+      headers: { traceId: 'trace-1' },
       retryCount: 0,
     };
 
@@ -66,6 +71,7 @@ describe('CapDashboard integration (in-memory)', () => {
     const found = await svc.getOutboxById('p-1', true);
     expect(found).toBeDefined();
     expect(found?.id).toBe('p-1');
+    expect(found?.headers).toEqual({ traceId: 'trace-1' });
   });
 
   it('lists inbox due items and can get by id', async () => {
@@ -75,6 +81,7 @@ describe('CapDashboard integration (in-memory)', () => {
       group: 'default',
       occurredAt: new Date().toISOString(),
       payload: { name: 'Bob' },
+      headers: { traceId: 'trace-2' },
       retryCount: 1,
       processed: false,
       nextRetry: new Date(Date.now() - 1000),
@@ -88,6 +95,7 @@ describe('CapDashboard integration (in-memory)', () => {
     const item = await svc.getInboxById('r-1', true);
     expect(item).toBeDefined();
     expect(item?.id).toBe('r-1');
+    expect(item?.headers).toEqual({ traceId: 'trace-2' });
   });
 
   it('retryOutbox emits and marks published', async () => {
@@ -96,6 +104,7 @@ describe('CapDashboard integration (in-memory)', () => {
       topic: 'test.retry',
       occurredAt: new Date().toISOString(),
       payload: { foo: 'bar' },
+      headers: { traceId: 'retry' },
       retryCount: 0,
     };
     await pubStore.savePublish(evt);
@@ -124,4 +133,56 @@ describe('CapDashboard integration (in-memory)', () => {
     const res = await svc.retryInbox('r-retry');
     expect(res.success).toBeTruthy();
   });
+
+  it('allows read routes and denies admin routes through the policy hook', async () => {
+    const guard = new CapDashboardGuard(
+      new Reflector(),
+      { canActivate: () => true },
+      (context) => context.permission === 'read',
+    );
+
+    await expect(
+      guard.canActivate(
+        createExecutionContext(
+          // eslint-disable-next-line @typescript-eslint/unbound-method
+          CapDashboardController.prototype.listOutbox,
+          CapDashboardController,
+        ),
+      ),
+    ).resolves.toBe(true);
+
+    await expect(
+      guard.canActivate(
+        createExecutionContext(
+          // eslint-disable-next-line @typescript-eslint/unbound-method
+          CapDashboardAssetsController.prototype.getIndex,
+          CapDashboardAssetsController,
+        ),
+      ),
+    ).resolves.toBe(true);
+
+    await expect(
+      guard.canActivate(
+        createExecutionContext(
+          // eslint-disable-next-line @typescript-eslint/unbound-method
+          CapDashboardController.prototype.flushOutbox,
+          CapDashboardController,
+        ),
+      ),
+    ).resolves.toBe(false);
+  });
 });
+
+function createExecutionContext(
+  handler: (...args: never[]) => unknown,
+  controller: new (...args: never[]) => unknown,
+): any {
+  const request: Record<string, unknown> = {};
+  return {
+    getHandler: () => handler,
+    getClass: () => controller,
+    switchToHttp: () => ({
+      getRequest: () => request,
+    }),
+  };
+}

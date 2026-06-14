@@ -28,6 +28,10 @@ import { CapDashboardModule } from '@cap/cap-dashboard';
         provide: 'CAP_DASHBOARD_GUARD',
         useValue: { canActivate: () => true },
       },
+      authorizer: {
+        provide: 'CAP_DASHBOARD_AUTHORIZER',
+        useValue: ({ permission }) => permission === 'read',
+      },
       routePrefix: '/api/cap',
       uiRoute: '/cap-dashboard',
       serveStatic: true,
@@ -37,19 +41,20 @@ import { CapDashboardModule } from '@cap/cap-dashboard';
 export class AppModule {}
 ```
 
-The sample guard is for tests and local demos only. Production apps must provide
-a real NestJS guard with authorization appropriate for admin actions.
+The sample guard and authorizer are for tests and local demos only. Production
+apps must provide real NestJS authentication and authorization appropriate for
+admin actions.
 
 MVP must keep dashboard security application-owned. CAP should not prescribe a
 specific identity provider, session model, token format, or role system. The
-host application should be able to pass the NestJS guard or guard composition
-that authenticates incoming dashboard/API requests and authorizes the requested
-operation.
+host application can pass a NestJS guard for authentication and an optional
+operation-aware authorizer for read/admin policy.
 
 ## Options
 
 - `routePrefix?: string` - REST endpoint base path. Default: `/api/cap`.
 - `guard: Provider` - required guard provider for all dashboard routes.
+- `authorizer?: Provider` - optional operation-aware read/admin policy hook.
 - `pageSizeDefault?: number` - default page size for list responses.
 - `serveStatic?: boolean` - serve bundled static UI. Default: `true`.
 - `staticAssetsPath?: string` - custom UI assets directory.
@@ -81,7 +86,7 @@ All endpoints are mounted under `routePrefix`.
 
 ### Scheduler
 
-- `POST /scheduler/flush-outbox` - planned MVP endpoint for manual outbox flush.
+- `POST /scheduler/flush-outbox` - manual outbox flush.
   Publishes currently unpublished outbox records with scheduler-like semantics.
 
 ## Response Shapes
@@ -99,7 +104,7 @@ List responses:
 
 Item responses include stable preview fields such as `id`, `topic`,
 `retryCount`, status/processed flags, dates, and `payloadPreview`. Full payloads
-should only be requested for detail views by passing `full=true`.
+and headers should only be requested for detail views by passing `full=true`.
 
 ## Storage Expectations
 
@@ -122,10 +127,11 @@ efficient behavior. The MikroORM adapter provides these helpers.
 ## Security Notes
 
 - `guard` is required by `CapDashboardModule.forRoot`.
+- The bundled dashboard UI is served through guarded CAP routes.
 - Use a production-grade guard before exposing the dashboard. The guard should
   authenticate the incoming request and authorize access according to the host
   application's policy.
+- The optional authorizer receives `{ action, permission, request,
+  executionContext }`. Read routes use `permission: 'read'`; retry, mark, and
+  flush routes use `permission: 'admin'`.
 - Treat retry and mark endpoints as privileged operations.
-- MVP should document and support a clear extension point for application-owned
-  dashboard auth/security.
-- Consider separate read-only and operator roles after MVP.

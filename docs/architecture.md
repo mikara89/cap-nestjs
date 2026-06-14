@@ -32,9 +32,8 @@ provided through NestJS dependency injection tokens:
 - `PUBLISH_STORAGE` and `RECEIVED_STORAGE`
 - `PUBLISHER` and `SUBSCRIBER`
 
-First-party adapters currently exist for MikroORM storage and Azure Service Bus
-transport. MVP also targets a `@cap/nestjs-microservices-transport` adapter for
-publishing through existing NestJS `ClientProxy` registrations. Applications can
+First-party adapters currently exist for MikroORM storage, Azure Service Bus
+transport, and NestJS microservices `ClientProxy` transport. Applications can
 provide different adapters by implementing the same interfaces.
 
 ## Publish Flow
@@ -48,7 +47,7 @@ sequenceDiagram
 
   App->>CapService: publish(topic, payload, headers?)
   CapService->>Outbox: savePublish(event)
-  CapService->>Publisher: emit(topic, payload)
+  CapService->>Publisher: emit(topic, payload, headers?)
   alt emit succeeds
     CapService->>Outbox: markPublished(id)
   else emit fails
@@ -73,7 +72,7 @@ sequenceDiagram
   Nest->>Scanner: onModuleInit
   Scanner->>CapService: subscribe(topic, group, handler)
   CapService->>Subscriber: consume(topic, group, callback)
-  Subscriber->>CapService: callback(payload)
+  Subscriber->>CapService: callback(payload, headers?)
   CapService->>Inbox: saveReceived(event)
   CapService->>Handler: invoke(payload, headers?)
   alt handler succeeds
@@ -86,6 +85,9 @@ sequenceDiagram
 `CapSubscriberScanner` scans Nest providers for `@CapSubscribe` metadata and
 registers handlers during module initialization. DTO validation is available
 through the `dto` option on `@CapSubscribe`.
+
+Handlers receive headers either as the second argument or through the
+`@CapHeaders()` parameter decorator.
 
 ## Retry Scheduler
 
@@ -105,7 +107,8 @@ transaction-aware behavior:
 
 - If storage implements `savePublishWithTx` and `tx` is provided, the outbox row
   is persisted with that transaction/context.
-- If the publisher implements `emitWithTx`, CAP delegates to that method.
+- If the publisher implements `emitWithTx`, CAP delegates to that method with
+  payload and headers.
 - If `tx` is provided but the publisher is not transaction-aware, CAP leaves the
   row unpublished so the scheduler can emit after commit.
 
@@ -121,11 +124,9 @@ queue post-commit sends without coupling the core package to a specific ORM.
 The dashboard package is optional. It reads the same storage contracts used by
 the scheduler and exposes REST endpoints plus a static UI for inspection and
 manual actions. It must be protected by application-provided authentication and
-authorization, exposed through a NestJS guard supplied by the host application.
-CAP owns dashboard behavior; the application owns who may call it.
-
-Dashboard operation is part of MVP, but the current implementation still has
-documented gaps in [the roadmap](roadmap.md).
+authorization. A required NestJS guard authenticates requests, and an optional
+operation-aware authorizer can separate read and admin permissions. CAP owns
+dashboard behavior; the application owns who may call it.
 
 ## Decisions
 

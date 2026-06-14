@@ -59,7 +59,7 @@ export class RetrySchedulerService implements OnModuleDestroy {
 
     for (const evt of batch) {
       try {
-        await this.publisher.emit(evt.topic, evt.payload);
+        await this.publisher.emit(evt.topic, evt.payload, evt.headers);
         await this.pubStore.markPublished(evt.id);
         this.log.debug(`✓ outbox #${evt.id} published`);
       } catch (err) {

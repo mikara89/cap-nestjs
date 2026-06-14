@@ -42,16 +42,19 @@ expose Nest providers for those tokens.
 
 `IPublisher` emits messages to a broker:
 
-- `emit(topic, payload, tx?)`
+- `emit(topic, payload, headers?, tx?)`
 - optional `initialize(options)`
 
 `ISubscriber` attaches consumers:
 
-- `consume(topic, group, onMessage)`
+- `consume(topic, group, onMessage(payload, headers?))`
 - optional `initialize(options)`
 
 Transports that can coordinate with a transaction may also implement
-`emitWithTx(topic, payload, tx)`.
+`emitWithTx(topic, payload, headers, tx)`.
+
+Headers are CAP transport metadata. First-party transports preserve primitive
+header values: `string`, `number`, `boolean`, and `Date`.
 
 ## First-Party Storage: MikroORM
 
@@ -89,12 +92,12 @@ ServiceBusTransportModule.forRoot({
 
 Do not commit real connection strings.
 
-## Planned First-Party Transport: NestJS Microservices
+## First-Party Transport: NestJS Microservices
 
 Package: `@cap/nestjs-microservices-transport`
 
-This MVP target will let applications reuse existing
-`@nestjs/microservices` `ClientProxy` registrations while CAP keeps durable
+This adapter lets applications reuse existing `@nestjs/microservices`
+`ClientProxy` registrations while CAP keeps durable
 outbox/inbox state, retries, and dashboard visibility.
 
 Intended role:
@@ -103,12 +106,13 @@ Intended role:
 - CAP scheduler/retry logic decides when unpublished rows are retried.
 - The NestJS microservices adapter delegates the actual emit to a configured
   `ClientProxy`.
+- Inbound messages are bridged by application-owned `@EventPattern` handlers
+  calling `CapMicroservicesBridge.dispatch(topic, group, message)`.
 
 Important reliability note: `ClientProxy.emit()` semantics vary by broker and
-configuration. The adapter must document when an emit means "handed to the
-client library" versus "durably acknowledged by the broker." Broker-aware
-adapters such as Azure Service Bus can still offer stronger transport-specific
-behavior where needed.
+configuration. CAP treats completion as client-library acceptance, not a
+portable durable broker acknowledgment. Broker-aware adapters such as Azure
+Service Bus can offer stronger transport-specific behavior where needed.
 
 ## Initialization
 

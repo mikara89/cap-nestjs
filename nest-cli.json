@@ -35,6 +35,15 @@
         "tsConfigPath": "libs/transport-azure-servicebus/tsconfig.lib.json"
       }
     },
+    "transport-nestjs-microservices": {
+      "type": "library",
+      "root": "libs/transport-nestjs-microservices",
+      "entryFile": "index",
+      "sourceRoot": "libs/transport-nestjs-microservices/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/transport-nestjs-microservices/tsconfig.lib.json"
+      }
+    },
     "cap-dashboard": {
       "type": "library",
       "root": "libs/cap-dashboard",

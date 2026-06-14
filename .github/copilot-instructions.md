@@ -5,7 +5,7 @@
 CAP is a NestJS reliable messaging library. The core package orchestrates
 outbox/inbox persistence, transport emission, handler discovery, and retry
 scheduling. First-party packages provide MikroORM storage, Azure Service Bus
-transport, and an optional dashboard.
+transport, NestJS microservices transport, and an optional dashboard.
 
 ## Monorepo Structure
 
@@ -14,6 +14,7 @@ libs/
   cap-nest/                    # Core library and public API
   storage-mikro-orm/           # MikroORM storage adapter
   transport-azure-servicebus/  # Azure Service Bus transport adapter
+  transport-nestjs-microservices/ # NestJS ClientProxy transport adapter
   cap-dashboard/               # Optional dashboard REST API and UI
 apps/
   cap-test-app/                # Local smoke app and e2e test host
@@ -35,7 +36,7 @@ docs/
 
 1. `CapService.publish(topic, payload, headers?)`
 2. `IPublishStorage.savePublish(event)`
-3. `IPublisher.emit(topic, payload)`
+3. `IPublisher.emit(topic, payload, headers?)`
 4. `IPublishStorage.markPublished(id)` on success
 5. `ISubscriber.consume(topic, group, callback)` receives broker messages
 6. `IReceivedStorage.saveReceived(event)` persists inbox state
@@ -50,6 +51,8 @@ docs/
 - Optional initialization is exposed through `initialize(options?: InitOptions)`.
 - Transaction-aware storage may implement `savePublishWithTx`.
 - Transaction-aware transport may implement `emitWithTx`.
+- Transport adapters preserve primitive CAP headers where the broker supports
+  metadata.
 
 ## Test App Profiles
 
@@ -77,6 +80,7 @@ npm run build
 npm test
 npm run test:e2e
 npm run test:integration
+npm run test:integration:servicebus
 npm run lint        # auto-fix local code
 npm run lint:check  # CI-safe lint
 npm run pack:dry-run

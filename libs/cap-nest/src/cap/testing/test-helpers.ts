@@ -8,18 +8,39 @@ import {
 } from '../abstractions/storage.interface';
 import { type CapPublishEvent } from '../models/cap-publish-event';
 import { type CapReceivedEvent } from '../models/cap-received-event';
+import { type CapHeaders } from '../models/cap-headers.type';
 
 // Typed in-memory spy implementations for tests
 export function createInMemoryPublisher(): IPublisher & {
-  emitted: Array<{ topic: string; payload: unknown; tx?: unknown }>;
+  emitted: Array<{
+    topic: string;
+    payload: unknown;
+    headers?: CapHeaders;
+    tx?: unknown;
+  }>;
 } {
-  const emitted: Array<{ topic: string; payload: unknown; tx?: unknown }> = [];
+  const emitted: Array<{
+    topic: string;
+    payload: unknown;
+    headers?: CapHeaders;
+    tx?: unknown;
+  }> = [];
   const pub: IPublisher & {
-    emitted: Array<{ topic: string; payload: unknown; tx?: unknown }>;
+    emitted: Array<{
+      topic: string;
+      payload: unknown;
+      headers?: CapHeaders;
+      tx?: unknown;
+    }>;
   } = {
     emitted,
-    async emit(topic: string, payload: unknown, tx?: unknown) {
-      emitted.push({ topic, payload, tx });
+    async emit(
+      topic: string,
+      payload: unknown,
+      headers?: CapHeaders,
+      tx?: unknown,
+    ) {
+      emitted.push({ topic, payload, headers, tx });
       return Promise.resolve();
     },
   };
@@ -27,17 +48,20 @@ export function createInMemoryPublisher(): IPublisher & {
 }
 
 export function createInMemorySubscriber(): ISubscriber & {
-  listeners: Map<string, Set<(p: unknown) => Promise<void>>>;
+  listeners: Map<string, Set<(p: unknown, h?: CapHeaders) => Promise<void>>>;
 } {
-  const listeners = new Map<string, Set<(p: unknown) => Promise<void>>>();
+  const listeners = new Map<
+    string,
+    Set<(p: unknown, h?: CapHeaders) => Promise<void>>
+  >();
   const sub: ISubscriber & {
-    listeners: Map<string, Set<(p: unknown) => Promise<void>>>;
+    listeners: Map<string, Set<(p: unknown, h?: CapHeaders) => Promise<void>>>;
   } = {
     listeners,
     async consume(
       topic: string,
       group: string,
-      onMessage: (payload: unknown) => Promise<void>,
+      onMessage: (payload: unknown, headers?: CapHeaders) => Promise<void>,
     ) {
       const key = `${topic}|${group}`;
       if (!listeners.has(key)) listeners.set(key, new Set());

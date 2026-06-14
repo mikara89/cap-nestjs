@@ -6,7 +6,7 @@ import {
   ServiceBusAdministrationClient,
 } from '@azure/service-bus';
 import { ServiceBusConfig } from '../servicebus.config';
-import { ISubscriber } from '@cap/cap-nest';
+import { ISubscriber, type CapHeaders } from '@cap/cap-nest';
 
 @Injectable()
 export class ServiceBusSubscriber implements ISubscriber, OnModuleDestroy {
@@ -83,10 +83,7 @@ export class ServiceBusSubscriber implements ISubscriber, OnModuleDestroy {
   async consume(
     topic: string,
     group: string,
-    onMessage: (
-      payload: unknown,
-      properties?: Record<string, unknown>,
-    ) => Promise<void>,
+    onMessage: (payload: unknown, properties?: CapHeaders) => Promise<void>,
   ): Promise<void> {
     const cfg: ServiceBusConfig | undefined = this._config;
     const isQueueMode = cfg?.mode === 'queue';
@@ -270,23 +267,31 @@ export class ServiceBusSubscriber implements ISubscriber, OnModuleDestroy {
       receiver = this.client.createReceiver(resourceName, finalSubscription);
     }
 
-    receiver.subscribe({
-      processMessage: async (msg) => {
-        try {
-          await onMessage(msg.body, msg.applicationProperties ?? {});
-        } catch (err) {
-          this.logger.warn(`Handler error for ${key}`, err as Error);
-          throw err;
-        }
+    receiver.subscribe(
+      {
+        processMessage: async (msg) => {
+          try {
+            await onMessage(
+              msg.body,
+              (msg.applicationProperties ?? {}) as CapHeaders,
+            );
+          } catch (err) {
+            this.logger.warn(`Handler error for ${key}`, err as Error);
+            throw err;
+          }
+        },
+        processError: (args: ProcessErrorArgs) => {
+          this.logger.error(
+            `Error from ${key}: ${args.error?.message}`,
+            args.error,
+          );
+          return Promise.resolve();
+        },
       },
-      processError: (args: ProcessErrorArgs) => {
-        this.logger.error(
-          `Error from ${key}: ${args.error?.message}`,
-          args.error,
-        );
-        return Promise.resolve();
+      {
+        maxConcurrentCalls: cfg?.maxConcurrentCalls ?? 1,
       },
-    });
+    );
 
     this.receivers.set(key, receiver);
     this.logger.log(`subscribed to ${key}`);

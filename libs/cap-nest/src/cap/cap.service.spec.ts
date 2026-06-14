@@ -34,12 +34,13 @@ describe('CapService (unit)', () => {
   });
 
   it('publish - success marks published', async () => {
-    await cap.publish('t1', { a: 1 });
+    await cap.publish('t1', { a: 1 }, { traceId: 'abc' });
 
     expect(pubStore.savePublish).toHaveBeenCalled();
     const emitCall = (publisher.emit as jest.Mock).mock.calls[0];
     expect(emitCall[0]).toBe('t1');
     expect(emitCall[1]).toEqual({ a: 1 });
+    expect(emitCall[2]).toEqual({ traceId: 'abc' });
     expect(pubStore.markPublished).toHaveBeenCalled();
   });
 
@@ -67,13 +68,14 @@ describe('CapService (unit)', () => {
     // trigger the subscriber's onMessage
     const handlers = subscriber.listeners.get('topic-x|group-1');
     expect(handlers).toBeDefined();
-    for (const fn of handlers!) await fn({ foo: 'bar' });
+    for (const fn of handlers!) await fn({ foo: 'bar' }, { traceId: 'sub' });
 
     // persisted and processed
     expect(recStore.saveReceived).toHaveBeenCalled();
     expect(recStore.markProcessed).toHaveBeenCalled();
     const handlerCall = (handler as jest.Mock).mock.calls[0];
     expect(handlerCall[0]).toEqual({ foo: 'bar' });
+    expect(handlerCall[1]).toEqual({ traceId: 'sub' });
   });
 
   it('subscribe - handler failure schedules retry', async () => {

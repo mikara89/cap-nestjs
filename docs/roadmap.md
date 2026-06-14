@@ -21,18 +21,18 @@ Included in MVP:
 - Clean documentation and ADRs.
 - Passing test suite for core behavior and first-party package behavior.
 
-Remaining MVP gaps:
+MVP closure status:
 
-- Decide whether `CapHeaders` decorator support is MVP or post-MVP.
-- Harden external Azure Service Bus integration coverage.
-- Define and implement `@cap/nestjs-microservices-transport`, including clear
-  reliability semantics for `ClientProxy.emit()` and documented broker
-  acknowledgment limitations.
-- Harden dashboard authentication and authorization configuration so host
-  applications can decide how incoming dashboard/API requests are authenticated
-  and which users may perform read versus admin actions.
-- Finish release/version policy for the first public MVP package set.
-- Keep dashboard e2e coverage aligned with the real demo flow.
+- `CapHeaders` is included in MVP as primitive transport metadata and can be
+  read through `@CapHeaders()` or the second handler argument.
+- External Azure Service Bus coverage is split into an explicit integration
+  gate: `npm run test:integration:servicebus`.
+- `@cap/nestjs-microservices-transport` is implemented with documented
+  `ClientProxy.emit()` acknowledgment limitations.
+- Dashboard authentication remains application-owned, with an operation-aware
+  authorizer hook for read versus admin actions.
+- The first public package set is aligned on `0.7.0-beta.0` and released
+  through beta/rc validation before stable graduation.
 
 Recently completed MVP mitigations:
 
@@ -43,6 +43,8 @@ Recently completed MVP mitigations:
 - Removed tracked generated artifacts such as nested `node_modules` and
   `tsbuildinfo`.
 - Aligned first-party peer dependency ranges for current package versions.
+- Added first-class header propagation across core, scheduler, dashboard, local
+  bus, Azure Service Bus, and NestJS microservices transport.
 
 ## Beta
 
@@ -51,8 +53,7 @@ Beta focuses on hardening behavior after MVP:
 - Broader adapter integration tests.
 - Broker-specific hardening for the NestJS microservices transport adapter.
 - Dashboard UI polish and clearer operator feedback.
-- Dashboard role separation for read-only inspection and privileged retry/mark
-  actions.
+- Dashboard UI polish and richer operator feedback.
 - Stronger Azure Service Bus failure and lifecycle coverage.
 - Production-oriented examples using environment variables only.
 - Clear migration guidance for MikroORM schemas.

@@ -8,14 +8,19 @@ import {
 } from '@nestjs/common';
 import { join, resolve } from 'path';
 import { existsSync } from 'fs';
-import { ServeStaticModule } from '@nestjs/serve-static';
 import { CapDashboardController } from './cap-dashboard.controller';
 import { CapDashboardService } from './cap-dashboard.service';
 import { CapDashboardGuard } from './guards/cap-dashboard.guard';
+import { CapDashboardAssetsController } from './cap-dashboard-assets.controller';
+import {
+  CAP_DASHBOARD_AUTHORIZER,
+  CAP_DASHBOARD_USER_GUARD,
+} from './cap-dashboard.auth';
 
 export interface CapDashboardModuleOptions {
   routePrefix?: string; // default '/api/cap'
   guard: Provider; // REQUIRED
+  authorizer?: Provider;
   pageSizeDefault?: number;
   serveStatic?: boolean; // default true
   staticAssetsPath?: string; // default './public'
@@ -29,16 +34,23 @@ export class CapDashboardModule {
       throw new Error('CapDashboardModule.forRoot requires a `guard` provider');
     }
 
-    // Alias the user-provided guard to a stable token our internal guard can inject
-    const USER_GUARD_TOKEN = 'CAP_DASHBOARD_USER_GUARD';
     const providedToken = getProviderToken(opts.guard);
 
     const aliasProvider: Provider = {
-      provide: USER_GUARD_TOKEN,
+      provide: CAP_DASHBOARD_USER_GUARD,
       useExisting: providedToken,
     };
 
-    const imports: DynamicModule[] = [];
+    const extraProviders: Provider[] = [];
+    if (opts.authorizer) {
+      const authorizerToken = getProviderToken(opts.authorizer);
+      extraProviders.push(opts.authorizer, {
+        provide: CAP_DASHBOARD_AUTHORIZER,
+        useExisting: authorizerToken,
+      });
+    }
+
+    const controllers: Type<unknown>[] = [];
     if (opts.serveStatic !== false) {
       // Determine a sensible default static assets path when not provided by the user.
       // We try multiple candidate locations (library source, compiled package, monorepo layout)
@@ -62,19 +74,15 @@ export class CapDashboardModule {
 
       const found = candidates.find((p) => !!p && existsSync(p));
       if (found) {
-        try {
-          imports.push(
-            ServeStaticModule.forRoot({
-              rootPath: resolve(found),
-              serveRoot: opts.uiRoute ?? '/cap-dashboard',
-              serveStaticOptions: {
-                index: 'index.html',
-              },
-            }),
-          );
-        } catch {
-          // package not present in test environment; skip static registration
+        let uiRoute = opts.uiRoute ?? '/cap-dashboard';
+        if (typeof uiRoute === 'string' && uiRoute.startsWith('/')) {
+          uiRoute = uiRoute.slice(1);
         }
+        const assetsPath = resolve(found);
+        const assetsController = class extends CapDashboardAssetsController {};
+        assetsController.assetsPath = assetsPath;
+        Controller(uiRoute)(assetsController);
+        controllers.push(assetsController);
       }
     }
 
@@ -101,13 +109,13 @@ export class CapDashboardModule {
 
     return {
       module: CapDashboardModule,
-      imports,
-      controllers: [controllerToRegister],
+      controllers: [controllerToRegister, ...controllers],
       providers: [
         // include the user-provided guard provider so Nest can construct it
         opts.guard,
         // alias it to a stable token our internal guard can inject
         aliasProvider,
+        ...extraProviders,
         CapDashboardService,
         CapDashboardGuard,
       ],

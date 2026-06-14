@@ -47,6 +47,7 @@ describe('ServiceBusSubscriber', () => {
           processMessage: expect.any(Function),
           processError: expect.any(Function),
         }),
+        { maxConcurrentCalls: 1 },
       );
     });
 
@@ -75,6 +76,22 @@ describe('ServiceBusSubscriber', () => {
         { foo: 'bar' },
         { 'x-trace': '456' },
       );
+    });
+
+    it('should pass configured maxConcurrentCalls to subscribe', async () => {
+      subscriber = new ServiceBusSubscriber(mockClient, {
+        connectionString:
+          'Endpoint=sb://local/;SharedAccessKeyName=test;SharedAccessKey=key',
+        topicPrefix: 'cap-',
+        subscriptionPrefix: 'sub-',
+        maxConcurrentCalls: 7,
+      });
+
+      await subscriber.consume('topic-x', 'group-y', jest.fn());
+
+      expect(mockReceiver.subscribe).toHaveBeenCalledWith(expect.any(Object), {
+        maxConcurrentCalls: 7,
+      });
     });
 
     it('should cache receiver instances per topic-group pair', () => {

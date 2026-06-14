@@ -6,4 +6,5 @@ export class OutboxItemDto {
   occurredAt!: Date;
   payloadPreview?: string;
   payload?: unknown;
+  headers?: unknown;
 }

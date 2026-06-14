@@ -1,6 +1,10 @@
-import { type IPublisher, type ISubscriber } from '@cap/cap-nest';
+import {
+  type CapHeaders,
+  type IPublisher,
+  type ISubscriber,
+} from '@cap/cap-nest';
 
-type MessageHandler = (payload: unknown) => Promise<void>;
+type MessageHandler = (payload: unknown, headers?: CapHeaders) => Promise<void>;
 
 /**
  * In-memory transport implementation with spy capabilities for testing.
@@ -8,8 +12,12 @@ type MessageHandler = (payload: unknown) => Promise<void>;
  */
 export class TestTransportSpy implements IPublisher, ISubscriber {
   // Spy tracking
-  public emitCalls: Array<{ topic: string; payload: unknown; tx?: unknown }> =
-    [];
+  public emitCalls: Array<{
+    topic: string;
+    payload: unknown;
+    headers?: CapHeaders;
+    tx?: unknown;
+  }> = [];
   public consumeCalls: Array<{ topic: string; group: string }> = [];
 
   // Control flags
@@ -21,15 +29,20 @@ export class TestTransportSpy implements IPublisher, ISubscriber {
 
   // --- IPublisher ---
 
-  async emit(topic: string, payload: unknown, tx?: unknown): Promise<void> {
-    this.emitCalls.push({ topic, payload, tx });
+  async emit(
+    topic: string,
+    payload: unknown,
+    headers?: CapHeaders,
+    tx?: unknown,
+  ): Promise<void> {
+    this.emitCalls.push({ topic, payload, headers, tx });
 
     if (this.shouldFailEmit) {
       throw this.emitFailureError;
     }
 
     // Simulate successful emit - notify subscribers
-    await this.deliverMessage(topic, payload);
+    await this.deliverMessage(topic, payload, headers);
   }
 
   // Optional transactional emit. For the in-memory spy we treat this the same
@@ -37,15 +50,16 @@ export class TestTransportSpy implements IPublisher, ISubscriber {
   async emitWithTx(
     topic: string,
     payload: unknown,
+    headers: CapHeaders | undefined,
     tx: unknown,
   ): Promise<void> {
-    this.emitCalls.push({ topic, payload, tx });
+    this.emitCalls.push({ topic, payload, headers, tx });
 
     if (this.shouldFailEmit) {
       throw this.emitFailureError;
     }
 
-    await this.deliverMessage(topic, payload);
+    await this.deliverMessage(topic, payload, headers);
   }
 
   // --- ISubscriber ---
@@ -53,7 +67,7 @@ export class TestTransportSpy implements IPublisher, ISubscriber {
   consume(
     topic: string,
     group: string,
-    onMessage: (payload: unknown) => Promise<void>,
+    onMessage: (payload: unknown, headers?: CapHeaders) => Promise<void>,
   ): Promise<void> {
     this.consumeCalls.push({ topic, group });
 
@@ -71,14 +85,18 @@ export class TestTransportSpy implements IPublisher, ISubscriber {
    * Manually trigger message delivery to subscribers.
    * Useful for testing inbox pattern independently.
    */
-  async deliverMessage(topic: string, payload: unknown): Promise<void> {
+  async deliverMessage(
+    topic: string,
+    payload: unknown,
+    headers?: CapHeaders,
+  ): Promise<void> {
     // Deliver to all registered handlers for this topic
     const promises: Promise<void>[] = [];
 
     for (const [key, handlers] of this.handlers.entries()) {
       if (key.startsWith(topic + ':')) {
         for (const handler of handlers) {
-          promises.push(handler(payload));
+          promises.push(handler(payload, headers));
         }
       }
     }

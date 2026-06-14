@@ -36,6 +36,12 @@
       "@cap/azure-servicebus-transport/*": [
         "libs/transport-azure-servicebus/dist/*"
       ],
+      "@cap/nestjs-microservices-transport": [
+        "libs/transport-nestjs-microservices/dist"
+      ],
+      "@cap/nestjs-microservices-transport/*": [
+        "libs/transport-nestjs-microservices/dist/*"
+      ],
       "@cap/cap-dashboard": [
         "libs/cap-dashboard/dist"
       ],
