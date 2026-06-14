@@ -27,6 +27,9 @@ jobs:
         run: npm ci
       - name: Lint
         run: npm run lint:check
+      - name: Fallow audit
+        run: npm run fallow:ci
+        continue-on-error: true
       - name: Build
         run: npm run build
       - name: Type-check `libs/cap-nest`

@@ -1,0 +1,106 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  "ignorePatterns": [
+    "dist/**",
+    "build/**",
+    "coverage/**",
+    ".tmp/**",
+    "node_modules/**"
+  ],
+  "dynamicallyLoaded": [
+    "libs/cap-dashboard/src/public/main.js",
+    "libs/cap-dashboard/src/public/styles.css"
+  ],
+  "ignoreUnresolvedImports": [
+    "/cap-dashboard/main.js",
+    "/cap-dashboard/styles.css"
+  ],
+  "ignoreDependencies": [
+    "better-sqlite3",
+    "@nestjs/schematics",
+    "eslint-config-prettier",
+    "tsconfig-paths"
+  ],
+  "publicPackages": [
+    "@cap/cap-nest",
+    "@cap/mikroorm-storage",
+    "@cap/azure-servicebus-transport",
+    "@cap/nestjs-microservices-transport",
+    "@cap/cap-dashboard"
+  ],
+  "duplicates": {
+    "mode": "mild",
+    "minTokens": 50,
+    "ignoreImports": true
+  },
+  "rules": {
+    "boundary-violation": "warn",
+    "unused-dev-dependencies": "warn",
+    "unlisted-dependencies": "warn",
+    "type-only-dependencies": "warn",
+    "test-only-dependencies": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["apps/*/test/**", "libs/*/test/**", "**/*.spec.ts"],
+      "rules": {
+        "unlisted-dependencies": "warn"
+      }
+    }
+  ],
+  "boundaries": {
+    "zones": [
+      {
+        "name": "core",
+        "patterns": ["libs/cap-nest/src/**"]
+      },
+      {
+        "name": "storage-adapter",
+        "patterns": ["libs/storage-mikro-orm/src/**"]
+      },
+      {
+        "name": "transport-adapter",
+        "patterns": [
+          "libs/transport-azure-servicebus/src/**",
+          "libs/transport-nestjs-microservices/src/**"
+        ]
+      },
+      {
+        "name": "dashboard",
+        "patterns": ["libs/cap-dashboard/src/**"]
+      },
+      {
+        "name": "app",
+        "patterns": ["apps/*/src/**"]
+      }
+    ],
+    "rules": [
+      {
+        "from": "core",
+        "allow": ["core"]
+      },
+      {
+        "from": "storage-adapter",
+        "allow": ["storage-adapter", "core"]
+      },
+      {
+        "from": "transport-adapter",
+        "allow": ["transport-adapter", "core"]
+      },
+      {
+        "from": "dashboard",
+        "allow": ["dashboard", "core"]
+      },
+      {
+        "from": "app",
+        "allow": [
+          "app",
+          "core",
+          "storage-adapter",
+          "transport-adapter",
+          "dashboard"
+        ]
+      }
+    ]
+  }
+}

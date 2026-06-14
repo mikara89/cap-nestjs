@@ -5,9 +5,7 @@
   "author": "",
   "private": true,
   "workspaces": [
-    "apps/*",
-    "libs/*",
-    "packages/*"
+    "libs/*"
   ],
   "license": "UNLICENSED",
   "scripts": {
@@ -23,6 +21,12 @@
     "build:lib:transport-nestjs-microservices": "cd libs/transport-nestjs-microservices && tsc -p tsconfig.lib.json",
     "prestart": "npm run build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
+    "fallow": "fallow",
+    "fallow:audit": "fallow audit",
+    "fallow:health": "fallow health --score --hotspots --targets --group-by package",
+    "fallow:dead-code": "fallow dead-code --group-by package",
+    "fallow:dupes": "fallow dupes --group-by package",
+    "fallow:ci": "fallow audit --format compact --gate all",
     "start": "nest start cap-test-app",
     "start:dev": "nest start cap-test-app --watch",
     "start:debug": "nest start cap-test-app --debug --watch",
@@ -69,6 +73,7 @@
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
+    "fallow": "^2.96.0",
     "globals": "^16.0.0",
     "jest": "^29.7.0",
     "lerna": "^9.0.1",

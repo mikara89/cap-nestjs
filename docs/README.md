@@ -16,8 +16,8 @@ adapters.
 5. [Roadmap](roadmap.md) - MVP, Beta, v1, and Later stages.
 6. [Release checklist](release.md) - validation and publishing safety.
 7. [ADRs](adr/README.md) - durable architecture decisions.
-8. [Contributing](contributing.md) - local workflow, tests, coverage, and docs
-   rules.
+8. [Contributing](contributing.md) - local workflow, repo health checks, tests,
+   coverage, and docs rules.
 
 ## Current Maturity
 

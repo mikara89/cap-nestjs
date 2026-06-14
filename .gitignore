@@ -52,6 +52,7 @@ lerna-debug.log*
 # temp directory
 .temp
 .tmp
+/.fallow/
 
 # Runtime data
 pids

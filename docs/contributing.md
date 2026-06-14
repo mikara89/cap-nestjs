@@ -32,6 +32,42 @@ Run lint without modifying files:
 npm run lint:check
 ```
 
+## Repo Health Checks
+
+Fallow provides advisory repo health checks for architecture boundaries,
+dependency hygiene, dead code, duplication, and complexity. During the initial
+rollout, CI runs Fallow with `continue-on-error` so findings are visible without
+blocking releases.
+
+Run the changed-code audit:
+
+```powershell
+npm run fallow:audit
+```
+
+Review package-level health, hotspots, and refactor targets:
+
+```powershell
+npm run fallow:health
+```
+
+Review cleanup candidates:
+
+```powershell
+npm run fallow:dead-code
+```
+
+Review duplicated logic:
+
+```powershell
+npm run fallow:dupes
+```
+
+The boundary policy follows the package architecture: `@cap/cap-nest` is the
+core package; storage, transport, and dashboard packages depend inward on core;
+the test application may compose all packages. Treat first-run findings as
+triage input unless they are obvious safe cleanups.
+
 ## Focused Test Commands
 
 Core library tests:
@@ -97,5 +133,7 @@ package contents are verified or published.
 
 - Tests pass or skipped tests are explained.
 - Build passes when public exports, package setup, or examples changed.
+- Fallow findings from touched code are reviewed, fixed, or intentionally left
+  as advisory rollout work.
 - Documentation is updated for public API or behavior changes.
 - ADR is added or updated for architecture-level decisions.
