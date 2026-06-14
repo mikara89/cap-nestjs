@@ -1,136 +1,297 @@
 (function () {
-    const API_BASE = '/api/cap';
-    // state
-    let activeTab = 'outbox';
-    let page = 1;
-    const limit = 20;
+  const API_BASE = '/api/cap';
+  const limit = 20;
+  let activeTab = 'outbox';
+  let page = 1;
+  let selectedId = '';
+  let lastPage = 1;
 
-    function $(id) { return document.getElementById(id) }
+  function $(id) {
+    return document.getElementById(id);
+  }
 
-    function toISO(d) { if (!d) return ''; try { return new Date(d).toISOString() } catch (e) { return String(d) } }
+  function escapeHtml(value) {
+    if (value == null) return '';
+    return String(value).replace(/[&<>"]/g, function (char) {
+      return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+      }[char];
+    });
+  }
 
-    async function fetchList() {
-        const topic = $('filter-topic').value.trim();
-        const mode = (document.getElementById('filter-mode') && document.getElementById('filter-mode').value) || 'all';
-        const qs = new URLSearchParams({ page: String(page), limit: String(limit) });
-        if (topic) qs.set('topic', topic);
-        // mode handling: 'all' or 'due'
-        if (mode === 'due') {
-            if (activeTab === 'inbox') qs.set('due', 'true');
-            if (activeTab === 'outbox') qs.set('onlyUnpublished', 'true');
-        }
+  function toDateTime(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleString(undefined, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  }
 
-        const url = `${API_BASE}/${activeTab}?${qs.toString()}`;
-        renderListLoading();
-        try {
-            const res = await fetch(url);
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            const data = await res.json();
-            renderList(data.items || data);
-            renderPagination(data.page || 1, data.total || (data.items ? data.items.length : 0), data.limit || limit);
-        } catch (err) {
-            renderListError(err.message);
-        }
+  function statusFor(item) {
+    if (activeTab === 'outbox') {
+      if (item.status === 'published') return { label: 'Published', tone: 'success' };
+      if (item.status === 'failed') return { label: 'Failed', tone: 'failed' };
+      return { label: item.status || 'Pending', tone: 'pending' };
+    }
+    if (item.processed) return { label: 'Processed', tone: 'success' };
+    return { label: 'Pending', tone: 'pending' };
+  }
+
+  function itemTime(item) {
+    return item.occurredAt || item.createdAt || item.updatedAt || item.nextRetry || '';
+  }
+
+  function getPreview(item) {
+    if (item.payloadPreview) return item.payloadPreview;
+    if (item.payload) return JSON.stringify(item.payload);
+    return '';
+  }
+
+  function setLoading() {
+    $('list').innerHTML = '<div class="empty">Loading</div>';
+  }
+
+  function clearDetail() {
+    selectedId = '';
+    $('detail-status').innerHTML = '';
+    $('detail').innerHTML = '<div class="empty">Select a message</div>';
+    $('detail-actions').innerHTML = '';
+  }
+
+  async function fetchList() {
+    const topic = $('filter-topic').value.trim();
+    const mode = $('filter-mode').value || 'all';
+    const qs = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (topic) qs.set('topic', topic);
+    if (mode === 'due') {
+      if (activeTab === 'inbox') qs.set('due', 'true');
+      if (activeTab === 'outbox') qs.set('onlyUnpublished', 'true');
     }
 
-    function renderListLoading() {
-        $('list').innerHTML = '<div class="small">Loading...</div>';
-        $('detail').innerHTML = '';
-        $('detail-actions').innerHTML = '';
+    setLoading();
+    try {
+      const res = await fetch(`${API_BASE}/${activeTab}?${qs.toString()}`);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const items = data.items || data || [];
+      const total = data.total || items.length;
+      const currentPage = data.page || page;
+      const currentLimit = data.limit || limit;
+      lastPage = Math.max(1, Math.ceil(total / currentLimit));
+
+      renderList(items);
+      renderPagination(currentPage, total, currentLimit);
+      renderSummary(items, total);
+      updateTabCount(activeTab, total);
+      $('last-updated').textContent = 'Updated ' + toDateTime(new Date());
+      $('list-title').textContent = activeTab === 'outbox' ? 'Outbox' : 'Inbox';
+      if (!selectedId) clearDetail();
+    } catch (err) {
+      $('list').innerHTML = `<div class="empty">Error: ${escapeHtml(err.message)}</div>`;
+      renderSummary([], 0);
+    }
+  }
+
+  function renderSummary(items, total) {
+    const success = items.filter(function (item) {
+      return activeTab === 'outbox'
+        ? item.status === 'published'
+        : Boolean(item.processed);
+    }).length;
+    const pending = Math.max(0, items.length - success);
+    const retries = items.reduce(function (sum, item) {
+      return sum + (item.retryCount || 0);
+    }, 0);
+
+    $('summary-total').textContent = String(total);
+    $('summary-success').textContent = String(success);
+    $('summary-pending').textContent = String(pending);
+    $('summary-retries').textContent = String(retries);
+  }
+
+  function updateTabCount(tab, total) {
+    const el = tab === 'outbox' ? $('tab-outbox-count') : $('tab-inbox-count');
+    el.textContent = String(total);
+  }
+
+  function renderList(items) {
+    if (!items.length) {
+      $('list').innerHTML = '<div class="empty">No messages</div>';
+      return;
     }
 
-    function renderListError(msg) {
-        $('list').innerHTML = `<div class="small">Error loading list: ${msg}</div>`;
+    $('list').innerHTML = items
+      .map(function (item) {
+        const status = statusFor(item);
+        const selectedClass = item.id === selectedId ? ' selected' : '';
+        return `
+          <button class="item${selectedClass}" type="button" data-id="${escapeHtml(item.id)}">
+            <span class="item-title">
+              <span class="item-topic">${escapeHtml(item.topic)}</span>
+            </span>
+            <span class="badge ${status.tone}">${escapeHtml(status.label)}</span>
+            <span class="meta-row">
+              <span>${escapeHtml(toDateTime(itemTime(item)))}</span>
+              <span>${item.retryCount || 0} retries</span>
+              ${item.nextRetry ? `<span>Next ${escapeHtml(toDateTime(item.nextRetry))}</span>` : ''}
+            </span>
+            <span class="item-preview">${escapeHtml(getPreview(item))}</span>
+          </button>`;
+      })
+      .join('');
+
+    Array.from(document.querySelectorAll('#list .item')).forEach(function (el) {
+      el.addEventListener('click', function () {
+        loadDetail(el.getAttribute('data-id') || '');
+      });
+    });
+  }
+
+  function renderPagination(current, total, currentLimit) {
+    const pages = Math.max(1, Math.ceil((total || 0) / currentLimit));
+    const start = total === 0 ? 0 : (current - 1) * currentLimit + 1;
+    const end = Math.min(total, current * currentLimit);
+    $('list-range').textContent = total ? `${start}-${end} of ${total}` : '0 messages';
+    $('pagination').innerHTML = `
+      <span>Page ${current} of ${pages}</span>
+      <span class="pagination-controls">
+        <button class="button" id="prev-page" type="button" ${current <= 1 ? 'disabled' : ''}>Previous</button>
+        <button class="button" id="next-page" type="button" ${current >= pages ? 'disabled' : ''}>Next</button>
+      </span>`;
+
+    $('prev-page').addEventListener('click', function () {
+      if (page > 1) {
+        page -= 1;
+        fetchList();
+      }
+    });
+    $('next-page').addEventListener('click', function () {
+      if (page < lastPage) {
+        page += 1;
+        fetchList();
+      }
+    });
+  }
+
+  async function loadDetail(id) {
+    selectedId = id;
+    Array.from(document.querySelectorAll('#list .item')).forEach(function (el) {
+      el.classList.toggle('selected', el.getAttribute('data-id') === id);
+    });
+    $('detail-status').innerHTML = '';
+    $('detail').innerHTML = '<div class="empty">Loading</div>';
+    $('detail-actions').innerHTML = '';
+
+    try {
+      const res = await fetch(`${API_BASE}/${activeTab}/${id}?full=true`);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      renderDetail(await res.json());
+    } catch (err) {
+      $('detail').innerHTML = `<div class="empty">Error: ${escapeHtml(err.message)}</div>`;
+    }
+  }
+
+  function renderDetail(item) {
+    if (!item) {
+      clearDetail();
+      return;
     }
 
-    function renderList(items) {
-        if (!items || items.length === 0) { $('list').innerHTML = '<div class="small">No items</div>'; return }
-        const html = items.map(it => {
-            const when = it.occurredAt ? toISO(it.occurredAt) : '';
-            const preview = it.payloadPreview || (it.payload ? JSON.stringify(it.payload).slice(0, 160) : '');
-            return `<div class="item" data-id="${it.id}"><strong>${it.topic}</strong><div class="meta">${when} • ${it.retryCount || 0} retries • ${it.status || (it.processed ? 'processed' : 'pending')}</div><div class="small">${escapeHtml(preview)}</div></div>`;
-        }).join('');
-        $('list').innerHTML = html;
-        Array.from(document.querySelectorAll('#list .item')).forEach(el => el.addEventListener('click', () => {
-            const id = el.getAttribute('data-id'); loadDetail(id);
-        }));
+    const status = statusFor(item);
+    const payload = item.payload || item;
+    $('detail-status').innerHTML = `<span class="badge ${status.tone}">${escapeHtml(status.label)}</span>`;
+    $('detail').innerHTML = `
+      <div class="detail-grid">
+        <div class="detail-field">
+          <span>Topic</span>
+          <strong>${escapeHtml(item.topic)}</strong>
+        </div>
+        <div class="detail-field">
+          <span>Retries</span>
+          <strong>${item.retryCount || 0}</strong>
+        </div>
+        <div class="detail-field">
+          <span>Occurred</span>
+          <strong>${escapeHtml(toDateTime(item.occurredAt))}</strong>
+        </div>
+        <div class="detail-field">
+          <span>Next Retry</span>
+          <strong>${escapeHtml(toDateTime(item.nextRetry) || '-')}</strong>
+        </div>
+      </div>
+      <pre class="payload-block">${escapeHtml(JSON.stringify(payload, null, 2))}</pre>`;
+
+    const markLabel = activeTab === 'outbox' ? 'Mark Published' : 'Mark Processed';
+    $('detail-actions').innerHTML = `
+      <button class="button primary" id="action-retry" type="button">Retry</button>
+      <button class="button" id="action-mark" type="button">${markLabel}</button>`;
+    $('action-retry').addEventListener('click', function () {
+      doAction('retry', item.id);
+    });
+    $('action-mark').addEventListener('click', function () {
+      doAction('mark', item.id);
+    });
+  }
+
+  async function doAction(action, id) {
+    const markPath = activeTab === 'outbox' ? 'mark-published' : 'mark-processed';
+    const path = action === 'retry' ? 'retry' : markPath;
+    const url = `${API_BASE}/${activeTab}/${id}/${path}`;
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ force: false }),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      await fetchList();
+      await loadDetail(id);
+    } catch (err) {
+      $('detail-actions').insertAdjacentHTML(
+        'beforeend',
+        `<span class="small">Action failed: ${escapeHtml(err.message)}</span>`,
+      );
     }
+  }
 
-    function renderPagination(current, total, limit) {
-        const pages = Math.max(1, Math.ceil((total || 0) / limit));
-        $('pagination').innerHTML = `Page ${current} / ${pages}`;
-    }
+  function switchTab(tab) {
+    activeTab = tab;
+    page = 1;
+    selectedId = '';
+    $('tab-outbox').classList.toggle('active', tab === 'outbox');
+    $('tab-inbox').classList.toggle('active', tab === 'inbox');
+    clearDetail();
+    fetchList();
+  }
 
-    async function loadDetail(id) {
-        $('detail').innerHTML = '<div class="small">Loading...</div>';
-        $('detail-actions').innerHTML = '';
-        try {
-            const res = await fetch(`${API_BASE}/${activeTab}/${id}?full=true`);
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            const item = await res.json();
-            renderDetail(item);
-        } catch (err) {
-            $('detail').innerHTML = `<div class="small">Error loading detail: ${err.message}</div>`;
-        }
-    }
+  function init() {
+    $('tab-outbox').addEventListener('click', function () {
+      switchTab('outbox');
+    });
+    $('tab-inbox').addEventListener('click', function () {
+      switchTab('inbox');
+    });
+    $('btn-refresh').addEventListener('click', fetchList);
+    $('filter-mode').addEventListener('change', function () {
+      page = 1;
+      fetchList();
+    });
+    $('filter-topic').addEventListener('input', function () {
+      page = 1;
+      fetchList();
+    });
+    switchTab('outbox');
+  }
 
-    function renderDetail(item) {
-        if (!item) { $('detail').innerHTML = '<div class="small">Not found</div>'; return }
-        const meta = `<div class="small">Topic: ${escapeHtml(item.topic)}<br/>Occured: ${toISO(item.occurredAt)}<br/>Retries: ${item.retryCount || 0}<br/>Status: ${item.status || (item.processed ? 'processed' : 'pending')}</div>`;
-        const payload = `<pre>${escapeHtml(JSON.stringify(item.payload || item, null, 2))}</pre>`;
-        $('detail').innerHTML = meta + payload;
-
-        const actions = [];
-        if (activeTab === 'outbox') {
-            actions.push(`<button class="button" id="action-retry">Retry</button>`);
-            actions.push(`<button class="button" id="action-mark">Mark Published</button>`);
-        } else {
-            actions.push(`<button class="button" id="action-retry">Retry</button>`);
-            actions.push(`<button class="button" id="action-mark">Mark Processed</button>`);
-        }
-        $('detail-actions').innerHTML = actions.join(' ');
-        bindDetailActions(item.id);
-    }
-
-    function bindDetailActions(id) {
-        const retryBtn = $('action-retry');
-        const markBtn = $('action-mark');
-        if (retryBtn) retryBtn.addEventListener('click', () => doAction('retry', id));
-        if (markBtn) markBtn.addEventListener('click', () => doAction('mark', id));
-    }
-
-    async function doAction(action, id) {
-        const url = action === 'retry' ? `${API_BASE}/${activeTab}/${id}/retry` : (action === 'mark' ? `${API_BASE}/${activeTab}/${id}/${activeTab === 'outbox' ? 'mark-published' : 'mark-processed'}` : null);
-        if (!url) return;
-        try {
-            const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ force: false }) });
-            const data = await res.json().catch(() => ({ ok: res.ok }));
-            alert('Action result: ' + (data.message || JSON.stringify(data)));
-            // refresh list/detail
-            fetchList();
-            loadDetail(id);
-        } catch (err) {
-            alert('Action failed: ' + err.message);
-        }
-    }
-
-    function escapeHtml(s) { if (s == null) return ''; return String(s).replace(/[&<>\"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt', '\\': '\\\\', '"': '&quot;' }[c] || c)); }
-
-    // UI wiring
-    function init() {
-        $('tab-outbox').addEventListener('click', () => { switchTab('outbox') });
-        $('tab-inbox').addEventListener('click', () => { switchTab('inbox') });
-        $('btn-refresh').addEventListener('click', () => fetchList());
-        const fm = document.getElementById('filter-mode');
-        if (fm) fm.addEventListener('change', () => fetchList());
-        // initial
-        switchTab('outbox');
-    }
-
-    function switchTab(t) { activeTab = t; page = 1; document.getElementById('tab-outbox').classList.toggle('active', t === 'outbox'); document.getElementById('tab-inbox').classList.toggle('active', t === 'inbox'); fetchList(); }
-
-    // expose for debugging
-    window.__capDashboard = { fetchList, loadDetail };
-
-    document.addEventListener('DOMContentLoaded', init);
+  window.__capDashboard = { fetchList, loadDetail };
+  document.addEventListener('DOMContentLoaded', init);
 })();

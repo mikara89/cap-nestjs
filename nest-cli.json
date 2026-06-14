@@ -64,5 +64,5 @@
     }
   },
   "monorepo": true,
-  "root": "apps/cap"
+  "root": "apps/cap-test-app"
 }

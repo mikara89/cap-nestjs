@@ -3,9 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
+    "incremental": false,
     "paths": {
-      "@cap/cap-nest": ["../cap-nest/src"],
-      "@cap/cap-nest/*": ["../cap-nest/src/*"]
+      "@cap/cap-nest": ["../cap-nest/dist"],
+      "@cap/cap-nest/*": ["../cap-nest/dist/*"]
     },
     "declaration": true,
     "declarationMap": true,

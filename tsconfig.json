@@ -9,7 +9,6 @@
     "target": "es2022",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -17,41 +16,46 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
+    "types": [
+      "node",
+      "jest"
+    ],
     "paths": {
       "@cap/cap-nest": [
-        "libs/cap-nest/dist"
+        "./libs/cap-nest/dist"
       ],
       "@cap/cap-nest/*": [
-        "libs/cap-nest/dist/*"
+        "./libs/cap-nest/dist/*"
       ],
       "@cap/mikroorm-storage": [
-        "libs/storage-mikro-orm/dist"
+        "./libs/storage-mikro-orm/dist"
       ],
       "@cap/mikroorm-storage/*": [
-        "libs/storage-mikro-orm/dist/*"
+        "./libs/storage-mikro-orm/dist/*"
       ],
       "@cap/azure-servicebus-transport": [
-        "libs/transport-azure-servicebus/dist"
+        "./libs/transport-azure-servicebus/dist"
       ],
       "@cap/azure-servicebus-transport/*": [
-        "libs/transport-azure-servicebus/dist/*"
+        "./libs/transport-azure-servicebus/dist/*"
       ],
       "@cap/nestjs-microservices-transport": [
-        "libs/transport-nestjs-microservices/dist"
+        "./libs/transport-nestjs-microservices/dist"
       ],
       "@cap/nestjs-microservices-transport/*": [
-        "libs/transport-nestjs-microservices/dist/*"
+        "./libs/transport-nestjs-microservices/dist/*"
       ],
       "@cap/cap-dashboard": [
-        "libs/cap-dashboard/dist"
+        "./libs/cap-dashboard/dist"
       ],
       "@cap/cap-dashboard/*": [
-        "libs/cap-dashboard/dist/*"
+        "./libs/cap-dashboard/dist/*"
       ]
     }
   },
   "include": [
     "apps/**/*",
+    "libs/**/*.spec.ts",
     "types/**/*.d.ts"
   ]
 }
