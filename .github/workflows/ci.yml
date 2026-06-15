@@ -40,6 +40,8 @@ jobs:
         run: npm test --silent
       - name: Run e2e tests
         run: npm run test:e2e -- --runInBand
+      - name: Run DB integration gate
+        run: npm run test:integration:db
       - name: Verify package contents
         run: npm run pack:dry-run
 

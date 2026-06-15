@@ -19,10 +19,10 @@ NestJS application code
 
 ## Status
 
-This repository is validating the public MVP package set on the
-`0.7.0-beta.2` line. The core messaging path, first-party adapters, dashboard
-auth extension points, header propagation, and release workflow are implemented
-for beta/rc validation before stable graduation.
+This repository contains the stable `0.7.0` MVP package set. The core messaging
+path, first-party adapters, dashboard auth extension points, header
+propagation, and release workflow are implemented for the supported boundaries
+documented below.
 
 The root workspace package is private. The publishable packages live under
 `libs/*`.
@@ -44,7 +44,7 @@ published package.
 
 - Node.js 22, matching CI.
 - npm, using the committed `package-lock.json`.
-- NestJS 11 for the current beta packages.
+- NestJS 11 for the current packages.
 - TypeScript 5.7 or newer for local development.
 
 Adapter-specific requirements:
@@ -80,10 +80,9 @@ For the optional dashboard:
 npm install @mikara89/cap-dashboard
 ```
 
-During beta validation, package availability depends on the GitHub Packages
-visibility and release channel. GitHub Packages may require npm authentication
-with a GitHub personal access token for installs. See
-[Release checklist](docs/release.md).
+Package availability depends on GitHub Packages visibility. GitHub Packages may
+require npm authentication with a GitHub personal access token for installs.
+See [Release checklist](docs/release.md).
 
 ## Basic Usage
 
@@ -284,7 +283,7 @@ npm run docs:api
   drivers use a non-locking fallback and should not be used for multi-instance
   dispatch. SQL Server is not multi-instance supported by the first-party
   MikroORM adapter until it has a SQL Server-specific claim implementation.
-  Existing beta databases need a migration for new inbox status/dead-letter
+  Existing prerelease databases need a migration for new inbox status/dead-letter
   fields and the dedupe index change.
 
 ## Documentation

@@ -17,7 +17,7 @@ adapters.
 6. [Package export surface](package-exports.md) - supported import paths and
    future `exports` map plan.
 7. [GitHub Pages homepage](github-pages.md) - public homepage setup.
-8. [Roadmap](roadmap.md) - MVP, Beta, v1, and Later stages.
+8. [Roadmap](roadmap.md) - stable 0.7, v1, and later stages.
 9. [Release checklist](release.md) - validation and publishing safety.
 10. [Migrations](migrations/0.7-to-1.0.md) - upgrade notes for stable schema
     and API behavior.
@@ -27,10 +27,10 @@ adapters.
 
 ## Current Maturity
 
-The repository is on the MVP beta track. The core publish/subscribe path,
-first-party adapters, dashboard package, header propagation, and beta release
-workflow are in place. The [roadmap](roadmap.md) tracks remaining maturity work
-for Beta, v1, and Later stages.
+The repository is on the stable 0.7 MVP line. The core publish/subscribe path,
+first-party adapters, dashboard package, header propagation, release workflow,
+and PostgreSQL/MySQL multi-instance claim gate are in place. The
+[roadmap](roadmap.md) tracks remaining maturity work for v1 and later stages.
 
 ## Documentation Rules
 
@@ -39,4 +39,4 @@ for Beta, v1, and Later stages.
 - Regenerate `docs/api/` with `npm run docs:api` when public exports change.
 - Keep examples compile-checked with `npm run examples:check`.
 - Add or update an ADR when a durable architecture decision changes.
-- Update the roadmap when work moves between MVP, Beta, v1, or Later.
+- Update the roadmap when work moves between stable 0.7, v1, or later.

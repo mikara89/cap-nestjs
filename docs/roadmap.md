@@ -31,8 +31,9 @@ MVP closure status:
   `ClientProxy.emit()` acknowledgment limitations.
 - Dashboard authentication remains application-owned, with an operation-aware
   authorizer hook for read versus admin actions.
-- The first public package set is aligned on `0.7.0-beta.2` and released
-  through beta/rc validation before stable graduation.
+- The first public package set is aligned on stable `0.7.0`.
+- PostgreSQL/MySQL durable outbox claim concurrency is covered by
+  `npm run test:integration:db` and the CI DB integration gate.
 
 Recently completed MVP mitigations:
 
@@ -46,18 +47,6 @@ Recently completed MVP mitigations:
 - Added first-class header propagation across core, scheduler, dashboard, local
   bus, Azure Service Bus, and NestJS microservices transport.
 
-## Beta
-
-Beta focuses on hardening behavior after MVP:
-
-- Broader adapter integration tests.
-- Broker-specific hardening for the NestJS microservices transport adapter.
-- Dashboard UI polish and clearer operator feedback.
-- Dashboard UI polish and richer operator feedback.
-- Stronger Azure Service Bus failure and lifecycle coverage.
-- Production-oriented examples using environment variables only.
-- Clear migration guidance for MikroORM schemas.
-
 ## v1
 
 v1 is the first stable public API release:
@@ -65,9 +54,11 @@ v1 is the first stable public API release:
 - Stable exported interfaces and module registration APIs.
 - Version alignment across first-party packages.
 - Production setup guide.
-- PostgreSQL and MySQL concurrency proof for durable outbox claiming.
+- Broader adapter integration tests.
+- Broker-specific hardening for the NestJS microservices transport adapter.
+- Dashboard UI polish and richer operator feedback.
 - SQL Server-specific claim support remains future adapter work.
-- Migration guide for 0.7 beta databases and APIs.
+- Migration guide for 0.7 databases and APIs.
 - Release checklist and changelog discipline.
 - Clear compatibility promises for adapters and dashboard APIs.
 

@@ -2,8 +2,8 @@
 
 Releases are manual or tag-triggered. CI validates the repository; the release
 workflow is the only workflow that publishes packages. Packages are published to
-GitHub Packages at `https://npm.pkg.github.com`. The first MVP package set
-should be published as beta or rc before stable graduation.
+GitHub Packages at `https://npm.pkg.github.com`. Prerelease package sets can be
+published on the beta or rc channels before a stable tag.
 
 ## Before Release
 
@@ -22,7 +22,7 @@ should be published as beta or rc before stable graduation.
 npm run lint:check
 npm run build
 npm test
-npm run test:e2e
+npm run test:e2e -- --runInBand
 npm run test:integration:db
 npm run examples:check
 npm run docs:api
@@ -74,7 +74,8 @@ The release workflow:
 - Verify packages are available in GitHub Packages.
 - Set package visibility/access in GitHub Packages after the first publish.
 - Verify generated changelogs and tags are correct.
-- Update `docs/roadmap.md` if release scope changes MVP/Beta/v1 status.
+- Update `docs/roadmap.md` if release scope changes stable 0.7, v1, or later
+  status.
 
 ## Installing From GitHub Packages
 

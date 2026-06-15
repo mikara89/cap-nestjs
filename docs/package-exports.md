@@ -33,15 +33,14 @@ Imports from package internals are not part of the public API:
 import { CapService } from '@mikara89/cap-nest/dist/cap/cap.service';
 ```
 
-Internal folder layout can change during beta without a compatibility guarantee.
+Internal folder layout can change before package `exports` maps are introduced.
 If an internal symbol is useful to applications, promote it through the package
 root before documenting it.
 
 ## Follow-Up Decision
 
-Do not add package `exports` maps in this pass. Add them after at least one beta
-cycle or after confirming examples, docs, tests, and known consumers do not rely
-on deep imports.
+Do not add package `exports` maps in this pass. Add them after confirming
+examples, docs, tests, and known consumers do not rely on deep imports.
 
 The likely future shape is:
 
