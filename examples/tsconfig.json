@@ -1,33 +1,32 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "..",
     "declaration": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "module": "commonjs",
-    "moduleResolution": "node",
     "noEmit": true,
     "outDir": "../.tmp/examples",
+    "rootDir": "..",
     "paths": {
-      "@mikara89/cap-nest": ["libs/cap-nest/src"],
-      "@mikara89/cap-nest/*": ["libs/cap-nest/src/*"],
-      "@mikara89/mikroorm-storage": ["libs/storage-mikro-orm/src"],
-      "@mikara89/mikroorm-storage/*": ["libs/storage-mikro-orm/src/*"],
+      "@mikara89/cap-nest": ["../libs/cap-nest/src"],
+      "@mikara89/cap-nest/*": ["../libs/cap-nest/src/*"],
+      "@mikara89/mikroorm-storage": ["../libs/storage-mikro-orm/src"],
+      "@mikara89/mikroorm-storage/*": ["../libs/storage-mikro-orm/src/*"],
       "@mikara89/azure-servicebus-transport": [
-        "libs/transport-azure-servicebus/src"
+        "../libs/transport-azure-servicebus/src"
       ],
       "@mikara89/azure-servicebus-transport/*": [
-        "libs/transport-azure-servicebus/src/*"
+        "../libs/transport-azure-servicebus/src/*"
       ],
       "@mikara89/nestjs-microservices-transport": [
-        "libs/transport-nestjs-microservices/src"
+        "../libs/transport-nestjs-microservices/src"
       ],
       "@mikara89/nestjs-microservices-transport/*": [
-        "libs/transport-nestjs-microservices/src/*"
+        "../libs/transport-nestjs-microservices/src/*"
       ],
-      "@mikara89/cap-dashboard": ["libs/cap-dashboard/src"],
-      "@mikara89/cap-dashboard/*": ["libs/cap-dashboard/src/*"]
+      "@mikara89/cap-dashboard": ["../libs/cap-dashboard/src"],
+      "@mikara89/cap-dashboard/*": ["../libs/cap-dashboard/src/*"]
     },
     "strict": true,
     "types": ["node"]

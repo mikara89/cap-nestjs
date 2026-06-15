@@ -104,7 +104,8 @@
     "typescript-eslint": "^8.20.0"
   },
   "overrides": {
-    "better-sqlite3": "12.10.1"
+    "better-sqlite3": "12.10.1",
+    "tmp": "0.2.7"
   },
   "jest": {
     "moduleFileExtensions": [

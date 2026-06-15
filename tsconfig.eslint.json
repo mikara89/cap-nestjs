@@ -23,6 +23,11 @@
       "@mikara89/cap-dashboard/*": ["libs/cap-dashboard/src/*"]
     }
   },
-  "include": ["apps/**/*.ts", "libs/**/*.ts", "test/**/*.ts"],
+  "include": [
+    "apps/**/*.ts",
+    "examples/**/*.ts",
+    "libs/**/*.ts",
+    "test/**/*.ts"
+  ],
   "exclude": ["node_modules", "dist", "**/dist/**", "coverage"]
 }
