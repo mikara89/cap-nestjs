@@ -78,8 +78,10 @@ The MikroORM adapter provides:
 - `cap_publish` outbox entity/table with retry, lease, and dead-letter state
 - lock-based outbox claiming; production use requires a MikroORM SQL driver
   that supports pessimistic partial write locking, or a custom storage adapter
-- SQLite/local demo drivers fall back to non-locking transactional claims and
-  are not supported for multi-instance durable dispatch
+- the first-party multi-instance DB gate covers PostgreSQL and MySQL
+- SQLite/local demo drivers and SQL Server fall back to non-locking
+  transactional claims and are not supported for multi-instance durable
+  dispatch by the first-party MikroORM adapter
 - `cap_received` inbox entity/table with unique `(group, dedupeKey)`
 - inbox retry/dead-letter state with `status`, `lastError`, and `processedAt`
 - `savePublishWithTx` for transactional outbox persistence

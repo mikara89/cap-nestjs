@@ -19,8 +19,10 @@ adapters.
 7. [GitHub Pages homepage](github-pages.md) - public homepage setup.
 8. [Roadmap](roadmap.md) - MVP, Beta, v1, and Later stages.
 9. [Release checklist](release.md) - validation and publishing safety.
-10. [ADRs](adr/README.md) - durable architecture decisions.
-11. [Contributing](contributing.md) - local workflow, repo health checks, tests,
+10. [Migrations](migrations/0.7-to-1.0.md) - upgrade notes for stable schema
+    and API behavior.
+11. [ADRs](adr/README.md) - durable architecture decisions.
+12. [Contributing](contributing.md) - local workflow, repo health checks, tests,
     coverage, and docs rules.
 
 ## Current Maturity

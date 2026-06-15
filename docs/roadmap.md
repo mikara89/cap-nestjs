@@ -65,6 +65,9 @@ v1 is the first stable public API release:
 - Stable exported interfaces and module registration APIs.
 - Version alignment across first-party packages.
 - Production setup guide.
+- PostgreSQL and MySQL concurrency proof for durable outbox claiming.
+- SQL Server-specific claim support remains future adapter work.
+- Migration guide for 0.7 beta databases and APIs.
 - Release checklist and changelog discipline.
 - Clear compatibility promises for adapters and dashboard APIs.
 

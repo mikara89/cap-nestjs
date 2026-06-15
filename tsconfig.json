@@ -56,6 +56,7 @@
   "include": [
     "apps/**/*",
     "libs/**/*.spec.ts",
+    "libs/**/*.integration-spec.ts",
     "types/**/*.d.ts"
   ]
 }

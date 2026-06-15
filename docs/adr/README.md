@@ -19,3 +19,4 @@ adapter boundaries, package boundaries, or operational behavior.
 - [0003 - Keep storage and transport pluggable](0003-pluggable-adapters.md)
 - [0004 - Ship the dashboard as an optional module](0004-optional-dashboard-module.md)
 - [0005 - Prefer transactional outbox with post-commit publishing](0005-transactional-outbox-post-commit.md)
+- [0006 - Keep CapModule global for v1](0006-cap-module-global-scope.md)

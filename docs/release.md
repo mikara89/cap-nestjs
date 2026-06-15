@@ -23,8 +23,18 @@ npm run lint:check
 npm run build
 npm test
 npm run test:e2e
+npm run test:integration:db
+npm run examples:check
+npm run docs:api
 npm run pack:dry-run
 ```
+
+`npm run test:integration:db` runs the real multi-instance claim gate for
+PostgreSQL and MySQL. SQL Server is intentionally not part of the first-party
+multi-instance gate until the MikroORM adapter has a SQL Server-specific claim
+implementation. The MySQL gate asserts no duplicate claims while overlapping
+locks are held; depending on InnoDB range locks, remaining rows may be claimed
+on the next scheduler pass rather than by the second worker immediately.
 
 - Run the external Azure Service Bus gate when a real namespace or emulator is
   available:

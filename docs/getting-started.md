@@ -66,7 +66,9 @@ first-party packages are MikroORM storage and Azure Service Bus transport.
 > Warning: multi-instance durable outbox dispatch requires a lock-capable
 > MikroORM SQL driver such as PostgreSQL or MySQL, or a custom storage adapter
 > with equivalent claim safety. SQLite and other local/non-locking drivers are
-> supported only for demos, development, and single-process tests.
+> supported only for demos, development, and single-process tests. SQL Server
+> requires a future SQL Server-specific claim implementation before it is
+> supported for multi-instance dispatch by the first-party MikroORM adapter.
 
 ```ts
 import { Module } from '@nestjs/common';

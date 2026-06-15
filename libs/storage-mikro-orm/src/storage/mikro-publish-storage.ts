@@ -2,6 +2,7 @@ import { Injectable, Logger, Optional } from '@nestjs/common';
 import {
   EntityManager,
   FilterQuery,
+  IsolationLevel,
   LockMode,
   MikroORM,
 } from '@mikro-orm/core';
@@ -100,7 +101,7 @@ export class MikroPublishStorage implements IPublishStorage {
 
       await em.flush();
       return entities.map(mapPublishEntity);
-    });
+    }, claimTransactionOptions(this.em));
   }
 
   async markPublished(id: string, publishedAt = new Date()): Promise<void> {
@@ -211,6 +212,23 @@ function claimFindOptions(
 }
 
 function supportsSkipLocked(em: EntityManager): boolean {
+  const platformName = getPlatformName(em);
+  if (!platformName) return true;
+  return platformName.includes('postgres') || platformName.includes('mysql');
+}
+
+function claimTransactionOptions(
+  em: EntityManager,
+): { isolationLevel: IsolationLevel } | undefined {
+  const platformName = getPlatformName(em);
+  if (platformName?.includes('mysql')) {
+    return { isolationLevel: IsolationLevel.READ_COMMITTED };
+  }
+
+  return undefined;
+}
+
+function getPlatformName(em: EntityManager): string | undefined {
   const maybeDriver = (
     em as unknown as {
       getDriver?: () => {
@@ -221,9 +239,7 @@ function supportsSkipLocked(em: EntityManager): boolean {
   const platformName = maybeDriver
     ?.getPlatform?.()
     ?.constructor?.name?.toLowerCase();
-
-  if (!platformName) return true;
-  return platformName.includes('postgres') || platformName.includes('mysql');
+  return platformName;
 }
 
 function claimableWhere(now: Date): FilterQuery<CapPublishEntity> {

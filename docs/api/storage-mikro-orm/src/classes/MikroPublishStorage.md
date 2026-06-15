@@ -6,7 +6,7 @@
 
 # Class: MikroPublishStorage
 
-Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:34](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L34)
+Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:35](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L35)
 
 ## Implements
 
@@ -18,7 +18,7 @@ Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:34](https://
 
 > **new MikroPublishStorage**(`em`, `orm?`): `MikroPublishStorage`
 
-Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:37](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L37)
+Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:38](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L38)
 
 #### Parameters
 
@@ -40,7 +40,7 @@ Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:37](https://
 
 > **claimUnpublished**(`options`): `Promise`\<`CapPublishEvent`\<`JsonValue`\>[]\>
 
-Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:84](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L84)
+Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:85](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L85)
 
 #### Parameters
 
@@ -62,7 +62,7 @@ Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:84](https://
 
 > **findPublishById**(`id`): `Promise`\<`CapPublishEvent`\<`JsonValue`\> \| `undefined`\>
 
-Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:153](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L153)
+Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:154](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L154)
 
 #### Parameters
 
@@ -84,7 +84,7 @@ Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:153](https:/
 
 > `optional` **initialize**(`options?`): `Promise`\<`void`\>
 
-Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:42](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L42)
+Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:43](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L43)
 
 #### Parameters
 
@@ -112,7 +112,7 @@ Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:42](https://
 
 > **listPublish**(`opts`): `Promise`\<\{ `items`: `CapPublishEvent`\<`JsonValue`\>[]; `total`: `number`; \}\>
 
-Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:160](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L160)
+Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:161](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L161)
 
 #### Parameters
 
@@ -148,7 +148,7 @@ Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:160](https:/
 
 > **markPublished**(`id`, `publishedAt?`): `Promise`\<`void`\>
 
-Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:106](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L106)
+Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:107](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L107)
 
 #### Parameters
 
@@ -174,7 +174,7 @@ Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:106](https:/
 
 > **markPublishFailed**(`id`, `error`, `options`): `Promise`\<`void`\>
 
-Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:117](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L117)
+Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:118](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L118)
 
 #### Parameters
 
@@ -204,7 +204,7 @@ Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:117](https:/
 
 > **releaseExpiredClaims**(`now`): `Promise`\<`void`\>
 
-Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:137](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L137)
+Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:138](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L138)
 
 #### Parameters
 
@@ -226,7 +226,7 @@ Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:137](https:/
 
 > **savePublish**(`event`): `Promise`\<`string`\>
 
-Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:68](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L68)
+Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:69](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L69)
 
 #### Parameters
 
@@ -248,7 +248,7 @@ Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:68](https://
 
 > **savePublishWithTx**(`event`, `tx`): `Promise`\<`string`\>
 
-Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:74](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L74)
+Defined in: [storage-mikro-orm/src/storage/mikro-publish-storage.ts:75](https://github.com/mikara89/cap-nestjs/blob/main/libs/storage-mikro-orm/src/storage/mikro-publish-storage.ts#L75)
 
 #### Parameters
 

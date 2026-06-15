@@ -142,7 +142,9 @@ Azure Service Bus transport:
 > Warning: multi-instance durable outbox dispatch requires a lock-capable
 > MikroORM SQL driver such as PostgreSQL or MySQL, or a custom storage adapter
 > with equivalent claim safety. SQLite and other local/non-locking drivers are
-> supported only for demos, development, and single-process tests.
+> supported only for demos, development, and single-process tests. SQL Server
+> requires a future SQL Server-specific claim implementation before it is
+> supported for multi-instance dispatch by the first-party MikroORM adapter.
 
 ```ts
 import { Module } from '@nestjs/common';
@@ -183,6 +185,9 @@ export class AppModule {}
 
 Use environment variables or a secret manager for connection strings and
 database credentials. Do not commit real credentials.
+
+`CapModule` is global by design for v1. Register it once in the application
+root; feature modules can inject `CapService` without re-importing CAP.
 
 ## Dashboard
 
@@ -274,11 +279,13 @@ npm run docs:api
   you explicitly want CAP to create those resources.
 - Durable MikroORM inbox deduplication uses `(group, dedupeKey)`, and outbox
   claiming relies on pessimistic partial write locking. Multi-instance durable
-  outbox dispatch is production-supported for lock-capable drivers such as
-  PostgreSQL and MySQL; SQLite/local demo drivers use a non-locking fallback
-  and should not be used for multi-instance dispatch. Existing beta databases
-  need a migration for new inbox status/dead-letter fields and the dedupe index
-  change.
+  outbox dispatch is production-supported for lock-capable drivers covered by
+  the DB integration gate, currently PostgreSQL and MySQL. SQLite/local demo
+  drivers use a non-locking fallback and should not be used for multi-instance
+  dispatch. SQL Server is not multi-instance supported by the first-party
+  MikroORM adapter until it has a SQL Server-specific claim implementation.
+  Existing beta databases need a migration for new inbox status/dead-letter
+  fields and the dedupe index change.
 
 ## Documentation
 

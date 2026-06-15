@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 
 import { Test } from '@nestjs/testing';
-import { EntityManager, LockMode } from '@mikro-orm/core';
+import { EntityManager, IsolationLevel, LockMode } from '@mikro-orm/core';
 import { MikroPublishStorage } from './mikro-publish-storage';
 import { CapPublishEntity } from '../entities/cap-publish.entity';
 import { type CapPublishEvent } from '@mikara89/cap-nest';
@@ -108,6 +108,63 @@ describe('MikroPublishStorage', () => {
       expect.any(Object),
       expect.not.objectContaining({
         lockMode: LockMode.PESSIMISTIC_PARTIAL_WRITE,
+      }),
+    );
+  });
+
+  it('does not request skip-locked claim mode for SQL Server drivers', async () => {
+    const entity = publishEntity({ status: 'pending' });
+    (em.find as jest.Mock).mockResolvedValue([entity]);
+    (
+      em as unknown as {
+        getDriver: () => {
+          getPlatform: () => { constructor: { name: string } };
+        };
+      }
+    ).getDriver = () => ({
+      getPlatform: () => ({ constructor: { name: 'MsSqlPlatform' } }),
+    });
+
+    await storage.claimUnpublished({
+      limit: 10,
+      lockedBy: 'worker-1',
+      lockUntil: new Date(Date.now() + 30_000),
+      now: new Date(),
+    });
+
+    expect(em.find).toHaveBeenCalledWith(
+      CapPublishEntity,
+      expect.any(Object),
+      expect.not.objectContaining({
+        lockMode: LockMode.PESSIMISTIC_PARTIAL_WRITE,
+      }),
+    );
+  });
+
+  it('uses read committed isolation for MySQL claim transactions', async () => {
+    const entity = publishEntity({ status: 'pending' });
+    (em.find as jest.Mock).mockResolvedValue([entity]);
+    (
+      em as unknown as {
+        getDriver: () => {
+          getPlatform: () => { constructor: { name: string } };
+        };
+      }
+    ).getDriver = () => ({
+      getPlatform: () => ({ constructor: { name: 'MySqlPlatform' } }),
+    });
+
+    await storage.claimUnpublished({
+      limit: 10,
+      lockedBy: 'worker-1',
+      lockUntil: new Date(Date.now() + 30_000),
+      now: new Date(),
+    });
+
+    expect(em.transactional).toHaveBeenCalledWith(
+      expect.any(Function),
+      expect.objectContaining({
+        isolationLevel: IsolationLevel.READ_COMMITTED,
       }),
     );
   });

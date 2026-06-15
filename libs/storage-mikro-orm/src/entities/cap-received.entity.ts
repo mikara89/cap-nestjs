@@ -27,7 +27,7 @@ export class CapReceivedEntity {
   @Property({ type: 'string', length: 255 })
   messageId!: string;
 
-  @Property({ type: 'string', length: 768 })
+  @Property({ type: 'string', length: 512 })
   dedupeKey!: string;
 
   @Property({ type: 'json' })

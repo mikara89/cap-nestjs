@@ -52,6 +52,9 @@
     "test:lib:cap-nest": "jest --testPathPattern=libs/cap-nest",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/cap-test-app/test/jest-e2e.json",
+    "test:integration:db": "jest --testRegex=.*outbox-claim.* --runInBand",
+    "test:integration:db:postgres": "jest --testRegex=.*outbox-claim.* --testNamePattern=PostgreSQL --runInBand",
+    "test:integration:db:mysql": "jest --testRegex=.*outbox-claim.* --testNamePattern=MySQL --runInBand",
     "test:integration": "jest --config ./apps/cap-test-app/test/jest-integration.json"
   },
   "dependencies": {
@@ -70,6 +73,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
+    "@mikro-orm/mysql": "^6.6.14",
     "@mikro-orm/postgresql": "^6.0.0",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",

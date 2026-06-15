@@ -36,6 +36,10 @@ First-party adapters currently exist for MikroORM storage, Azure Service Bus
 transport, and NestJS microservices `ClientProxy` transport. Applications can
 provide different adapters by implementing the same interfaces.
 
+`CapModule` is intentionally global for v1. Register it once at the application
+root with the storage and transport modules it should use; `CapService` is then
+available app-wide through Nest dependency injection.
+
 ## Publish Flow
 
 ```mermaid
@@ -100,8 +104,11 @@ Outbox retries claim eligible rows with a lease before emitting them. The
 MikroORM storage adapter uses pessimistic partial write locking for production
 claim safety on lock-capable SQL drivers. SQLite and other local/non-locking
 drivers use a fallback intended only for demos, development, and single-process
-tests; they are not supported for multi-instance durable dispatch. Failed emits
-increment retry state and eventually move rows to `dead_letter`.
+tests; they are not supported for multi-instance durable dispatch. The current
+first-party MikroORM multi-instance DB gate covers PostgreSQL and MySQL. SQL
+Server needs a SQL Server-specific claim implementation before it is supported
+for multi-instance dispatch. Failed emits increment retry state and eventually
+move rows to `dead_letter`.
 
 Inbox retries read due `failed` rows and re-run the registered handler. Handler
 failures increment retry state, store `lastError`, and eventually move rows to
