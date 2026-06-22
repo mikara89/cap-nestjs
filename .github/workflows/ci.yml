@@ -23,6 +23,13 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
+      - name: Debug checkout
+        run: |
+          pwd
+          ls -la
+          git rev-parse HEAD
+          test -f package-lock.json
+          head -20 package-lock.json
       - name: Install
         run: npm ci
       - name: Lint
@@ -63,6 +70,13 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
+      - name: Debug checkout
+        run: |
+          pwd
+          ls -la
+          git rev-parse HEAD
+          test -f package-lock.json
+          head -20 package-lock.json
       - name: Install
         run: npm ci
       - name: Run Azure Service Bus integration gate
