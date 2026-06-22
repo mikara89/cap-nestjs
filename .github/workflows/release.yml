@@ -60,16 +60,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Debug checkout
-        run: |
-          pwd
-          ls -la
-          git rev-parse HEAD
-          test -f package-lock.json
-          head -20 package-lock.json
-
       - name: Install
-        run: npm ci
+        run: npm ci --package-lock=true
 
       - name: Build libs
         run: npm run build:libs
