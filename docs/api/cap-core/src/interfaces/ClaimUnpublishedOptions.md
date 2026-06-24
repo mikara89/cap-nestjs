@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-core/src](../README.md) / ClaimUnpublishedOptions
+[CAP Node.js API](../../../README.md) / [cap-core/src](../README.md) / ClaimUnpublishedOptions
 
 # Interface: ClaimUnpublishedOptions
 
-Defined in: cap-core/src/ports/publish-storage.port.ts:11
+Defined in: [cap-core/src/ports/publish-storage.port.ts:11](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/publish-storage.port.ts#L11)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: cap-core/src/ports/publish-storage.port.ts:11
 
 > **limit**: `number`
 
-Defined in: cap-core/src/ports/publish-storage.port.ts:12
+Defined in: [cap-core/src/ports/publish-storage.port.ts:12](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/publish-storage.port.ts#L12)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: cap-core/src/ports/publish-storage.port.ts:12
 
 > **lockedBy**: `string`
 
-Defined in: cap-core/src/ports/publish-storage.port.ts:13
+Defined in: [cap-core/src/ports/publish-storage.port.ts:13](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/publish-storage.port.ts#L13)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: cap-core/src/ports/publish-storage.port.ts:13
 
 > **lockUntil**: `Date`
 
-Defined in: cap-core/src/ports/publish-storage.port.ts:14
+Defined in: [cap-core/src/ports/publish-storage.port.ts:14](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/publish-storage.port.ts#L14)
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: cap-core/src/ports/publish-storage.port.ts:14
 
 > **now**: `Date`
 
-Defined in: cap-core/src/ports/publish-storage.port.ts:15
+Defined in: [cap-core/src/ports/publish-storage.port.ts:15](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/publish-storage.port.ts#L15)

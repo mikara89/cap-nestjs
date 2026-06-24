@@ -6,10 +6,10 @@ import { v4 as uuid } from 'uuid';
 
 import { withTransactionAndPostCommit } from '@mikara89/cap-nest';
 import {
-  MikroStorageModule,
   CapPublishEntity,
   CapReceivedEntity,
 } from '@mikara89/cap-storage-mikro-orm';
+import { MikroStorageModule } from '@mikara89/cap-storage-mikro-orm/nest';
 import { PUBLISH_STORAGE } from '@mikara89/cap-nest';
 import { type PublishStoragePort } from '@mikara89/cap-core';
 

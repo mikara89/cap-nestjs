@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-core/src](../README.md) / CapSchedulerRuntimeOptions
+[CAP Node.js API](../../../README.md) / [cap-core/src](../README.md) / CapSchedulerRuntimeOptions
 
 # Interface: CapSchedulerRuntimeOptions
 
-Defined in: cap-core/src/engine/cap-scheduler.ts:4
+Defined in: [cap-core/src/engine/cap-scheduler.ts:4](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-scheduler.ts#L4)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: cap-core/src/engine/cap-scheduler.ts:4
 
 > `optional` **disabled?**: `boolean`
 
-Defined in: cap-core/src/engine/cap-scheduler.ts:7
+Defined in: [cap-core/src/engine/cap-scheduler.ts:7](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-scheduler.ts#L7)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: cap-core/src/engine/cap-scheduler.ts:7
 
 > **inboxRetryIntervalMs**: `number`
 
-Defined in: cap-core/src/engine/cap-scheduler.ts:6
+Defined in: [cap-core/src/engine/cap-scheduler.ts:6](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-scheduler.ts#L6)
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: cap-core/src/engine/cap-scheduler.ts:6
 
 > **outboxIntervalMs**: `number`
 
-Defined in: cap-core/src/engine/cap-scheduler.ts:5
+Defined in: [cap-core/src/engine/cap-scheduler.ts:5](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-scheduler.ts#L5)

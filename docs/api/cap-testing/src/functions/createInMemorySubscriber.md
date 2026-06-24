@@ -1,8 +1,8 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-testing/src](../README.md) / createInMemorySubscriber
+[CAP Node.js API](../../../README.md) / [cap-testing/src](../README.md) / createInMemorySubscriber
 
 # Function: createInMemorySubscriber()
 

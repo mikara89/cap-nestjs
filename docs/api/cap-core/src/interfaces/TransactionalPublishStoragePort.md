@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-core/src](../README.md) / TransactionalPublishStoragePort
+[CAP Node.js API](../../../README.md) / [cap-core/src](../README.md) / TransactionalPublishStoragePort
 
 # Interface: TransactionalPublishStoragePort
 
-Defined in: cap-core/src/ports/publish-storage.port.ts:52
+Defined in: [cap-core/src/ports/publish-storage.port.ts:52](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/publish-storage.port.ts#L52)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: cap-core/src/ports/publish-storage.port.ts:52
 
 > **claimUnpublished**(`options`): `Promise`\<[`CapPublishEvent`](CapPublishEvent.md)\<[`JsonValue`](../type-aliases/JsonValue.md)\>[]\>
 
-Defined in: cap-core/src/ports/publish-storage.port.ts:31
+Defined in: [cap-core/src/ports/publish-storage.port.ts:31](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/publish-storage.port.ts#L31)
 
 #### Parameters
 
@@ -40,7 +40,7 @@ Defined in: cap-core/src/ports/publish-storage.port.ts:31
 
 > `optional` **findPublishById**(`id`): `Promise`\<[`CapPublishEvent`](CapPublishEvent.md)\<[`JsonValue`](../type-aliases/JsonValue.md)\> \| `undefined`\>
 
-Defined in: cap-core/src/ports/publish-storage.port.ts:45
+Defined in: [cap-core/src/ports/publish-storage.port.ts:45](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/publish-storage.port.ts#L45)
 
 #### Parameters
 
@@ -62,7 +62,7 @@ Defined in: cap-core/src/ports/publish-storage.port.ts:45
 
 > `optional` **initialize**(`options?`): `Promise`\<`void`\>
 
-Defined in: cap-core/src/ports/publish-storage.port.ts:29
+Defined in: [cap-core/src/ports/publish-storage.port.ts:29](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/publish-storage.port.ts#L29)
 
 #### Parameters
 
@@ -84,7 +84,7 @@ Defined in: cap-core/src/ports/publish-storage.port.ts:29
 
 > `optional` **listPublish**(`options`): `Promise`\<[`DashboardListResult`](DashboardListResult.md)\<[`CapPublishEvent`](CapPublishEvent.md)\<[`JsonValue`](../type-aliases/JsonValue.md)\>\>\>
 
-Defined in: cap-core/src/ports/publish-storage.port.ts:47
+Defined in: [cap-core/src/ports/publish-storage.port.ts:47](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/publish-storage.port.ts#L47)
 
 #### Parameters
 
@@ -106,7 +106,7 @@ Defined in: cap-core/src/ports/publish-storage.port.ts:47
 
 > **markPublished**(`id`, `publishedAt?`): `Promise`\<`void`\>
 
-Defined in: cap-core/src/ports/publish-storage.port.ts:35
+Defined in: [cap-core/src/ports/publish-storage.port.ts:35](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/publish-storage.port.ts#L35)
 
 #### Parameters
 
@@ -132,7 +132,7 @@ Defined in: cap-core/src/ports/publish-storage.port.ts:35
 
 > **markPublishFailed**(`id`, `error`, `options`): `Promise`\<`void`\>
 
-Defined in: cap-core/src/ports/publish-storage.port.ts:37
+Defined in: [cap-core/src/ports/publish-storage.port.ts:37](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/publish-storage.port.ts#L37)
 
 #### Parameters
 
@@ -162,7 +162,7 @@ Defined in: cap-core/src/ports/publish-storage.port.ts:37
 
 > **releaseExpiredClaims**(`now`): `Promise`\<`void`\>
 
-Defined in: cap-core/src/ports/publish-storage.port.ts:43
+Defined in: [cap-core/src/ports/publish-storage.port.ts:43](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/publish-storage.port.ts#L43)
 
 #### Parameters
 
@@ -184,7 +184,7 @@ Defined in: cap-core/src/ports/publish-storage.port.ts:43
 
 > **savePublish**\<`T`\>(`event`): `Promise`\<`string`\>
 
-Defined in: cap-core/src/ports/publish-storage.port.ts:25
+Defined in: [cap-core/src/ports/publish-storage.port.ts:25](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/publish-storage.port.ts#L25)
 
 #### Type Parameters
 
@@ -212,7 +212,7 @@ Defined in: cap-core/src/ports/publish-storage.port.ts:25
 
 > **savePublishWithTx**\<`T`\>(`event`, `tx`): `Promise`\<`string`\>
 
-Defined in: cap-core/src/ports/publish-storage.port.ts:53
+Defined in: [cap-core/src/ports/publish-storage.port.ts:53](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/publish-storage.port.ts#L53)
 
 #### Type Parameters
 

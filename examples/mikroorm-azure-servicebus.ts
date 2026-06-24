@@ -4,9 +4,9 @@ import { CapModule } from '@mikara89/cap-nest';
 import {
   CapPublishEntity,
   CapReceivedEntity,
-  MikroStorageModule,
 } from '@mikara89/cap-storage-mikro-orm';
-import { ServiceBusTransportModule } from '@mikara89/cap-transport-azure-servicebus';
+import { MikroStorageModule } from '@mikara89/cap-storage-mikro-orm/nest';
+import { ServiceBusTransportModule } from '@mikara89/cap-transport-azure-servicebus/nest';
 
 type NestImport = DynamicModule | Promise<DynamicModule> | Type<unknown>;
 

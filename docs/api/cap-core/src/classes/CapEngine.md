@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-core/src](../README.md) / CapEngine
+[CAP Node.js API](../../../README.md) / [cap-core/src](../README.md) / CapEngine
 
 # Class: CapEngine
 
-Defined in: cap-core/src/engine/cap-engine.ts:68
+Defined in: [cap-core/src/engine/cap-engine.ts:68](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-engine.ts#L68)
 
 ## Constructors
 
@@ -14,7 +14,7 @@ Defined in: cap-core/src/engine/cap-engine.ts:68
 
 > **new CapEngine**(`options`): `CapEngine`
 
-Defined in: cap-core/src/engine/cap-engine.ts:79
+Defined in: [cap-core/src/engine/cap-engine.ts:79](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-engine.ts#L79)
 
 #### Parameters
 
@@ -32,7 +32,7 @@ Defined in: cap-core/src/engine/cap-engine.ts:79
 
 > **close**(): `Promise`\<`void`\>
 
-Defined in: cap-core/src/engine/cap-engine.ts:216
+Defined in: [cap-core/src/engine/cap-engine.ts:216](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-engine.ts#L216)
 
 #### Returns
 
@@ -44,7 +44,7 @@ Defined in: cap-core/src/engine/cap-engine.ts:216
 
 > **dispatchOutboxBatch**(): `Promise`\<`number`\>
 
-Defined in: cap-core/src/engine/cap-engine.ts:174
+Defined in: [cap-core/src/engine/cap-engine.ts:174](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-engine.ts#L174)
 
 #### Returns
 
@@ -56,7 +56,7 @@ Defined in: cap-core/src/engine/cap-engine.ts:174
 
 > **publish**\<`T`\>(`topic`, `payload`, `options?`): `Promise`\<`void`\>
 
-Defined in: cap-core/src/engine/cap-engine.ts:90
+Defined in: [cap-core/src/engine/cap-engine.ts:90](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-engine.ts#L90)
 
 #### Type Parameters
 
@@ -88,7 +88,7 @@ Defined in: cap-core/src/engine/cap-engine.ts:90
 
 > **retryInboxBatch**(): `Promise`\<`number`\>
 
-Defined in: cap-core/src/engine/cap-engine.ts:198
+Defined in: [cap-core/src/engine/cap-engine.ts:198](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-engine.ts#L198)
 
 #### Returns
 
@@ -100,7 +100,7 @@ Defined in: cap-core/src/engine/cap-engine.ts:198
 
 > **retryReceived**(`rec`): `Promise`\<`void`\>
 
-Defined in: cap-core/src/engine/cap-engine.ts:163
+Defined in: [cap-core/src/engine/cap-engine.ts:163](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-engine.ts#L163)
 
 #### Parameters
 
@@ -118,7 +118,7 @@ Defined in: cap-core/src/engine/cap-engine.ts:163
 
 > **subscribe**\<`T`\>(`topic`, `group`, `handler`): `void`
 
-Defined in: cap-core/src/engine/cap-engine.ts:127
+Defined in: [cap-core/src/engine/cap-engine.ts:127](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-engine.ts#L127)
 
 #### Type Parameters
 

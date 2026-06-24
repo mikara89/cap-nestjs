@@ -3,7 +3,9 @@
 The dashboard package provides an optional admin surface for CAP outbox and
 inbox records. It includes REST endpoints and a lightweight static UI.
 
-Package: `@mikara89/cap-dashboard-nest`
+Packages: `@mikara89/cap-dashboard-nest`,
+`@mikara89/cap-dashboard-express`, and framework-neutral
+`@mikara89/cap-dashboard-core`.
 
 ## Current Status
 
@@ -49,6 +51,24 @@ MVP must keep dashboard security application-owned. CAP should not prescribe a
 specific identity provider, session model, token format, or role system. The
 host application can pass a NestJS guard for authentication and an optional
 operation-aware authorizer for read/admin policy.
+
+For Express, pass application-owned middleware when creating the router:
+
+```ts
+import { createCapDashboardRouter } from '@mikara89/cap-dashboard-express';
+
+app.use(
+  '/api/cap',
+  createCapDashboardRouter({
+    service,
+    middleware: requireAuthenticatedOperator,
+  }),
+);
+```
+
+Mounting the router without middleware is local-only. Write endpoints can retry
+messages, mark records, or flush the outbox, so production deployments must
+protect the router before exposing it.
 
 ## Options
 
@@ -135,3 +155,4 @@ efficient behavior. The MikroORM adapter provides these helpers.
   executionContext }`. Read routes use `permission: 'read'`; retry, mark, and
   flush routes use `permission: 'admin'`.
 - Treat retry and mark endpoints as privileged operations.
+- Express router middleware runs before read and write dashboard routes.

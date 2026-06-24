@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-nest/src](../README.md) / ClaimUnpublishedOptions
+[CAP Node.js API](../../../README.md) / [cap-nest/src](../README.md) / ClaimUnpublishedOptions
 
 # Interface: ClaimUnpublishedOptions
 
-Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:14
+Defined in: [cap-nest/src/cap/abstractions/storage.interface.ts:14](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/abstractions/storage.interface.ts#L14)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:14
 
 > **limit**: `number`
 
-Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:15
+Defined in: [cap-nest/src/cap/abstractions/storage.interface.ts:15](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/abstractions/storage.interface.ts#L15)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:15
 
 > **lockedBy**: `string`
 
-Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:16
+Defined in: [cap-nest/src/cap/abstractions/storage.interface.ts:16](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/abstractions/storage.interface.ts#L16)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:16
 
 > **lockUntil**: `Date`
 
-Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:17
+Defined in: [cap-nest/src/cap/abstractions/storage.interface.ts:17](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/abstractions/storage.interface.ts#L17)
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:17
 
 > **now**: `Date`
 
-Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:18
+Defined in: [cap-nest/src/cap/abstractions/storage.interface.ts:18](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/abstractions/storage.interface.ts#L18)

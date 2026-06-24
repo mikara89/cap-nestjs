@@ -1,8 +1,8 @@
-[**CAP for NestJS API**](../../README.md)
+[**CAP Node.js API**](../../README.md)
 
 ***
 
-[CAP for NestJS API](../../README.md) / cap-dashboard-nest/src
+[CAP Node.js API](../../README.md) / cap-dashboard-nest/src
 
 # cap-dashboard-nest/src
 
@@ -12,7 +12,6 @@
 - [CapDashboardModule](classes/CapDashboardModule.md)
 - [CapDashboardService](classes/CapDashboardService.md)
 - [InboxItemDto](classes/InboxItemDto.md)
-- [InboxPageDto](classes/InboxPageDto.md)
 - [OutboxPageDto](classes/OutboxPageDto.md)
 
 ## Interfaces
@@ -48,6 +47,12 @@
 ### ActionResultDto
 
 Re-exports [ActionResultDto](../../cap-dashboard-core/src/classes/ActionResultDto.md)
+
+***
+
+### InboxPageDto
+
+Re-exports [InboxPageDto](../../cap-dashboard-core/src/classes/InboxPageDto.md)
 
 ***
 

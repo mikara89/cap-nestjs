@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import type { Request, Response } from 'express';
+import type { Request, RequestHandler, Response } from 'express';
 import {
   CapDashboardCoreService,
   type CapDashboardCoreServiceOptions,
@@ -10,6 +10,7 @@ import {
 export interface CreateCapDashboardRouterOptions {
   service?: CapDashboardCoreService;
   serviceOptions?: CapDashboardCoreServiceOptions;
+  middleware?: RequestHandler | RequestHandler[];
 }
 
 export function createCapDashboardRouter(
@@ -28,6 +29,10 @@ export function createCapDashboardRouter(
   }
 
   const router = Router();
+
+  if (options.middleware) {
+    router.use(...asMiddlewareArray(options.middleware));
+  }
 
   router.get('/outbox', async (req, res) => {
     await send(res, service.listOutbox(toListQuery(req)));
@@ -72,6 +77,12 @@ export function createCapDashboardRouter(
   });
 
   return router;
+}
+
+function asMiddlewareArray(
+  middleware: RequestHandler | RequestHandler[],
+): RequestHandler[] {
+  return Array.isArray(middleware) ? middleware : [middleware];
 }
 
 async function send<T>(res: Response, result: Promise<T>): Promise<void> {

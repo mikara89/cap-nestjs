@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-core/src](../README.md) / SubscribeMetadata
+[CAP Node.js API](../../../README.md) / [cap-core/src](../README.md) / SubscribeMetadata
 
 # Interface: SubscribeMetadata
 
-Defined in: cap-core/src/ports/subscriber.port.ts:6
+Defined in: [cap-core/src/ports/subscriber.port.ts:6](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/subscriber.port.ts#L6)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: cap-core/src/ports/subscriber.port.ts:6
 
 > `optional` **dedupeKey?**: `string`
 
-Defined in: cap-core/src/ports/subscriber.port.ts:8
+Defined in: [cap-core/src/ports/subscriber.port.ts:8](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/subscriber.port.ts#L8)
 
 ***
 
@@ -22,4 +22,4 @@ Defined in: cap-core/src/ports/subscriber.port.ts:8
 
 > `optional` **messageId?**: `string`
 
-Defined in: cap-core/src/ports/subscriber.port.ts:7
+Defined in: [cap-core/src/ports/subscriber.port.ts:7](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/ports/subscriber.port.ts#L7)

@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-core/src](../README.md) / InMemoryPublishStorage
+[CAP Node.js API](../../../README.md) / [cap-core/src](../README.md) / InMemoryPublishStorage
 
 # Class: InMemoryPublishStorage
 
-Defined in: cap-core/src/testing/in-memory-publish-storage.ts:9
+Defined in: [cap-core/src/testing/in-memory-publish-storage.ts:9](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/testing/in-memory-publish-storage.ts#L9)
 
 ## Implements
 
@@ -28,7 +28,7 @@ Defined in: cap-core/src/testing/in-memory-publish-storage.ts:9
 
 > `readonly` **store**: `Map`\<`string`, [`CapPublishEvent`](../interfaces/CapPublishEvent.md)\<[`JsonValue`](../type-aliases/JsonValue.md)\>\>
 
-Defined in: cap-core/src/testing/in-memory-publish-storage.ts:10
+Defined in: [cap-core/src/testing/in-memory-publish-storage.ts:10](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/testing/in-memory-publish-storage.ts#L10)
 
 ## Methods
 
@@ -36,7 +36,7 @@ Defined in: cap-core/src/testing/in-memory-publish-storage.ts:10
 
 > **claimUnpublished**(`options`): `Promise`\<[`CapPublishEvent`](../interfaces/CapPublishEvent.md)\<[`JsonValue`](../type-aliases/JsonValue.md)\>[]\>
 
-Defined in: cap-core/src/testing/in-memory-publish-storage.ts:19
+Defined in: [cap-core/src/testing/in-memory-publish-storage.ts:19](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/testing/in-memory-publish-storage.ts#L19)
 
 #### Parameters
 
@@ -58,7 +58,7 @@ Defined in: cap-core/src/testing/in-memory-publish-storage.ts:19
 
 > **findPublishById**(`id`): `Promise`\<[`CapPublishEvent`](../interfaces/CapPublishEvent.md)\<[`JsonValue`](../type-aliases/JsonValue.md)\> \| `undefined`\>
 
-Defined in: cap-core/src/testing/in-memory-publish-storage.ts:77
+Defined in: [cap-core/src/testing/in-memory-publish-storage.ts:77](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/testing/in-memory-publish-storage.ts#L77)
 
 #### Parameters
 
@@ -80,7 +80,7 @@ Defined in: cap-core/src/testing/in-memory-publish-storage.ts:77
 
 > **listPublish**(`options?`): `Promise`\<\{ `items`: [`CapPublishEvent`](../interfaces/CapPublishEvent.md)\<[`JsonValue`](../type-aliases/JsonValue.md)\>[]; `total`: `number`; \}\>
 
-Defined in: cap-core/src/testing/in-memory-publish-storage.ts:82
+Defined in: [cap-core/src/testing/in-memory-publish-storage.ts:82](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/testing/in-memory-publish-storage.ts#L82)
 
 #### Parameters
 
@@ -116,7 +116,7 @@ Defined in: cap-core/src/testing/in-memory-publish-storage.ts:82
 
 > **markPublished**(`id`, `publishedAt?`): `Promise`\<`void`\>
 
-Defined in: cap-core/src/testing/in-memory-publish-storage.ts:34
+Defined in: [cap-core/src/testing/in-memory-publish-storage.ts:34](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/testing/in-memory-publish-storage.ts#L34)
 
 #### Parameters
 
@@ -142,7 +142,7 @@ Defined in: cap-core/src/testing/in-memory-publish-storage.ts:34
 
 > **markPublishFailed**(`id`, `error`, `options`): `Promise`\<`void`\>
 
-Defined in: cap-core/src/testing/in-memory-publish-storage.ts:44
+Defined in: [cap-core/src/testing/in-memory-publish-storage.ts:44](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/testing/in-memory-publish-storage.ts#L44)
 
 #### Parameters
 
@@ -172,7 +172,7 @@ Defined in: cap-core/src/testing/in-memory-publish-storage.ts:44
 
 > **releaseExpiredClaims**(`now`): `Promise`\<`void`\>
 
-Defined in: cap-core/src/testing/in-memory-publish-storage.ts:62
+Defined in: [cap-core/src/testing/in-memory-publish-storage.ts:62](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/testing/in-memory-publish-storage.ts#L62)
 
 #### Parameters
 
@@ -194,7 +194,7 @@ Defined in: cap-core/src/testing/in-memory-publish-storage.ts:62
 
 > **savePublish**\<`T`\>(`event`): `Promise`\<`string`\>
 
-Defined in: cap-core/src/testing/in-memory-publish-storage.ts:12
+Defined in: [cap-core/src/testing/in-memory-publish-storage.ts:12](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/testing/in-memory-publish-storage.ts#L12)
 
 #### Type Parameters
 

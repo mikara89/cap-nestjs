@@ -8,12 +8,12 @@ import { CapTestAppService } from './cap-test-app.service';
 import { CapModule, LocalBus, PUBLISHER, SUBSCRIBER } from '@mikara89/cap-nest';
 import { CapExampleHandler } from './cap-example.handler';
 import {
-  MikroStorageModule,
   CapPublishEntity,
   CapReceivedEntity,
 } from '@mikara89/cap-storage-mikro-orm';
+import { MikroStorageModule } from '@mikara89/cap-storage-mikro-orm/nest';
 // Note: schema creation is handled via CapModule init options.
-import { ServiceBusTransportModule } from '@mikara89/cap-transport-azure-servicebus';
+import { ServiceBusTransportModule } from '@mikara89/cap-transport-azure-servicebus/nest';
 import { CapDashboardModule } from '@mikara89/cap-dashboard-nest';
 
 const serviceBusConnectionString =

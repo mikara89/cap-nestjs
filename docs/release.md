@@ -11,7 +11,7 @@ published on the beta or rc channels before a stable tag.
 - Confirm there are no committed secrets or local registry credentials.
 - Confirm GitHub private vulnerability reporting is enabled.
 - Confirm GitHub Pages is enabled for the `/docs` folder and the repository
-  About website points to `https://mikara89.github.io/cap-nestjs/`.
+  About website points to `https://mikara89.github.io/cap-nodejs/`.
 - Confirm the GitHub Packages namespace is ready. The current package names use
   the `@mikara89` npm scope, matching the current repository owner.
 - Confirm Actions has `packages: write` permission and the repository setting

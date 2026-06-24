@@ -10,10 +10,10 @@ import { v4 as uuid } from 'uuid';
 
 import { withTransactionAndPostCommit } from '../src/cap/utils/transaction.util';
 import {
-  MikroStorageModule,
   CapPublishEntity,
   CapReceivedEntity,
 } from '@mikara89/cap-storage-mikro-orm';
+import { MikroStorageModule } from '@mikara89/cap-storage-mikro-orm/nest';
 import { PUBLISH_STORAGE, type IPublishStorage } from '@mikara89/cap-nest';
 
 // start Postgres container

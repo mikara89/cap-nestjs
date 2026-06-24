@@ -1,8 +1,8 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-dashboard-nest/src](../README.md) / RetryOptions
+[CAP Node.js API](../../../README.md) / [cap-dashboard-nest/src](../README.md) / RetryOptions
 
 # Interface: RetryOptions
 

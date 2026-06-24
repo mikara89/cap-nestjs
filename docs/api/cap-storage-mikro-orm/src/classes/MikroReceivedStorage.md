@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-storage-mikro-orm/src](../README.md) / MikroReceivedStorage
+[CAP Node.js API](../../../README.md) / [cap-storage-mikro-orm/src](../README.md) / MikroReceivedStorage
 
 # Class: MikroReceivedStorage
 
-Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:12
+Defined in: [cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:12](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-storage-mikro-orm/src/storage/mikro-received-storage.ts#L12)
 
 ## Implements
 
@@ -18,7 +18,7 @@ Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:12
 
 > **new MikroReceivedStorage**(`em`, `orm?`, `logger?`): `MikroReceivedStorage`
 
-Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:13
+Defined in: [cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:13](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-storage-mikro-orm/src/storage/mikro-received-storage.ts#L13)
 
 #### Parameters
 
@@ -44,7 +44,7 @@ Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:13
 
 > **findReceivedById**(`id`): `Promise`\<[`CapReceivedEvent`](../../../cap-nest/src/interfaces/CapReceivedEvent.md)\<[`JsonValue`](../../../cap-nest/src/type-aliases/JsonValue.md)\> \| `undefined`\>
 
-Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:142
+Defined in: [cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:142](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-storage-mikro-orm/src/storage/mikro-received-storage.ts#L142)
 
 #### Parameters
 
@@ -66,7 +66,7 @@ Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:142
 
 > **getRetryDue**(`limit`): `Promise`\<[`CapReceivedEvent`](../../../cap-nest/src/interfaces/CapReceivedEvent.md)\<[`JsonValue`](../../../cap-nest/src/type-aliases/JsonValue.md)\>[]\>
 
-Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:125
+Defined in: [cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:125](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-storage-mikro-orm/src/storage/mikro-received-storage.ts#L125)
 
 #### Parameters
 
@@ -88,7 +88,7 @@ Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:125
 
 > `optional` **initialize**(`options?`): `Promise`\<`void`\>
 
-Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:19
+Defined in: [cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:19](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-storage-mikro-orm/src/storage/mikro-received-storage.ts#L19)
 
 #### Parameters
 
@@ -116,7 +116,7 @@ Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:19
 
 > **listReceived**(`opts`): `Promise`\<\{ `items`: [`CapReceivedEvent`](../../../cap-nest/src/interfaces/CapReceivedEvent.md)\<[`JsonValue`](../../../cap-nest/src/type-aliases/JsonValue.md)\>[]; `total`: `number`; \}\>
 
-Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:149
+Defined in: [cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:149](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-storage-mikro-orm/src/storage/mikro-received-storage.ts#L149)
 
 #### Parameters
 
@@ -152,7 +152,7 @@ Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:149
 
 > **markProcessed**(`id`): `Promise`\<`void`\>
 
-Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:98
+Defined in: [cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:98](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-storage-mikro-orm/src/storage/mikro-received-storage.ts#L98)
 
 #### Parameters
 
@@ -174,7 +174,7 @@ Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:98
 
 > **markReceivedFailed**(`id`, `error`, `options`): `Promise`\<`void`\>
 
-Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:108
+Defined in: [cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:108](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-storage-mikro-orm/src/storage/mikro-received-storage.ts#L108)
 
 #### Parameters
 
@@ -204,7 +204,7 @@ Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:108
 
 > **trySaveReceived**\<`T`\>(`event`): `Promise`\<`TrySaveReceivedResult`\<`T`\>\>
 
-Defined in: cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:45
+Defined in: [cap-storage-mikro-orm/src/storage/mikro-received-storage.ts:45](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-storage-mikro-orm/src/storage/mikro-received-storage.ts#L45)
 
 #### Type Parameters
 

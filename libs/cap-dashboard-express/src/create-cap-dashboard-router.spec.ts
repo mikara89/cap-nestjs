@@ -12,6 +12,7 @@ import { createCapDashboardRouter } from './create-cap-dashboard-router';
 const createExpress = expressModule as unknown as () => expressModule.Express;
 const request = requestModule as unknown as (app: expressModule.Express) => {
   get(path: string): { expect(status: number): Promise<{ body: unknown }> };
+  post(path: string): { expect(status: number): Promise<{ body: unknown }> };
 };
 
 describe('createCapDashboardRouter', () => {
@@ -63,6 +64,64 @@ describe('createCapDashboardRouter', () => {
     );
 
     await request(app).get('/cap/outbox/missing').expect(404);
+  });
+
+  it('calls middleware for read routes', async () => {
+    const middleware = jest.fn((_req, _res, next) => next());
+    const app = createExpress();
+    app.use(
+      '/cap',
+      createCapDashboardRouter({
+        serviceOptions: {
+          publishStorage: createInMemoryPublishStorage(),
+          receivedStorage: createInMemoryReceivedStorage(),
+        },
+        middleware,
+      }),
+    );
+
+    await request(app).get('/cap/outbox').expect(200);
+
+    expect(middleware).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls middleware for write routes', async () => {
+    const middleware = jest.fn((_req, _res, next) => next());
+    const publishStorage = createInMemoryPublishStorage();
+    await publishStorage.savePublish(publishEvent());
+    const app = createExpress();
+    app.use(
+      '/cap',
+      createCapDashboardRouter({
+        serviceOptions: {
+          publishStorage,
+          receivedStorage: createInMemoryReceivedStorage(),
+        },
+        middleware,
+      }),
+    );
+
+    await request(app).post('/cap/outbox/outbox-1/mark-published').expect(200);
+
+    expect(middleware).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows middleware to deny a request', async () => {
+    const app = createExpress();
+    app.use(
+      '/cap',
+      createCapDashboardRouter({
+        serviceOptions: {
+          publishStorage: createInMemoryPublishStorage(),
+          receivedStorage: createInMemoryReceivedStorage(),
+        },
+        middleware: (_req, res) => {
+          res.status(401).json({ message: 'Unauthorized' });
+        },
+      }),
+    );
+
+    await request(app).get('/cap/outbox').expect(401);
   });
 });
 

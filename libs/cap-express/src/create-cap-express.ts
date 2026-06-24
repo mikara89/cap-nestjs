@@ -7,6 +7,7 @@ import {
   type CapLogger,
   type CapPublishOptions,
   type CapSchedulerOptions,
+  type InitOptions,
   type JsonValue,
   type PublishStoragePort,
   type PublisherPort,
@@ -31,6 +32,7 @@ export interface CreateCapExpressOptions {
   now?: CapEngineOptions['now'];
   idGenerator?: CapEngineOptions['idGenerator'];
   autoStart?: boolean;
+  init?: InitOptions;
 }
 
 export interface CapExpressApp {
@@ -81,6 +83,8 @@ export function createCapExpress(
     options.logger,
   );
   let started = false;
+  let initialized = false;
+  let startPromise: Promise<void> | undefined;
 
   const app: CapExpressApp = {
     engine,
@@ -91,16 +95,33 @@ export function createCapExpress(
       await Promise.resolve();
     },
     start: async () => {
-      if (!started) {
+      if (started) {
+        return;
+      }
+
+      startPromise ??= (async () => {
+        if (!initialized) {
+          await initializeAdapters(options);
+          initialized = true;
+        }
         scheduler.start();
         started = true;
+      })();
+
+      try {
+        await startPromise;
+      } finally {
+        startPromise = undefined;
       }
-      await Promise.resolve();
     },
     stop: async () => {
+      if (startPromise) {
+        await startPromise;
+      }
       await scheduler.stop();
       await engine.close();
       started = false;
+      initialized = false;
     },
     healthRouter: () => createCapHealthRouter(app),
     get schedulerRunning() {
@@ -113,4 +134,27 @@ export function createCapExpress(
   }
 
   return app;
+}
+
+async function initializeAdapters(
+  options: CreateCapExpressOptions,
+): Promise<void> {
+  if (!options.init) return;
+
+  const adapters: Array<{
+    initialize?: (options?: InitOptions) => Promise<void>;
+  }> = [
+    options.publishStorage,
+    options.receivedStorage,
+    options.publisher,
+    options.subscriber,
+  ];
+
+  await Promise.all(
+    adapters.map(async (adapter) => {
+      if (typeof adapter?.initialize === 'function') {
+        await adapter.initialize(options.init);
+      }
+    }),
+  );
 }

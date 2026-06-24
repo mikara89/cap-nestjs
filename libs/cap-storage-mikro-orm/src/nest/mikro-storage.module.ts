@@ -27,7 +27,7 @@ const storageProviders: Provider[] = [
  *
  * Usage:
  * ```ts
- * import { MikroStorageModule } from '@mikara89/cap-storage-mikro-orm';
+ * import { MikroStorageModule } from '@mikara89/cap-storage-mikro-orm/nest';
  *
  * @Module({
  *   imports: [

@@ -4,9 +4,9 @@ Azure Service Bus transport adapter for CAP.
 
 This package provides:
 
-- `ServiceBusTransportModule`
 - `ServiceBusPublisher`
 - `ServiceBusSubscriber`
+- `ServiceBusTransportModule` from the explicit Nest subpath
 - topic/subscription mode
 - queue mode
 - optional queue/topic provisioning during initialization
@@ -14,7 +14,7 @@ This package provides:
 ## Usage Shape
 
 ```ts
-import { ServiceBusTransportModule } from '@mikara89/cap-transport-azure-servicebus';
+import { ServiceBusTransportModule } from '@mikara89/cap-transport-azure-servicebus/nest';
 
 const serviceBusTransport = ServiceBusTransportModule.forRoot({
   connectionString: process.env.AZURE_SERVICEBUS_CONNECTION_STRING!,
@@ -28,6 +28,8 @@ alongside a storage adapter.
 
 ## Notes
 
+- The package root is framework-neutral. Use `/nest` exports only when wiring
+  the optional Nest module, and install the Nest peers for that usage.
 - Use environment variables or a secret manager for connection strings.
 - Do not commit real Service Bus credentials.
 - Prefer pre-created broker resources in production unless automatic

@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-dashboard-nest/src](../README.md) / CapDashboardService
+[CAP Node.js API](../../../README.md) / [cap-dashboard-nest/src](../README.md) / CapDashboardService
 
 # Class: CapDashboardService
 
-Defined in: cap-dashboard-nest/src/cap-dashboard.service.ts:32
+Defined in: [cap-dashboard-nest/src/cap-dashboard.service.ts:32](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-nest/src/cap-dashboard.service.ts#L32)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: cap-dashboard-nest/src/cap-dashboard.service.ts:32
 
 > **new CapDashboardService**(`publishStorage`, `receivedStorage`, `capService?`, `publisher?`, `options?`, `schedulerOptions?`): `CapDashboardService`
 
-Defined in: cap-dashboard-nest/src/cap-dashboard.service.ts:33
+Defined in: [cap-dashboard-nest/src/cap-dashboard.service.ts:33](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-nest/src/cap-dashboard.service.ts#L33)
 
 #### Parameters
 
@@ -126,7 +126,7 @@ Defined in: cap-dashboard-core/dist/dashboard.service.d.ts:43
 
 ### listInbox()
 
-> **listInbox**(`query`): `Promise`\<[`InboxPageDto`](InboxPageDto.md)\>
+> **listInbox**(`query`): `Promise`\<[`InboxPageDto`](../../../cap-dashboard-core/src/classes/InboxPageDto.md)\>
 
 Defined in: cap-dashboard-core/dist/dashboard.service.d.ts:46
 
@@ -138,7 +138,7 @@ Defined in: cap-dashboard-core/dist/dashboard.service.d.ts:46
 
 #### Returns
 
-`Promise`\<[`InboxPageDto`](InboxPageDto.md)\>
+`Promise`\<[`InboxPageDto`](../../../cap-dashboard-core/src/classes/InboxPageDto.md)\>
 
 #### Inherited from
 

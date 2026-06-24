@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-nest/src](../README.md) / ResolvedCapSchedulerOptions
+[CAP Node.js API](../../../README.md) / [cap-nest/src](../README.md) / ResolvedCapSchedulerOptions
 
 # Interface: ResolvedCapSchedulerOptions
 
-Defined in: cap-nest/src/cap/cap.options.ts:16
+Defined in: [cap-nest/src/cap/cap.options.ts:16](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/cap.options.ts#L16)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: cap-nest/src/cap/cap.options.ts:16
 
 > **batchSize**: `number`
 
-Defined in: cap-nest/src/cap/cap.options.ts:17
+Defined in: [cap-nest/src/cap/cap.options.ts:17](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/cap.options.ts#L17)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: cap-nest/src/cap/cap.options.ts:17
 
 > **disabled**: `boolean`
 
-Defined in: cap-nest/src/cap/cap.options.ts:22
+Defined in: [cap-nest/src/cap/cap.options.ts:22](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/cap.options.ts#L22)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: cap-nest/src/cap/cap.options.ts:22
 
 > **instanceId**: `string`
 
-Defined in: cap-nest/src/cap/cap.options.ts:21
+Defined in: [cap-nest/src/cap/cap.options.ts:21](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/cap.options.ts#L21)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: cap-nest/src/cap/cap.options.ts:21
 
 > **leaseMs**: `number`
 
-Defined in: cap-nest/src/cap/cap.options.ts:18
+Defined in: [cap-nest/src/cap/cap.options.ts:18](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/cap.options.ts#L18)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: cap-nest/src/cap/cap.options.ts:18
 
 > **maxInboxRetries**: `number`
 
-Defined in: cap-nest/src/cap/cap.options.ts:20
+Defined in: [cap-nest/src/cap/cap.options.ts:20](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/cap.options.ts#L20)
 
 ***
 
@@ -54,4 +54,4 @@ Defined in: cap-nest/src/cap/cap.options.ts:20
 
 > **maxRetries**: `number`
 
-Defined in: cap-nest/src/cap/cap.options.ts:19
+Defined in: [cap-nest/src/cap/cap.options.ts:19](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/cap.options.ts#L19)

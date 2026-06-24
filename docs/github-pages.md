@@ -5,7 +5,7 @@ The project can use GitHub Pages as its public homepage.
 Recommended homepage URL:
 
 ```txt
-https://mikara89.github.io/cap-nestjs/
+https://mikara89.github.io/cap-nodejs/
 ```
 
 Recommended setup:

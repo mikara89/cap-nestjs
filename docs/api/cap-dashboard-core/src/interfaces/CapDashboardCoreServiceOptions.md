@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-dashboard-core/src](../README.md) / CapDashboardCoreServiceOptions
+[CAP Node.js API](../../../README.md) / [cap-dashboard-core/src](../README.md) / CapDashboardCoreServiceOptions
 
 # Interface: CapDashboardCoreServiceOptions
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:43
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:43](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L43)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:43
 
 > `optional` **logger?**: [`CapLogger`](../../../cap-nest/src/interfaces/CapLogger.md)
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:50
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:50](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L50)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:50
 
 > `optional` **options?**: [`CapDashboardServiceOptions`](CapDashboardServiceOptions.md)
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:48
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:48](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L48)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:48
 
 > `optional` **publisher?**: [`PublisherPort`](../../../cap-nest/src/interfaces/PublisherPort.md)
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:47
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:47](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L47)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:47
 
 > **publishStorage**: [`PublishStoragePort`](../../../cap-nest/src/interfaces/PublishStoragePort.md)
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:44
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:44](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L44)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:44
 
 > **receivedStorage**: [`ReceivedStoragePort`](../../../cap-nest/src/interfaces/ReceivedStoragePort.md)
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:45
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:45](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L45)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:45
 
 > `optional` **retryHandler?**: [`CapDashboardRetryHandler`](CapDashboardRetryHandler.md)
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:46
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:46](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L46)
 
 ***
 
@@ -62,4 +62,4 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:46
 
 > `optional` **schedulerOptions?**: [`CapDashboardRetryOptions`](CapDashboardRetryOptions.md)
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:49
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:49](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L49)

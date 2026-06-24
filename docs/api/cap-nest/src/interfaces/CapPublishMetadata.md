@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-nest/src](../README.md) / CapPublishMetadata
+[CAP Node.js API](../../../README.md) / [cap-nest/src](../README.md) / CapPublishMetadata
 
 # Interface: CapPublishMetadata
 
-Defined in: cap-nest/src/cap/abstractions/transport.interface.ts:11
+Defined in: [cap-nest/src/cap/abstractions/transport.interface.ts:11](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/abstractions/transport.interface.ts#L11)
 
 ## Properties
 
@@ -14,4 +14,4 @@ Defined in: cap-nest/src/cap/abstractions/transport.interface.ts:11
 
 > **messageId**: `string`
 
-Defined in: cap-nest/src/cap/abstractions/transport.interface.ts:12
+Defined in: [cap-nest/src/cap/abstractions/transport.interface.ts:12](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/abstractions/transport.interface.ts#L12)

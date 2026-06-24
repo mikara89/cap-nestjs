@@ -6,10 +6,10 @@ import {
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { MikroORM, Entity, PrimaryKey, Property } from '@mikro-orm/core';
 import {
-  MikroStorageModule,
   CapPublishEntity,
   CapReceivedEntity,
 } from '@mikara89/cap-storage-mikro-orm';
+import { MikroStorageModule } from '@mikara89/cap-storage-mikro-orm/nest';
 import { PUBLISH_STORAGE, type PublishStoragePort } from '@mikara89/cap-core';
 import { type INestApplication } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';

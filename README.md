@@ -1,20 +1,19 @@
-# CAP for NestJS
+# CAP Node.js
 
-CAP is a NestJS reliability layer for application messaging. It adds durable
-outbox/inbox persistence, retry scheduling, pluggable storage and transport
-adapters, and an optional dashboard for inspecting message state.
+CAP Node.js is a framework-agnostic reliable messaging package set for Node.js.
+It adds durable outbox/inbox persistence, retry scheduling, pluggable storage
+and transport adapters, and optional dashboard bindings for NestJS and Express.
 
-CAP does not replace NestJS or `@nestjs/microservices`. NestJS provides the
-application structure and transport APIs; CAP makes message flows more reliable
-by persisting publish and receive records, retrying failures, and exposing
-operator visibility.
+CAP does not replace your application framework or broker client. The core
+engine owns reliability semantics; framework adapters provide lifecycle and
+integration points for NestJS and Express.
 
 ```txt
-NestJS application code
+Application code
   -> CAP reliable publish / subscribe
       -> outbox + inbox storage
       -> transport adapter
-          -> Azure Service Bus or NestJS ClientProxy transport
+          -> Azure Service Bus, NestJS ClientProxy, or custom transport
 ```
 
 ## Status
@@ -159,9 +158,9 @@ import { CapModule } from '@mikara89/cap-nest';
 import {
   CapPublishEntity,
   CapReceivedEntity,
-  MikroStorageModule,
 } from '@mikara89/cap-storage-mikro-orm';
-import { ServiceBusTransportModule } from '@mikara89/cap-transport-azure-servicebus';
+import { MikroStorageModule } from '@mikara89/cap-storage-mikro-orm/nest';
+import { ServiceBusTransportModule } from '@mikara89/cap-transport-azure-servicebus/nest';
 
 const serviceBusTransport = ServiceBusTransportModule.forRoot({
   connectionString: process.env.AZURE_SERVICEBUS_CONNECTION_STRING!,

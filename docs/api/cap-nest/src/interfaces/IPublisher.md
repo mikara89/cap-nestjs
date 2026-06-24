@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-nest/src](../README.md) / IPublisher
+[CAP Node.js API](../../../README.md) / [cap-nest/src](../README.md) / IPublisher
 
 # Interface: IPublisher
 
-Defined in: cap-nest/src/cap/abstractions/transport.interface.ts:20
+Defined in: [cap-nest/src/cap/abstractions/transport.interface.ts:20](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/abstractions/transport.interface.ts#L20)
 
 ## Methods
 
@@ -14,7 +14,7 @@ Defined in: cap-nest/src/cap/abstractions/transport.interface.ts:20
 
 > **emit**(`topic`, `payload`, `headers?`, `metadata?`): `Promise`\<`void`\>
 
-Defined in: cap-nest/src/cap/abstractions/transport.interface.ts:21
+Defined in: [cap-nest/src/cap/abstractions/transport.interface.ts:21](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/abstractions/transport.interface.ts#L21)
 
 #### Parameters
 
@@ -44,7 +44,7 @@ Defined in: cap-nest/src/cap/abstractions/transport.interface.ts:21
 
 > `optional` **initialize**(`options?`): `Promise`\<`void`\>
 
-Defined in: cap-nest/src/cap/abstractions/transport.interface.ts:28
+Defined in: [cap-nest/src/cap/abstractions/transport.interface.ts:28](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/abstractions/transport.interface.ts#L28)
 
 Optional one-time initialization: create queues/topics if needed
 

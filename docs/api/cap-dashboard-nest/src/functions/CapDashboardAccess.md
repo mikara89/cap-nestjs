@@ -1,14 +1,14 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-dashboard-nest/src](../README.md) / CapDashboardAccess
+[CAP Node.js API](../../../README.md) / [cap-dashboard-nest/src](../README.md) / CapDashboardAccess
 
 # Function: CapDashboardAccess()
 
 > **CapDashboardAccess**(`action`, `permission`): `MethodDecorator` & `ClassDecorator`
 
-Defined in: cap-dashboard-nest/src/cap-dashboard.auth.ts:56
+Defined in: [cap-dashboard-nest/src/cap-dashboard.auth.ts:56](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-nest/src/cap-dashboard.auth.ts#L56)
 
 ## Parameters
 

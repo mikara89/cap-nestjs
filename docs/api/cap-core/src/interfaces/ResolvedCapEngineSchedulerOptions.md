@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-core/src](../README.md) / ResolvedCapEngineSchedulerOptions
+[CAP Node.js API](../../../README.md) / [cap-core/src](../README.md) / ResolvedCapEngineSchedulerOptions
 
 # Interface: ResolvedCapEngineSchedulerOptions
 
-Defined in: cap-core/src/engine/cap-engine.ts:38
+Defined in: [cap-core/src/engine/cap-engine.ts:38](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-engine.ts#L38)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: cap-core/src/engine/cap-engine.ts:38
 
 > **batchSize**: `number`
 
-Defined in: cap-core/src/engine/cap-engine.ts:39
+Defined in: [cap-core/src/engine/cap-engine.ts:39](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-engine.ts#L39)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: cap-core/src/engine/cap-engine.ts:39
 
 > **disabled**: `boolean`
 
-Defined in: cap-core/src/engine/cap-engine.ts:44
+Defined in: [cap-core/src/engine/cap-engine.ts:44](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-engine.ts#L44)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: cap-core/src/engine/cap-engine.ts:44
 
 > **instanceId**: `string`
 
-Defined in: cap-core/src/engine/cap-engine.ts:43
+Defined in: [cap-core/src/engine/cap-engine.ts:43](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-engine.ts#L43)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: cap-core/src/engine/cap-engine.ts:43
 
 > **leaseMs**: `number`
 
-Defined in: cap-core/src/engine/cap-engine.ts:40
+Defined in: [cap-core/src/engine/cap-engine.ts:40](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-engine.ts#L40)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: cap-core/src/engine/cap-engine.ts:40
 
 > **maxInboxRetries**: `number`
 
-Defined in: cap-core/src/engine/cap-engine.ts:42
+Defined in: [cap-core/src/engine/cap-engine.ts:42](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-engine.ts#L42)
 
 ***
 
@@ -54,4 +54,4 @@ Defined in: cap-core/src/engine/cap-engine.ts:42
 
 > **maxRetries**: `number`
 
-Defined in: cap-core/src/engine/cap-engine.ts:41
+Defined in: [cap-core/src/engine/cap-engine.ts:41](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/cap-engine.ts#L41)

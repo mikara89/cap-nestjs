@@ -1,14 +1,14 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-core/src](../README.md) / expJitter
+[CAP Node.js API](../../../README.md) / [cap-core/src](../README.md) / expJitter
 
 # Function: expJitter()
 
 > **expJitter**(`attempt`, `baseMs?`, `maxMs?`): `number`
 
-Defined in: cap-core/src/engine/backoff.ts:1
+Defined in: [cap-core/src/engine/backoff.ts:1](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-core/src/engine/backoff.ts#L1)
 
 ## Parameters
 

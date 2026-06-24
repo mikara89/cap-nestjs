@@ -1,14 +1,14 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-nest/src](../README.md) / withTransactionAndPostCommit
+[CAP Node.js API](../../../README.md) / [cap-nest/src](../README.md) / withTransactionAndPostCommit
 
 # Function: withTransactionAndPostCommit()
 
 > **withTransactionAndPostCommit**\<`T`, `Item`, `Tx`\>(`runnerOrOrm`, `transactionalFn`, `afterCommitFn`): `Promise`\<`T`\>
 
-Defined in: cap-nest/src/cap/utils/transaction.util.ts:10
+Defined in: [cap-nest/src/cap/utils/transaction.util.ts:10](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/utils/transaction.util.ts#L10)
 
 Helper that runs a transactional function and then executes an after-commit
 callback with items that were queued during the transaction.

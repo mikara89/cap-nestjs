@@ -75,11 +75,11 @@ import { Module } from '@nestjs/common';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { CapModule } from '@mikara89/cap-nest';
 import {
-  MikroStorageModule,
   CapPublishEntity,
   CapReceivedEntity,
 } from '@mikara89/cap-storage-mikro-orm';
-import { ServiceBusTransportModule } from '@mikara89/cap-transport-azure-servicebus';
+import { MikroStorageModule } from '@mikara89/cap-storage-mikro-orm/nest';
+import { ServiceBusTransportModule } from '@mikara89/cap-transport-azure-servicebus/nest';
 
 const serviceBusTransport = ServiceBusTransportModule.forRoot({
   connectionString: process.env.AZURE_SERVICEBUS_CONNECTION_STRING!,

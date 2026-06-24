@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-express/src](../README.md) / CapExpressSchedulerOptions
+[CAP Node.js API](../../../README.md) / [cap-express/src](../README.md) / CapExpressSchedulerOptions
 
 # Interface: CapExpressSchedulerOptions
 
-Defined in: cap-express/src/create-cap-express.ts:18
+Defined in: [cap-express/src/create-cap-express.ts:19](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-express/src/create-cap-express.ts#L19)
 
 ## Extends
 
@@ -42,7 +42,7 @@ Defined in: cap-core/dist/models/cap-options.d.ts:19
 
 > `optional` **inboxRetryIntervalMs?**: `number`
 
-Defined in: cap-express/src/create-cap-express.ts:20
+Defined in: [cap-express/src/create-cap-express.ts:21](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-express/src/create-cap-express.ts#L21)
 
 ***
 
@@ -98,4 +98,4 @@ Defined in: cap-core/dist/models/cap-options.d.ts:16
 
 > `optional` **outboxIntervalMs?**: `number`
 
-Defined in: cap-express/src/create-cap-express.ts:19
+Defined in: [cap-express/src/create-cap-express.ts:20](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-express/src/create-cap-express.ts#L20)

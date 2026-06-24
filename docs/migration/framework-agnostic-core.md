@@ -17,8 +17,8 @@ import { ServiceBusTransportModule } from '@mikara89/azure-servicebus-transport'
 
 ```ts
 import { CapModule, CapService } from '@mikara89/cap-nest';
-import { MikroStorageModule } from '@mikara89/cap-storage-mikro-orm';
-import { ServiceBusTransportModule } from '@mikara89/cap-transport-azure-servicebus';
+import { MikroStorageModule } from '@mikara89/cap-storage-mikro-orm/nest';
+import { ServiceBusTransportModule } from '@mikara89/cap-transport-azure-servicebus/nest';
 ```
 
 `@mikara89/cap-nest` still re-exports compatible CAP models, ports, and core

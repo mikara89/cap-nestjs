@@ -4,6 +4,7 @@ import {
   FakeSubscriber,
   InMemoryPublishStorage,
   InMemoryReceivedStorage,
+  type InitOptions,
 } from '@mikara89/cap-core';
 
 describe('createCapExpress', () => {
@@ -46,6 +47,112 @@ describe('createCapExpress', () => {
     expect(cap.schedulerRunning).toBe(false);
   });
 
+  it('initializes adapters with configured init options before scheduler start', async () => {
+    const init: InitOptions = { createSchema: true, createQueues: true };
+    const calls: string[] = [];
+    let releasePublishInit!: () => void;
+    const publishInitBlocker = new Promise<void>((resolve) => {
+      releasePublishInit = resolve;
+    });
+    const publishStorage = withInitializer(new InMemoryPublishStorage(), () => {
+      calls.push('publishStorage');
+      return publishInitBlocker;
+    });
+    const receivedStorage = withInitializer(
+      new InMemoryReceivedStorage(),
+      () => {
+        calls.push('receivedStorage');
+      },
+    );
+    const publisher = withInitializer(new FakePublisher(), () => {
+      calls.push('publisher');
+    });
+    const subscriber = withInitializer(new FakeSubscriber(), () => {
+      calls.push('subscriber');
+    });
+    const cap = createCapExpress({
+      publishStorage,
+      receivedStorage,
+      publisher,
+      subscriber,
+      init,
+    });
+
+    const startPromise = cap.start();
+    await waitFor(() => calls.includes('publishStorage'));
+
+    expect(cap.schedulerRunning).toBe(false);
+
+    releasePublishInit();
+    await startPromise;
+
+    expect(calls).toEqual([
+      'publishStorage',
+      'receivedStorage',
+      'publisher',
+      'subscriber',
+    ]);
+    expect(publishStorage.initialize).toHaveBeenCalledWith(init);
+    expect(receivedStorage.initialize).toHaveBeenCalledWith(init);
+    expect(publisher.initialize).toHaveBeenCalledWith(init);
+    expect(subscriber.initialize).toHaveBeenCalledWith(init);
+    expect(cap.schedulerRunning).toBe(true);
+
+    await cap.stop();
+  });
+
+  it('does not initialize adapters twice when start is called repeatedly', async () => {
+    const publishStorage = withInitializer(new InMemoryPublishStorage());
+    const cap = createCapExpress({
+      publishStorage,
+      receivedStorage: new InMemoryReceivedStorage(),
+      publisher: new FakePublisher(),
+      subscriber: new FakeSubscriber(),
+      init: { autoInit: true },
+    });
+
+    await cap.start();
+    await cap.start();
+
+    expect(publishStorage.initialize).toHaveBeenCalledTimes(1);
+
+    await cap.stop();
+  });
+
+  it('initializes adapters when autoStart is enabled', async () => {
+    const publishStorage = withInitializer(new InMemoryPublishStorage());
+    const cap = createCapExpress({
+      publishStorage,
+      receivedStorage: new InMemoryReceivedStorage(),
+      publisher: new FakePublisher(),
+      subscriber: new FakeSubscriber(),
+      init: { autoInit: true },
+      autoStart: true,
+    });
+
+    await waitFor(() => cap.schedulerRunning);
+
+    expect(publishStorage.initialize).toHaveBeenCalledWith({ autoInit: true });
+
+    await cap.stop();
+  });
+
+  it('stops the scheduler and closes the subscriber', async () => {
+    const subscriber = new ClosableFakeSubscriber();
+    const cap = createCapExpress({
+      publishStorage: new InMemoryPublishStorage(),
+      receivedStorage: new InMemoryReceivedStorage(),
+      publisher: new FakePublisher(),
+      subscriber,
+    });
+
+    await cap.start();
+    await cap.stop();
+
+    expect(cap.schedulerRunning).toBe(false);
+    expect(subscriber.close).toHaveBeenCalledTimes(1);
+  });
+
   it('creates a health router', () => {
     const cap = createCapExpress({
       publishStorage: new InMemoryPublishStorage(),
@@ -57,3 +164,29 @@ describe('createCapExpress', () => {
     expect(cap.healthRouter()).toBeDefined();
   });
 });
+
+function withInitializer<T extends object>(
+  adapter: T,
+  onInitialize?: () => void | Promise<void>,
+): T & { initialize: jest.Mock<Promise<void>, [InitOptions?]> } {
+  return Object.assign(adapter, {
+    initialize: jest.fn((_options?: InitOptions) => {
+      const result = onInitialize?.();
+      return result
+        ? Promise.resolve(result).then(() => undefined)
+        : Promise.resolve();
+    }),
+  });
+}
+
+class ClosableFakeSubscriber extends FakeSubscriber {
+  close = jest.fn(() => Promise.resolve());
+}
+
+async function waitFor(assertion: () => boolean): Promise<void> {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    if (assertion()) return;
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  }
+  throw new Error('Timed out waiting for condition');
+}

@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-nest/src](../README.md) / TrySaveReceivedResult
+[CAP Node.js API](../../../README.md) / [cap-nest/src](../README.md) / TrySaveReceivedResult
 
 # Interface: TrySaveReceivedResult\<T\>
 
-Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:33
+Defined in: [cap-nest/src/cap/abstractions/storage.interface.ts:33](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/abstractions/storage.interface.ts#L33)
 
 ## Type Parameters
 
@@ -20,7 +20,7 @@ Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:33
 
 > **event**: [`CapReceivedEvent`](CapReceivedEvent.md)\<`T`\>
 
-Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:36
+Defined in: [cap-nest/src/cap/abstractions/storage.interface.ts:36](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/abstractions/storage.interface.ts#L36)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:36
 
 > **id**: `string`
 
-Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:35
+Defined in: [cap-nest/src/cap/abstractions/storage.interface.ts:35](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/abstractions/storage.interface.ts#L35)
 
 ***
 
@@ -36,4 +36,4 @@ Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:35
 
 > **inserted**: `boolean`
 
-Defined in: cap-nest/src/cap/abstractions/storage.interface.ts:34
+Defined in: [cap-nest/src/cap/abstractions/storage.interface.ts:34](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-nest/src/cap/abstractions/storage.interface.ts#L34)

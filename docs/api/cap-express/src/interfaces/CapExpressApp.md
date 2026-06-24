@@ -1,12 +1,12 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-express/src](../README.md) / CapExpressApp
+[CAP Node.js API](../../../README.md) / [cap-express/src](../README.md) / CapExpressApp
 
 # Interface: CapExpressApp
 
-Defined in: cap-express/src/create-cap-express.ts:36
+Defined in: [cap-express/src/create-cap-express.ts:38](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-express/src/create-cap-express.ts#L38)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: cap-express/src/create-cap-express.ts:36
 
 > **engine**: [`CapEngine`](../../../cap-nest/src/classes/CapEngine.md)
 
-Defined in: cap-express/src/create-cap-express.ts:37
+Defined in: [cap-express/src/create-cap-express.ts:39](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-express/src/create-cap-express.ts#L39)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: cap-express/src/create-cap-express.ts:37
 
 > `readonly` **schedulerRunning**: `boolean`
 
-Defined in: cap-express/src/create-cap-express.ts:51
+Defined in: [cap-express/src/create-cap-express.ts:53](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-express/src/create-cap-express.ts#L53)
 
 ## Methods
 
@@ -30,7 +30,7 @@ Defined in: cap-express/src/create-cap-express.ts:51
 
 > **healthRouter**(): `Router`
 
-Defined in: cap-express/src/create-cap-express.ts:50
+Defined in: [cap-express/src/create-cap-express.ts:52](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-express/src/create-cap-express.ts#L52)
 
 #### Returns
 
@@ -42,7 +42,7 @@ Defined in: cap-express/src/create-cap-express.ts:50
 
 > **publish**\<`T`\>(`topic`, `payload`, `options?`): `Promise`\<`void`\>
 
-Defined in: cap-express/src/create-cap-express.ts:38
+Defined in: [cap-express/src/create-cap-express.ts:40](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-express/src/create-cap-express.ts#L40)
 
 #### Type Parameters
 
@@ -74,7 +74,7 @@ Defined in: cap-express/src/create-cap-express.ts:38
 
 > **start**(): `Promise`\<`void`\>
 
-Defined in: cap-express/src/create-cap-express.ts:48
+Defined in: [cap-express/src/create-cap-express.ts:50](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-express/src/create-cap-express.ts#L50)
 
 #### Returns
 
@@ -86,7 +86,7 @@ Defined in: cap-express/src/create-cap-express.ts:48
 
 > **stop**(): `Promise`\<`void`\>
 
-Defined in: cap-express/src/create-cap-express.ts:49
+Defined in: [cap-express/src/create-cap-express.ts:51](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-express/src/create-cap-express.ts#L51)
 
 #### Returns
 
@@ -98,7 +98,7 @@ Defined in: cap-express/src/create-cap-express.ts:49
 
 > **subscribe**\<`T`\>(`topic`, `group`, `handler`): `Promise`\<`void`\>
 
-Defined in: cap-express/src/create-cap-express.ts:43
+Defined in: [cap-express/src/create-cap-express.ts:45](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-express/src/create-cap-express.ts#L45)
 
 #### Type Parameters
 

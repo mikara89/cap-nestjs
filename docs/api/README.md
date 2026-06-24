@@ -1,8 +1,8 @@
-**CAP for NestJS API**
+**CAP Node.js API**
 
 ***
 
-# CAP for NestJS API
+# CAP Node.js API
 
 ## Modules
 

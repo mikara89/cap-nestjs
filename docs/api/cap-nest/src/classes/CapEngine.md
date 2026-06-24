@@ -1,8 +1,8 @@
-[**CAP for NestJS API**](../../../README.md)
+[**CAP Node.js API**](../../../README.md)
 
 ***
 
-[CAP for NestJS API](../../../README.md) / [cap-nest/src](../README.md) / CapEngine
+[CAP Node.js API](../../../README.md) / [cap-nest/src](../README.md) / CapEngine
 
 # Class: CapEngine
 

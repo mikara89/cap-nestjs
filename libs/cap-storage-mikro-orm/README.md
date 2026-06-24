@@ -8,17 +8,17 @@ This package provides durable outbox and inbox persistence through:
 - `CapReceivedEntity`
 - `MikroPublishStorage`
 - `MikroReceivedStorage`
-- `MikroStorageModule`
+- `MikroStorageModule` from the explicit Nest subpath
 
 ## Usage Shape
 
 ```ts
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import {
-  MikroStorageModule,
   CapPublishEntity,
   CapReceivedEntity,
 } from '@mikara89/cap-storage-mikro-orm';
+import { MikroStorageModule } from '@mikara89/cap-storage-mikro-orm/nest';
 
 @Module({
   imports: [
@@ -35,6 +35,8 @@ export class AppModule {}
 
 ## Notes
 
+- The package root is framework-neutral. Use `/nest` exports only when wiring
+  the optional Nest module, and install the Nest peers for that usage.
 - Manage production schemas through migrations or infrastructure tooling.
 - Production outbox dispatch requires a MikroORM SQL driver that supports
   pessimistic partial write locking; use a custom storage adapter if your

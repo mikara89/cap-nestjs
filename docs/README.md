@@ -1,8 +1,8 @@
-# CAP Documentation
+# CAP Node.js Documentation
 
-This folder is the developer documentation for CAP, a NestJS reliable messaging
-library built around outbox/inbox persistence, retry scheduling, and pluggable
-adapters.
+This folder is the developer documentation for CAP Node.js, a reliable
+messaging package set built around outbox/inbox persistence, retry scheduling,
+framework adapters, and pluggable storage and transport adapters.
 
 ## Reading Path
 
@@ -16,15 +16,17 @@ adapters.
 5. [API reference](api/README.md) - generated package API documentation.
 6. [Package export surface](package-exports.md) - supported import paths and
    future `exports` map plan.
-7. [GitHub Pages homepage](github-pages.md) - public homepage setup.
-8. [Roadmap](roadmap.md) - stable 0.7, v1, and later stages.
-9. [Release checklist](release.md) - validation and publishing safety.
-10. [Schema/API migration](migrations/0.7-to-1.0.md) - upgrade notes for
+7. [Future libs layout](architecture/libs-layout.md) - proposed package folder
+   grouping without moving folders in v2.1.1.
+8. [GitHub Pages homepage](github-pages.md) - public homepage setup.
+9. [Roadmap](roadmap.md) - stable 0.7, v1, and later stages.
+10. [Release checklist](release.md) - validation and publishing safety.
+11. [Schema/API migration](migrations/0.7-to-1.0.md) - upgrade notes for
     stable schema and API behavior.
-11. [Framework-agnostic core migration](migration/framework-agnostic-core.md) -
+12. [Framework-agnostic core migration](migration/framework-agnostic-core.md) -
     package rename and adapter split notes.
-12. [ADRs](adr/README.md) - durable architecture decisions.
-13. [Contributing](contributing.md) - local workflow, repo health checks, tests,
+13. [ADRs](adr/README.md) - durable architecture decisions.
+14. [Contributing](contributing.md) - local workflow, repo health checks, tests,
     coverage, and docs rules.
 
 ## Current Maturity
