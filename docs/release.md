@@ -74,8 +74,8 @@ The release workflow:
 - Verify packages are available in GitHub Packages.
 - Set package visibility/access in GitHub Packages after the first publish.
 - Verify generated changelogs and tags are correct.
-- Update `docs/roadmap.md` if release scope changes stable 0.7, v1, or later
-  status.
+- Update `docs/roadmap.md` if release scope changes the current stable line,
+  planned releases, or future status.
 
 ## Installing From GitHub Packages
 

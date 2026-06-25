@@ -1,13 +1,13 @@
 # Architecture
 
-CAP provides reliable message publication and consumption for NestJS
+CAP provides reliable message publication and consumption for Node.js
 applications. It does this by persisting messages before transport work and by
 retrying failed outbox or inbox work through a scheduler.
 
-CAP sits below application use cases and beside NestJS transport abstractions.
-It is not a replacement for `@nestjs/microservices`; instead, CAP owns durable
-message state while transport adapters decide how messages leave or enter the
-process.
+CAP sits below application use cases and beside framework or broker transport
+abstractions. It is not a replacement for `@nestjs/microservices`; instead, CAP
+owns durable message state while framework and transport adapters decide how
+messages leave or enter the process.
 
 ## System Overview
 
@@ -27,7 +27,8 @@ flowchart LR
 ```
 
 The core package owns orchestration and contracts. Storage and transport are
-provided through NestJS dependency injection tokens:
+provided through `cap-core` ports that framework adapters bind into their
+runtime:
 
 - `PUBLISH_STORAGE` and `RECEIVED_STORAGE`
 - `PUBLISHER` and `SUBSCRIBER`
@@ -117,11 +118,12 @@ uses exponential backoff with jitter.
 
 ## Transactions
 
-`CapService.publish(topic, payload, { headers, tx, immediate }?)` supports
+`CapService.publish(topic, payload, { headers, tx, ctx, immediate }?)` supports
 transaction-aware behavior:
 
-- If storage implements `savePublishWithTx` and `tx` is provided, the outbox row
-  is persisted with that transaction/context.
+- If storage implements `savePublish(event, ctx?)` and `tx` or `ctx.tx` is
+  provided, the outbox row is persisted with that transaction/context.
+- `savePublishWithTx(event, tx)` remains deprecated compatibility only.
 - If `tx` is provided and `immediate` is not `true`, CAP does not emit to the
   broker immediately. The scheduler publishes the row after the DB commit.
 - If `immediate: true` is provided, CAP emits immediately and marks published on

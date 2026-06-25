@@ -1,19 +1,21 @@
 # Adapters
 
-CAP keeps storage and transport behind NestJS dependency-injection tokens so
-applications can choose the database and broker that fit their environment.
+CAP keeps storage and transport behind `cap-core` ports. Framework adapters wire
+those ports into NestJS, Express, or another runtime so applications can choose
+the database and broker that fit their environment.
 
 ## Registration
 
-Storage and transport adapters should be regular Nest modules that export the
-CAP tokens they provide:
+Storage and transport adapters provide the CAP ports they implement:
 
-- `PUBLISH_STORAGE` with an `IPublishStorage`
-- `RECEIVED_STORAGE` with an `IReceivedStorage`
-- `PUBLISHER` with an `IPublisher`
-- `SUBSCRIBER` with an `ISubscriber`
+- `PUBLISH_STORAGE` with a `PublishStoragePort`
+- `RECEIVED_STORAGE` with a `ReceivedStoragePort`
+- `PUBLISHER` with a `PublisherPort`
+- `SUBSCRIBER` with a `SubscriberPort`
 
-Register those modules with CAP through real module imports:
+NestJS adapters normally expose modules that bind those ports through
+dependency-injection tokens. Register those modules with CAP through real module
+imports:
 
 ```ts
 CapModule.forRoot({
@@ -27,19 +29,27 @@ CapModule.forRoot({
 
 ## Storage Responsibilities
 
-`IPublishStorage` stores outbox records and must support durable claim/lease
+`PublishStoragePort` stores outbox records and must support durable claim/lease
 dispatch:
 
-- `savePublish(event)`
+- `savePublish(event, ctx?)`
 - `claimUnpublished({ limit, lockedBy, lockUntil, now })`
 - `markPublished(id, publishedAt?)`
 - `markPublishFailed(id, error, { maxRetries, nextRetryAt, now })`
 - `releaseExpiredClaims(now)`
 - optional `initialize(options)`
 - optional dashboard helpers: `findPublishById`, `listPublish`
-- optional transaction helper: `savePublishWithTx`
+- deprecated compatibility only: `savePublishWithTx(event, tx)`
 
-`IReceivedStorage` stores inbox records with dedupe-key idempotency and
+`savePublish(event, ctx?)` is the primary transaction-aware API. Storage
+adapters should read `ctx.tx` when they support ORM-specific transactions.
+`savePublishWithTx(event, tx)` remains only for deprecated compatibility with
+older adapters and examples.
+
+`MarkPublishFailedOptions` includes `now` so storage adapters can persist
+failure timestamps consistently with scheduler decisions.
+
+`ReceivedStoragePort` stores inbox records with dedupe-key idempotency and
 dead-letter-aware retry state:
 
 - `trySaveReceived(event)` returning `{ inserted, id, event }`
@@ -49,17 +59,22 @@ dead-letter-aware retry state:
 - optional `initialize(options)`
 - optional dashboard helpers: `findReceivedById`, `listReceived`
 
+Inbox dedupe remains scoped to consumer `group` plus `dedupeKey`. Broker
+`messageId` is traceability metadata unless the transport also uses it as the
+dedupe key.
+
 ## Transport Responsibilities
 
-`IPublisher` emits messages to a broker:
+`PublisherPort` emits messages to a broker:
 
 - `emit(topic, payload, headers?, { messageId })`
 - optional `initialize(options)`
 
-`ISubscriber` attaches consumers:
+`SubscriberPort` attaches group-aware consumers:
 
 - `consume(topic, group, onMessage(payload, headers?, metadata?))`
 - optional `initialize(options)`
+- optional `close()`
 
 Subscriber metadata should include a stable `messageId` when the broker exposes
 one. If a transport can provide a stronger idempotency identity, it should pass
@@ -68,6 +83,40 @@ storage deduplicates by consumer group and `dedupeKey`.
 
 Headers are CAP transport metadata. First-party transports preserve primitive
 header values: `string`, `number`, `boolean`, and `Date`.
+
+Important subscriber invariant:
+
+- If CAP successfully persists the inbox record, the broker message may be
+  acknowledged, completed, or committed.
+- If inbox persistence fails, the broker message should not be acknowledged.
+- Handler failure should be persisted in the CAP inbox and should not cause
+  infinite broker redelivery loops by default.
+
+## Planned Storage Adapter Matrix
+
+| Adapter | Status |
+| ------- | ------ |
+| MikroORM | Current first-party adapter: `@mikara89/cap-storage-mikro-orm`. |
+| Knex | Planned v2.3: `@mikara89/cap-storage-knex`. |
+| TypeORM | Planned v2.3: `@mikara89/cap-storage-typeorm`. |
+| Prisma | Planned v2.3: `@mikara89/cap-storage-prisma`. |
+| Drizzle | Future candidate. |
+| Sequelize | Future candidate. |
+| Mongoose | Future candidate. |
+| raw `pg` or custom SQL | Future or custom adapter candidate. |
+
+## Planned Transport Adapter Matrix
+
+| Adapter | Status |
+| ------- | ------ |
+| Azure Service Bus | Current first-party adapter: `@mikara89/cap-transport-azure-servicebus`. |
+| NestJS microservices | Current bridge adapter: `@mikara89/cap-transport-nestjs-microservices`. |
+| RabbitMQ | Planned v2.4: `@mikara89/cap-transport-rabbitmq`. |
+| Kafka | Planned v2.4: `@mikara89/cap-transport-kafka`. |
+| AWS SNS/SQS | Planned v2.4: `@mikara89/cap-transport-aws-sns-sqs`. |
+| Google Pub/Sub | Likely v2.5 candidate. |
+| NATS JetStream | Likely v2.5 candidate. |
+| Redis Streams and MQTT | Later optional candidates. |
 
 ## First-Party Storage: MikroORM
 
@@ -84,7 +133,8 @@ The MikroORM adapter provides:
   dispatch by the first-party MikroORM adapter
 - `cap_received` inbox entity/table with unique `(group, dedupeKey)`
 - inbox retry/dead-letter state with `status`, `lastError`, and `processedAt`
-- `savePublishWithTx` for transactional outbox persistence
+- `savePublish(event, ctx?)` for transaction-aware outbox persistence
+- deprecated `savePublishWithTx(event, tx)` compatibility wrapper
 - dashboard list/find helpers for outbox and inbox records
 - optional initialization through MikroORM schema generation
 

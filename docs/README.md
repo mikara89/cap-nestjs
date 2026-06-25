@@ -12,8 +12,8 @@ framework adapters, and pluggable storage and transport adapters.
    diagrams.
 3. [Transactions](transactions.md) - publish transaction handles, operation
    contexts, and immediate emit behavior.
-4. [Adapters](adapters.md) - storage and transport contracts plus the current
-   MikroORM, Azure Service Bus, and NestJS microservices adapters.
+4. [Adapters](adapters.md) - storage and transport contracts, current adapters,
+   and planned storage/transport adapter matrices.
 5. [Dashboard](cap-dashboard.md) - admin API and UI behavior.
 6. [API reference](api/README.md) - generated package API documentation.
 7. [Package export surface](package-exports.md) - supported import paths and
@@ -21,7 +21,8 @@ framework adapters, and pluggable storage and transport adapters.
 8. [Future libs layout](architecture/libs-layout.md) - proposed package folder
    grouping without moving folders in v2.1.1.
 9. [GitHub Pages homepage](github-pages.md) - public homepage setup.
-10. [Roadmap](roadmap.md) - stable 0.7, v1, and later stages.
+10. [Roadmap](roadmap.md) - current package set and the v2.2, v2.3, v2.4, and
+    v2.5+ ecosystem plan.
 11. [Release checklist](release.md) - validation and publishing safety.
 12. [Schema/API migration](migrations/0.7-to-1.0.md) - upgrade notes for
     stable schema and API behavior.
@@ -35,10 +36,12 @@ framework adapters, and pluggable storage and transport adapters.
 
 ## Current Maturity
 
-The repository is on the stable 0.7 MVP line. The core publish/subscribe path,
+The repository is on the stable v2.1.1 line. The core publish/subscribe path,
 first-party adapters, dashboard package, header propagation, release workflow,
 and PostgreSQL/MySQL multi-instance claim gate are in place. The
-[roadmap](roadmap.md) tracks remaining maturity work for v1 and later stages.
+[roadmap](roadmap.md) tracks the current package set plus the v2.2 transaction
+context foundation, v2.3 storage reach, v2.4 transport reach, and v2.5+
+ecosystem candidates.
 
 ## Documentation Rules
 
@@ -47,4 +50,5 @@ and PostgreSQL/MySQL multi-instance claim gate are in place. The
 - Regenerate `docs/api/` with `npm run docs:api` when public exports change.
 - Keep examples compile-checked with `npm run examples:check`.
 - Add or update an ADR when a durable architecture decision changes.
-- Update the roadmap when work moves between stable 0.7, v1, or later.
+- Update the roadmap when work moves between current, planned, candidate, or
+  future package status.

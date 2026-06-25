@@ -47,3 +47,13 @@ await cap.publish('user.created', payload, {
 Immediate emit is intentionally not atomic across the database and broker. If
 the broker emit fails, CAP keeps the persisted outbox row and marks it for retry
 instead of rethrowing from `publish()`.
+
+## Roadmap Relationship
+
+v2.2 provides the transaction context foundation: `CapOperationContext`, `tx`
+and `ctx` publish options, optional transaction-manager integration, and the
+primary `savePublish(event, ctx?)` storage API.
+
+v2.3 uses that foundation for planned Knex, TypeORM, and Prisma storage
+adapters. Transaction manager integration remains optional; explicit `ctx` or
+`tx` passed to `publish()` is still the primary transaction path.

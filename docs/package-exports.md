@@ -41,6 +41,14 @@ The supported package roots are:
 `@mikara89/cap-dashboard` remains supported as a compatibility alias for the
 Nest dashboard package root.
 
+Planned packages are not exported until they are implemented and released. Do
+not import v2.3 storage package names such as `@mikara89/cap-storage-knex`,
+`@mikara89/cap-storage-typeorm`, or `@mikara89/cap-storage-prisma`, and do not
+import v2.4 transport package names such as
+`@mikara89/cap-transport-rabbitmq`, `@mikara89/cap-transport-kafka`, or
+`@mikara89/cap-transport-aws-sns-sqs`, unless those packages exist in the
+workspace and are listed here as supported package roots.
+
 ## Nest Wrapper Imports
 
 Adapter package roots do not export Nest wrappers. Import Nest integrations

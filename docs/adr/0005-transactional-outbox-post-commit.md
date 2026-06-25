@@ -12,11 +12,13 @@ publish messages for data that later rolls back.
 
 ## Decision
 
-CAP supports transactional outbox persistence through optional adapter
-capabilities such as `savePublishWithTx`. When a transaction is provided but the
-publisher cannot participate in that transaction, CAP should defer immediate
-emission and leave the outbox row for post-commit publication by the scheduler
-or application-level post-commit handling.
+CAP supports transactional outbox persistence through `savePublish(event,
+ctx?)`, where the operation context may carry an adapter-specific transaction
+object. `savePublishWithTx(event, tx)` remains deprecated compatibility only.
+When a transaction is provided but the publisher cannot participate in that
+transaction, CAP should defer immediate emission and leave the outbox row for
+post-commit publication by the scheduler or application-level post-commit
+handling.
 
 ## Consequences
 

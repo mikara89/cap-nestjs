@@ -18,7 +18,7 @@ Application code
 
 ## Status
 
-This repository contains the stable `0.7.0` MVP package set. The core messaging
+This repository contains the stable `v2.1.1` package set. The core messaging
 path, first-party adapters, dashboard auth extension points, header
 propagation, and release workflow are implemented for the supported boundaries
 documented below.
@@ -43,6 +43,14 @@ The root workspace package is private. The publishable packages live under
 
 `apps/cap-test-app` is a demo and integration test application; it is not a
 published package.
+
+Current first-party durable storage is MikroORM. Knex, TypeORM, and Prisma
+storage adapters are planned for v2.3 after the storage contract suite is
+hardened.
+
+Current first-party transports are Azure Service Bus and the NestJS
+microservices bridge. RabbitMQ, Kafka, and AWS SNS/SQS transports are planned
+for v2.4 after transport conformance tests and capability metadata are added.
 
 ## Requirements
 

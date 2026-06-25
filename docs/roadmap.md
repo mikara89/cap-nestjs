@@ -1,74 +1,115 @@
 # Roadmap
 
-This roadmap tracks delivery maturity. ADRs capture decisions; this document
-captures remaining work.
+This roadmap distinguishes the package set available today from planned adapter
+reach. ADRs capture durable decisions; this document captures sequencing and
+ecosystem direction.
 
-## MVP
+## Current Stable Package Set
 
-MVP means CAP can be used as a complete reliable messaging library in a NestJS
-application with first-party storage, transport, dashboard, docs, and tests.
+The current first-party package set is framework-agnostic at the core and
+provides framework adapters where they are useful:
 
-Included in MVP:
+- `@mikara89/cap-core` for the engine, ports, operation context, transaction
+  extension points, and in-memory primitives.
+- `@mikara89/cap-nest` for NestJS module registration, decorators, scanner,
+  scheduler integration, and `CapService`.
+- `@mikara89/cap-express` for Express lifecycle and health router integration.
+- `@mikara89/cap-testing` for fakes, fixtures, and in-memory engine setup.
+- `@mikara89/cap-storage-mikro-orm` as the current first-party durable storage
+  adapter.
+- `@mikara89/cap-transport-azure-servicebus` as the current first-party broker
+  transport adapter.
+- `@mikara89/cap-transport-nestjs-microservices` as the current bridge adapter
+  for existing NestJS `ClientProxy` registrations.
+- `@mikara89/cap-dashboard-core`, `@mikara89/cap-dashboard-nest`, and
+  `@mikara89/cap-dashboard-express` for dashboard service logic and framework
+  bindings.
+- `@mikara89/cap-dashboard` as a compatibility alias for the Nest dashboard
+  package.
 
-- Core publish/subscribe flow with outbox and inbox persistence.
-- Retry scheduler for unpublished outbox records and due inbox retries.
-- MikroORM storage adapter.
-- Azure Service Bus transport adapter.
-- NestJS microservices transport adapter: `@mikara89/cap-transport-nestjs-microservices`
-  for applications that already use `@nestjs/microservices` `ClientProxy`
-  registrations.
-- Dashboard REST API and static UI for inspection and admin actions.
-- Clean documentation and ADRs.
-- Passing test suite for core behavior and first-party package behavior.
+## v2.2 Transaction Context Foundation
 
-MVP closure status:
+CAP core standardizes operation context and transaction-manager extension points
+so storage adapters can bind ORM-specific transaction objects without CAP core
+depending on any ORM.
 
-- `CapHeaders` is included in MVP as primitive transport metadata and can be
-  read through `@CapHeaders()` or the second handler argument.
-- External Azure Service Bus coverage is split into an explicit integration
-  gate: `npm run test:integration:servicebus`.
-- `@mikara89/cap-transport-nestjs-microservices` is implemented with documented
-  `ClientProxy.emit()` acknowledgment limitations.
-- Dashboard authentication remains application-owned, with an operation-aware
-  authorizer hook for read versus admin actions.
-- The first public package set is aligned on stable `0.7.0`.
-- PostgreSQL/MySQL durable outbox claim concurrency is covered by
-  `npm run test:integration:db` and the CI DB integration gate.
+Planned scope:
 
-Recently completed MVP mitigations:
+- Operation context foundation for ORM-agnostic transactional outbox behavior.
+- `CapOperationContext<TTx>`.
+- `CapPublishOptions` support for both `tx` and `ctx`.
+- `PublishStoragePort.savePublish(event, ctx?)` as the primary
+  transaction-aware storage API.
+- `savePublishWithTx(event, tx)` retained only as deprecated compatibility.
+- Optional `CapTransactionManagerPort`.
+- Optional AsyncLocalStorage-based transaction context.
+- Publish storage contract tests in `@mikara89/cap-testing`.
+- Storage capability model.
 
-- Removed hardcoded Azure Service Bus credentials from the demo app.
-- Made the demo app run locally with SQLite, in-memory transport, and dashboard.
-- Implemented dashboard `POST /scheduler/flush-outbox`.
-- Added efficient MikroORM dashboard list/find methods.
-- Removed tracked generated artifacts such as nested `node_modules` and
-  `tsbuildinfo`.
-- Aligned first-party peer dependency ranges for current package versions.
-- Added first-class header propagation across core, scheduler, dashboard, local
-  bus, Azure Service Bus, and NestJS microservices transport.
+v2.2 is not the storage adapter expansion release. Knex, TypeORM, Prisma, and a
+generic SQL core are not part of the v2.2 minimum scope.
 
-## v1
+## v2.3 Storage Reach
 
-v1 is the first stable public API release:
+CAP adds first-party Knex, TypeORM, and Prisma storage adapters after the
+publish-storage contract suite is hardened. SQL-core extraction remains deferred
+until duplication is proven.
 
-- Stable exported interfaces and module registration APIs.
-- Version alignment across first-party packages.
-- Production setup guide.
-- Broader adapter integration tests.
-- Broker-specific hardening for the NestJS microservices transport adapter.
-- Dashboard UI polish and richer operator feedback.
-- SQL Server-specific claim support remains future adapter work.
-- Migration guide for 0.7 databases and APIs.
-- Release checklist and changelog discipline.
-- Clear compatibility promises for adapters and dashboard APIs.
+Planned scope:
 
-## Later
+- Add and harden the storage adapter contract suite first.
+- Planned first-party package: `@mikara89/cap-storage-knex`.
+- Planned first-party package: `@mikara89/cap-storage-typeorm`.
+- Planned first-party package: `@mikara89/cap-storage-prisma`.
+- Add a storage adapter matrix and examples.
+- Keep generic SQL core as future work until real adapters prove shared
+  duplication.
 
-Later work expands the ecosystem:
+Potential future storage candidates beyond v2.3 include Drizzle, Sequelize,
+Mongoose, and raw `pg` or custom SQL adapters.
 
-- Additional storage adapters.
-- Additional transport adapters.
-- Observability with metrics and tracing.
-- Dashboard read-only/operator roles.
-- Richer message metadata and correlation support.
-- Payload schema/versioning guidance.
+## v2.4 Transport Reach
+
+CAP adds first-party RabbitMQ, Kafka, and AWS SNS/SQS transports after transport
+capability and conformance tests are introduced.
+
+Planned scope:
+
+- Add a transport contract suite and transport capability model first.
+- Planned first-party package: `@mikara89/cap-transport-rabbitmq`.
+- Planned first-party package: `@mikara89/cap-transport-kafka`.
+- Planned first-party package: `@mikara89/cap-transport-aws-sns-sqs`.
+- Add a transport adapter matrix and examples.
+
+Google Pub/Sub and NATS JetStream are likely v2.5 candidates, not v2.4 minimum
+scope. Redis Streams, MQTT, and other niche transports remain later or optional
+ecosystem work.
+
+## v2.5+ Future Ecosystem
+
+Likely candidates:
+
+- Google Pub/Sub transport.
+- NATS JetStream transport.
+- Transport capability warnings in framework adapters and dashboards.
+- Dashboard visibility into storage and transport capabilities.
+- Possible SQL-core extraction after at least two or three real storage
+  adapters prove repeated implementation details.
+- Additional observability with metrics and tracing.
+- Richer message metadata, correlation, and payload schema/versioning guidance.
+
+## Non-Goals and Sequencing Rules
+
+- Do not treat planned packages as available until they are implemented,
+  documented, tested, and exported.
+- Do not add Knex, TypeORM, Prisma, or generic SQL core implementation as part
+  of v2.2.
+- Do not add RabbitMQ, Kafka, AWS SNS/SQS, Google Pub/Sub, NATS JetStream, Redis
+  Streams, MQTT, or other broker implementations as part of v2.2.
+- Do not build a generic SQL core before at least two or three storage adapters
+  prove real duplication.
+- Add conformance tests and capability models before broadening each adapter
+  family.
+- Keep current packages and planned packages clearly separated in README and
+  docs.
+- Do not promise exact release dates from this roadmap.
