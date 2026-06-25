@@ -15,6 +15,8 @@ New `ctx` style:
 await cap.publish('user.created', payload, { ctx: { tx: em } });
 ```
 
+For MikroORM, `em` is the transactional `EntityManager`.
+
 When both are present, `ctx` wins over `tx`.
 
 When `tx` or `ctx.tx` is provided, CAP saves the outbox row inside that

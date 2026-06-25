@@ -6,12 +6,13 @@ import {
   type MikroORM,
 } from '@mikro-orm/core';
 import type {
+  CapOperationContext,
   CapLogger,
   CapPublishEvent,
   ClaimUnpublishedOptions,
   JsonValue,
   MarkPublishFailedOptions,
-  TransactionalPublishStoragePort,
+  PublishStoragePort,
 } from '@mikara89/cap-core';
 import { CapPublishEntity } from '../entities/cap-publish.entity';
 
@@ -31,7 +32,7 @@ type PublishEntityData = {
   updatedAt: Date;
 };
 
-export class MikroPublishStorage implements TransactionalPublishStoragePort {
+export class MikroPublishStorage implements PublishStoragePort<EntityManager> {
   constructor(
     private readonly em: EntityManager,
     private readonly orm?: MikroORM,
@@ -64,20 +65,24 @@ export class MikroPublishStorage implements TransactionalPublishStoragePort {
     }
   }
 
-  async savePublish(event: CapPublishEvent<JsonValue>): Promise<string> {
-    const entity = this.em.create(CapPublishEntity, mapPublishToEntity(event));
-    await this.em.persistAndFlush(entity);
-    return entity.id;
-  }
-
-  async savePublishWithTx(
+  async savePublish(
     event: CapPublishEvent<JsonValue>,
-    tx: unknown,
+    ctx?: CapOperationContext<EntityManager>,
   ): Promise<string> {
-    const em = (tx as EntityManager) ?? this.em;
+    const em = ctx?.tx ?? this.em;
     const entity = em.create(CapPublishEntity, mapPublishToEntity(event));
     await em.persistAndFlush(entity);
     return entity.id;
+  }
+
+  /**
+   * @deprecated Use savePublish(event, { tx }) instead.
+   */
+  async savePublishWithTx(
+    event: CapPublishEvent<JsonValue>,
+    tx: EntityManager,
+  ): Promise<string> {
+    return this.savePublish(event, { tx });
   }
 
   async claimUnpublished(

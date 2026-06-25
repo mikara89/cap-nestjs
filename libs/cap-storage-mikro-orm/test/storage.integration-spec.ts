@@ -119,7 +119,7 @@ describe('Integration: cap-storage-mikro-orm (Postgres via Testcontainers)', () 
     expect(saved?.id).toBe(savedId);
   });
 
-  it('transactional save commits when transaction succeeds', async () => {
+  it('transactional save with ctx.tx commits when transaction succeeds', async () => {
     const storage = app.get<PublishStoragePort>(PUBLISH_STORAGE);
     const orm = app.get(MikroORM);
 
@@ -135,6 +135,30 @@ describe('Integration: cap-storage-mikro-orm (Postgres via Testcontainers)', () 
 
     // run inside a MikroORM transaction and commit
     const savedId = await orm.em.transactional(async (em) => {
+      return await storage.savePublish(event as any, { tx: em });
+    });
+
+    expect(savedId).toBeTruthy();
+
+    const saved = await storage.findPublishById?.(savedId);
+    expect(saved?.id).toBe(savedId);
+  });
+
+  it('savePublishWithTx remains backward compatible', async () => {
+    const storage = app.get<PublishStoragePort>(PUBLISH_STORAGE);
+    const orm = app.get(MikroORM);
+
+    const event = {
+      id: uuid(),
+      topic: 'tx-topic-legacy-commit',
+      occurredAt: new Date().toISOString(),
+      payload: { foo: 'legacy' },
+      headers: {},
+      retryCount: 0,
+      status: 'pending',
+    };
+
+    const savedId = await orm.em.transactional(async (em) => {
       return await (storage as any).savePublishWithTx(event as any, em);
     });
 
@@ -144,7 +168,7 @@ describe('Integration: cap-storage-mikro-orm (Postgres via Testcontainers)', () 
     expect(saved?.id).toBe(savedId);
   });
 
-  it('transactional save rolls back on error', async () => {
+  it('transactional save with ctx.tx rolls back on error', async () => {
     const storage = app.get<PublishStoragePort>(PUBLISH_STORAGE);
     const orm = app.get(MikroORM);
 
@@ -161,7 +185,7 @@ describe('Integration: cap-storage-mikro-orm (Postgres via Testcontainers)', () 
     let savedId: string | null = null;
     try {
       await orm.em.transactional(async (em) => {
-        savedId = await (storage as any).savePublishWithTx(event as any, em);
+        savedId = await storage.savePublish(event as any, { tx: em });
         // force rollback
         throw new Error('force rollback');
       });
@@ -174,7 +198,7 @@ describe('Integration: cap-storage-mikro-orm (Postgres via Testcontainers)', () 
     expect(saved).toBeUndefined();
   });
 
-  it('transactional domain change + outbox commit', async () => {
+  it('transactional domain change + outbox commit with ctx.tx', async () => {
     const storage = app.get<PublishStoragePort>(PUBLISH_STORAGE);
     const orm = app.get(MikroORM);
 
@@ -193,7 +217,7 @@ describe('Integration: cap-storage-mikro-orm (Postgres via Testcontainers)', () 
       // persist a domain entity inside transaction
       await em.persistAndFlush(em.create(TestDomainEntity, domain));
       // persist outbox inside same transaction
-      const id = await (storage as any).savePublishWithTx(event as any, em);
+      const id = await storage.savePublish(event as any, { tx: em });
       return id;
     });
 
@@ -208,7 +232,7 @@ describe('Integration: cap-storage-mikro-orm (Postgres via Testcontainers)', () 
     expect(outbox?.id).toBe(saved);
   });
 
-  it('transactional domain change + outbox rollback', async () => {
+  it('transactional domain change + outbox rollback with ctx.tx', async () => {
     const storage = app.get<PublishStoragePort>(PUBLISH_STORAGE);
     const orm = app.get(MikroORM);
 
@@ -227,7 +251,7 @@ describe('Integration: cap-storage-mikro-orm (Postgres via Testcontainers)', () 
     try {
       await orm.em.transactional(async (em) => {
         await em.persistAndFlush(em.create(TestDomainEntity, domain));
-        savedId = await (storage as any).savePublishWithTx(event as any, em);
+        savedId = await storage.savePublish(event as any, { tx: em });
         // trigger rollback
         throw new Error('trigger rollback');
       });

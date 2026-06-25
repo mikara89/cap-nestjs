@@ -1,39 +1,38 @@
-/* eslint-disable @typescript-eslint/unbound-method */
-
-import { IsolationLevel, LockMode, type EntityManager } from '@mikro-orm/core';
+import {
+  IsolationLevel,
+  LockMode,
+  MikroORM,
+  type EntityManager,
+} from '@mikro-orm/core';
+import { BetterSqliteDriver } from '@mikro-orm/better-sqlite';
 import { MikroPublishStorage } from './mikro-publish-storage';
 import { CapPublishEntity } from '../entities/cap-publish.entity';
-import { type CapPublishEvent } from '@mikara89/cap-core';
+import {
+  CapEngine,
+  type CapHeaders,
+  type CapPublishEvent,
+  type CapReceivedEvent,
+  type JsonValue,
+  type MarkReceivedFailedOptions,
+  type PublisherPort,
+  type ReceivedStoragePort,
+  type SubscriberPort,
+  type SubscribeMetadata,
+  type TrySaveReceivedResult,
+} from '@mikara89/cap-core';
 
 describe('MikroPublishStorage', () => {
   let storage: MikroPublishStorage;
-  let em: EntityManager;
+  let em: MockEntityManager;
 
   beforeEach(() => {
-    const mockEm = {
-      create: jest.fn((_, data) => ({ ...data, id: data.id })),
-      persistAndFlush: jest.fn(),
-      findOne: jest.fn(),
-      find: jest.fn(),
-      findAndCount: jest.fn(),
-      flush: jest.fn(),
-      transactional: jest.fn((fn) => Promise.resolve(fn(mockEm))),
-    };
-
+    const mockEm = createMockEntityManager();
     storage = new MikroPublishStorage(mockEm);
     em = mockEm;
   });
 
-  it('persists a publish event with pending status', async () => {
-    const event: CapPublishEvent = {
-      id: 'test-id',
-      topic: 'test-topic',
-      occurredAt: new Date().toISOString(),
-      payload: { foo: 'bar' },
-      headers: { 'x-trace': '123' },
-      retryCount: 0,
-      status: 'pending',
-    };
+  it('savePublish without ctx uses default EntityManager', async () => {
+    const event = publishEvent();
 
     await storage.savePublish(event);
 
@@ -47,6 +46,122 @@ describe('MikroPublishStorage', () => {
         status: 'pending',
       }),
     );
+  });
+
+  it('savePublish with ctx.tx uses provided transactional EntityManager', async () => {
+    const txEm = createMockEntityManager();
+    const event = publishEvent();
+
+    const savedId = await storage.savePublish(event, { tx: txEm });
+
+    expect(savedId).toBe('test-id');
+    expect(txEm.create).toHaveBeenCalledWith(
+      CapPublishEntity,
+      expect.objectContaining({ id: 'test-id', topic: 'test-topic' }),
+    );
+    expect(txEm.persistAndFlush).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'test-id' }),
+    );
+    expect(em.persistAndFlush).not.toHaveBeenCalled();
+  });
+
+  it('savePublishWithTx delegates to savePublish with ctx', async () => {
+    const txEm = createMockEntityManager();
+    const event = publishEvent();
+    const savePublish = jest.spyOn(storage, 'savePublish');
+
+    await storage.savePublishWithTx(event, txEm);
+
+    expect(savePublish).toHaveBeenCalledWith(event, { tx: txEm });
+  });
+
+  it('savePublishWithTx remains backward compatible', async () => {
+    const txEm = createMockEntityManager();
+    const event = publishEvent();
+
+    const savedId = await storage.savePublishWithTx(event, txEm);
+
+    expect(savedId).toBe('test-id');
+    expect(txEm.persistAndFlush).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'test-id' }),
+    );
+    expect(em.persistAndFlush).not.toHaveBeenCalled();
+  });
+
+  it('CapEngine publish with tx defers broker emit by default', async () => {
+    const txEm = createMockEntityManager();
+    const publisher = new FakePublisher();
+    const engine = createEngine(storage, publisher);
+
+    await engine.publish('engine.tx', { ok: true }, { tx: txEm });
+
+    expect(txEm.persistAndFlush).toHaveBeenCalled();
+    expect(publisher.emitted).toHaveLength(0);
+  });
+
+  it('CapEngine publish with ctx.tx defers broker emit by default', async () => {
+    const txEm = createMockEntityManager();
+    const publisher = new FakePublisher();
+    const engine = createEngine(storage, publisher);
+
+    await engine.publish('engine.ctx', { ok: true }, { ctx: { tx: txEm } });
+
+    expect(txEm.persistAndFlush).toHaveBeenCalled();
+    expect(publisher.emitted).toHaveLength(0);
+  });
+
+  it('CapEngine publish with ctx.tx and immediate true attempts broker emit', async () => {
+    const txEm = createMockEntityManager();
+    const publisher = new FakePublisher();
+    const engine = createEngine(storage, publisher);
+
+    await engine.publish(
+      'engine.ctx.immediate',
+      { ok: true },
+      {
+        ctx: { tx: txEm },
+        immediate: true,
+      },
+    );
+
+    expect(txEm.persistAndFlush).toHaveBeenCalled();
+    expect(publisher.emitted).toEqual([
+      expect.objectContaining({
+        topic: 'engine.ctx.immediate',
+        payload: { ok: true },
+        metadata: { messageId: 'test-id' },
+      }),
+    ]);
+  });
+
+  it('rolls back savePublish with ctx.tx inside a MikroORM transaction', async () => {
+    const orm = await MikroORM.init({
+      driver: BetterSqliteDriver,
+      dbName: ':memory:',
+      entities: [CapPublishEntity],
+    });
+    await orm.getSchemaGenerator().createSchema();
+    const transactionalStorage = new MikroPublishStorage(orm.em.fork());
+    const event = publishEvent({ id: 'rollback-id', topic: 'rollback-topic' });
+    let savedId: string | undefined;
+
+    try {
+      await orm.em.transactional(async (tx) => {
+        savedId = await transactionalStorage.savePublish(event, { tx });
+        throw new Error('force rollback');
+      });
+    } catch {
+      // Expected rollback.
+    }
+
+    try {
+      expect(savedId).toBe('rollback-id');
+      await expect(
+        transactionalStorage.findPublishById('rollback-id'),
+      ).resolves.toBeUndefined();
+    } finally {
+      await orm.close(true);
+    }
   });
 
   it('claims ready events by marking them processing with a lease', async () => {
@@ -253,6 +368,67 @@ describe('MikroPublishStorage', () => {
   });
 });
 
+type MockEntityManager = EntityManager & {
+  create: jest.Mock;
+  persistAndFlush: jest.Mock;
+  findOne: jest.Mock;
+  find: jest.Mock;
+  findAndCount: jest.Mock;
+  flush: jest.Mock;
+  transactional: jest.Mock;
+};
+
+function createMockEntityManager(): MockEntityManager {
+  const mockEm = {
+    create: jest.fn((_, data) => ({ ...data, id: data.id })),
+    persistAndFlush: jest.fn(),
+    findOne: jest.fn(),
+    find: jest.fn(),
+    findAndCount: jest.fn(),
+    flush: jest.fn(),
+    transactional: jest.fn((fn) => Promise.resolve(fn(mockEm))),
+  };
+
+  return mockEm;
+}
+
+function createEngine(
+  publishStorage: MikroPublishStorage,
+  publisher: FakePublisher,
+): CapEngine {
+  return new CapEngine({
+    publishStorage,
+    receivedStorage: new FakeReceivedStorage(),
+    publisher,
+    subscriber: new FakeSubscriber(),
+    scheduler: {
+      batchSize: 10,
+      leaseMs: 30_000,
+      maxRetries: 3,
+      maxInboxRetries: 3,
+      instanceId: 'mikro-test',
+      disabled: false,
+    },
+    idGenerator: () => 'test-id',
+    now: () => new Date('2026-01-01T00:00:00.000Z'),
+  });
+}
+
+function publishEvent(
+  overrides: Partial<CapPublishEvent> = {},
+): CapPublishEvent {
+  return {
+    id: 'test-id',
+    topic: 'test-topic',
+    occurredAt: new Date().toISOString(),
+    payload: { foo: 'bar' },
+    headers: { 'x-trace': '123' },
+    retryCount: 0,
+    status: 'pending',
+    ...overrides,
+  };
+}
+
 function publishEntity(
   overrides: Partial<CapPublishEntity> = {},
 ): CapPublishEntity {
@@ -266,4 +442,61 @@ function publishEntity(
   entity.createdAt = new Date();
   Object.assign(entity, overrides);
   return entity;
+}
+
+class FakePublisher implements PublisherPort {
+  emitted: Array<{
+    topic: string;
+    payload: JsonValue;
+    headers?: CapHeaders;
+    metadata?: { messageId: string };
+  }> = [];
+
+  emit(
+    topic: string,
+    payload: JsonValue,
+    headers?: CapHeaders,
+    metadata?: { messageId: string },
+  ): Promise<void> {
+    this.emitted.push({ topic, payload, headers, metadata });
+    return Promise.resolve();
+  }
+}
+
+class FakeSubscriber implements SubscriberPort {
+  consume(
+    _topic: string,
+    _group: string,
+    _handler: (
+      payload: unknown,
+      headers?: CapHeaders,
+      metadata?: SubscribeMetadata,
+    ) => Promise<void> | void,
+  ): Promise<void> {
+    return Promise.resolve();
+  }
+}
+
+class FakeReceivedStorage implements ReceivedStoragePort {
+  trySaveReceived<T extends JsonValue = JsonValue>(
+    event: CapReceivedEvent<T>,
+  ): Promise<TrySaveReceivedResult<T>> {
+    return Promise.resolve({ inserted: true, id: event.id, event });
+  }
+
+  markProcessed(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  markReceivedFailed(
+    _id: string,
+    _error: unknown,
+    _options: MarkReceivedFailedOptions,
+  ): Promise<void> {
+    return Promise.resolve();
+  }
+
+  getRetryDue(): Promise<CapReceivedEvent[]> {
+    return Promise.resolve([]);
+  }
 }

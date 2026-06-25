@@ -45,7 +45,28 @@ export class AppModule {}
 - SQLite/local demo drivers and SQL Server fall back to non-locking
   transactional claims and are not supported for multi-instance durable
   dispatch by this adapter.
-- `savePublishWithTx` is available for transactional outbox persistence.
+- MikroORM transaction-aware publish can use the operation context API:
+
+  ```ts
+  await cap.publish('user.created', payload, {
+    ctx: { tx: em },
+  });
+  ```
+
+  The old top-level `tx` style still works:
+
+  ```ts
+  await cap.publish('user.created', payload, {
+    tx: em,
+  });
+  ```
+
+  When `tx` or `ctx.tx` is provided, CAP saves the outbox row inside that
+  transaction and defers broker emit by default. The scheduler dispatches after
+  commit.
+
+- `savePublishWithTx` remains as deprecated compatibility. Prefer
+  `savePublish(event, { tx })` in storage integrations.
 - Inbox idempotency uses unique `(group, dedupeKey)` records. Existing
   databases upgrading from message-id dedupe need a migration that adds inbox
   `status`, `lastError`, and `processedAt` columns and replaces the old unique
