@@ -1,4 +1,5 @@
 import { type CapPublishEvent } from '../models/cap-publish-event';
+import { type CapOperationContext } from '../models/cap-operation-context';
 import { type JsonValue } from '../models/json-value.type';
 import {
   type ClaimUnpublishedOptions,
@@ -11,6 +12,7 @@ export class InMemoryPublishStorage implements PublishStoragePort {
 
   savePublish<T extends JsonValue = JsonValue>(
     event: CapPublishEvent<T>,
+    _ctx?: CapOperationContext,
   ): Promise<string> {
     this.store.set(event.id, event);
     return Promise.resolve(event.id);

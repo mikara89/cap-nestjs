@@ -1,4 +1,5 @@
 import { type CapPublishEvent } from '../models/cap-publish-event';
+import { type CapOperationContext } from '../models/cap-operation-context';
 import { type JsonValue } from '../models/json-value.type';
 import { type InitOptions } from './initializer.port';
 import {
@@ -21,9 +22,10 @@ export interface MarkPublishFailedOptions {
   now: Date;
 }
 
-export interface PublishStoragePort {
+export interface PublishStoragePort<TTx = unknown> {
   savePublish<T extends JsonValue = JsonValue>(
     event: CapPublishEvent<T>,
+    ctx?: CapOperationContext<TTx>,
   ): Promise<string>;
 
   initialize?(options?: InitOptions): Promise<void>;
@@ -49,9 +51,27 @@ export interface PublishStoragePort {
   ): Promise<DashboardListResult<CapPublishEvent>>;
 }
 
-export interface TransactionalPublishStoragePort extends PublishStoragePort {
+export interface TransactionalPublishStoragePort<
+  TTx = unknown,
+> extends PublishStoragePort<TTx> {
+  /**
+   * @deprecated Use savePublish(event, { tx }) instead.
+   */
   savePublishWithTx<T extends JsonValue = JsonValue>(
     event: CapPublishEvent<T>,
-    tx: unknown,
+    tx: TTx,
   ): Promise<string>;
+}
+
+export function isLegacyTransactionalPublishStorage<TTx = unknown>(
+  storage: PublishStoragePort<TTx>,
+): storage is TransactionalPublishStoragePort<TTx> & {
+  savePublishWithTx: NonNullable<
+    TransactionalPublishStoragePort<TTx>['savePublishWithTx']
+  >;
+} {
+  return (
+    typeof (storage as TransactionalPublishStoragePort<TTx>)
+      .savePublishWithTx === 'function'
+  );
 }

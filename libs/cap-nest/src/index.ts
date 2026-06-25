@@ -34,6 +34,7 @@ export type {
   CapEngineOptions,
   CapHandler,
   CapLogger,
+  CapOperationContext,
   CapSchedulerRuntimeOptions,
   DashboardListOptions,
   DashboardListResult,

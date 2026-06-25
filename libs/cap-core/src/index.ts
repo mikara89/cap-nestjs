@@ -7,6 +7,7 @@ export * from './engine/noop-logger';
 
 export * from './models/cap-base-message';
 export type { CapHeaderValue, CapHeaders } from './models/cap-headers';
+export * from './models/cap-operation-context';
 export * from './models/cap-publish-event';
 export * from './models/cap-received-event';
 export * from './models/cap-message-metadata';
@@ -32,4 +33,5 @@ export * from './testing/local-bus';
 export * from './utils/cap-message-id.util';
 export * from './utils/dedupe-key.util';
 export * from './utils/error.util';
+export * from './utils/operation-context.util';
 export * from './utils/transaction.util';

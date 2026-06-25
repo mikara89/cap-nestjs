@@ -4,6 +4,7 @@ import {
   type IReceivedStorage,
   type MarkPublishFailedOptions,
   type MarkReceivedFailedOptions,
+  type CapOperationContext,
   type CapPublishEvent,
   type CapReceivedEvent,
   type TrySaveReceivedResult,
@@ -33,7 +34,10 @@ export class TestStorageSpy implements IPublishStorage, IReceivedStorage {
     options: MarkReceivedFailedOptions;
   }> = [];
 
-  savePublish<T = JsonValue>(evt: CapPublishEvent<T>): Promise<string> {
+  savePublish<T = JsonValue>(
+    evt: CapPublishEvent<T>,
+    _ctx?: CapOperationContext,
+  ): Promise<string> {
     this.savePublishCalls.push(evt as CapPublishEvent);
     this.publishEvents.set(evt.id, evt as CapPublishEvent<JsonValue>);
     return Promise.resolve(evt.id);

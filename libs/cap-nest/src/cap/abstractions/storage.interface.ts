@@ -3,6 +3,7 @@ import { type CapReceivedEvent } from '../models/cap-received-event';
 import { type JsonValue } from '../models/json-value.type';
 import type { InitOptions } from './initializer.interface';
 import {
+  type CapOperationContext,
   PUBLISH_STORAGE as CORE_PUBLISH_STORAGE,
   RECEIVED_STORAGE as CORE_RECEIVED_STORAGE,
 } from '@mikara89/cap-core';
@@ -43,6 +44,7 @@ export interface IPublishStorage {
   /** Insert a fresh outbox record and return its DB id */
   savePublish<T extends JsonValue = JsonValue>(
     evt: CapPublishEvent<T>,
+    ctx?: CapOperationContext,
   ): Promise<string>;
 
   /** Optional one-time initialization: create schema/tables if needed */
@@ -82,6 +84,9 @@ export interface IPublishStorage {
  | Optional transactional extension
  *-----------------------------------------------------------------*/
 export interface ITransactionalPublishStorage extends IPublishStorage {
+  /**
+   * @deprecated Use savePublish(event, { tx }) instead.
+   */
   savePublishWithTx<T extends JsonValue = JsonValue>(
     evt: CapPublishEvent<T>,
     tx: unknown,

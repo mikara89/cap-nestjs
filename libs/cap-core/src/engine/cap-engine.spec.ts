@@ -1,11 +1,13 @@
 import { CapEngine } from './cap-engine';
 import { type CapHeaders } from '../models/cap-headers.type';
+import { type CapOperationContext } from '../models/cap-operation-context';
 import { type CapPublishEvent } from '../models/cap-publish-event';
 import { type CapReceivedEvent } from '../models/cap-received-event';
 import { type JsonValue } from '../models/json-value.type';
 import {
   type ClaimUnpublishedOptions,
   type MarkPublishFailedOptions,
+  type PublishStoragePort,
   type TransactionalPublishStoragePort,
 } from '../ports/publish-storage.port';
 import {
@@ -54,12 +56,13 @@ describe('CapEngine', () => {
     subscriber = new FakeSubscriber();
   });
 
-  it('publish saves outbox and immediate success marks published', async () => {
+  it('publish saves outbox without ctx and immediate success marks published', async () => {
     const engine = createEngine();
 
     await engine.publish('t1', { a: 1 }, { headers: { traceId: 'abc' } });
 
     expect(publishStorage.saved).toHaveLength(1);
+    expect(publishStorage.ctx).toBeUndefined();
     expect(publisher.emitted[0]).toMatchObject({
       topic: 't1',
       payload: { a: 1 },
@@ -81,15 +84,114 @@ describe('CapEngine', () => {
     expect(event?.lastError).toBe('boom');
   });
 
-  it('publish with transaction defers broker emit', async () => {
+  it('publish with tx still works through backward-compatible options.tx', async () => {
     const engine = createEngine();
     const tx = { tx: true };
 
     await engine.publish('t-tx', { tx: true }, { tx });
 
     expect(publishStorage.tx).toBe(tx);
+    expect(publishStorage.ctx).toBeUndefined();
     expect(publisher.emitted).toHaveLength(0);
     expect(publishStorage.store.get('id-1')?.status).toBe('pending');
+  });
+
+  it('publish treats a defined falsy tx as a transaction context', async () => {
+    const engine = createEngine();
+
+    await engine.publish('t-falsy-tx', { ok: true }, { tx: 0 });
+
+    expect(publishStorage.tx).toBe(0);
+    expect(publisher.emitted).toHaveLength(0);
+    expect(publishStorage.store.get('id-1')?.status).toBe('pending');
+  });
+
+  it('publish with ctx works and defers broker emit by default', async () => {
+    const engine = createEngine();
+    const ctx = { tx: { tx: 'ctx' }, metadata: { source: 'test' } };
+
+    await engine.publish('t-ctx', { ctx: true }, { ctx });
+
+    expect(publishStorage.tx).toBe(ctx.tx);
+    expect(publisher.emitted).toHaveLength(0);
+    expect(publishStorage.store.get('id-1')?.status).toBe('pending');
+  });
+
+  it('options.ctx wins over options.tx', async () => {
+    const engine = createEngine();
+    const tx = { tx: 'legacy' };
+    const ctx = { tx: { tx: 'ctx' } };
+
+    await engine.publish('t-precedence', { ok: true }, { tx, ctx });
+
+    expect(publishStorage.tx).toBe(ctx.tx);
+    expect(publishStorage.tx).not.toBe(tx);
+    expect(publisher.emitted).toHaveLength(0);
+  });
+
+  it('publish with tx and immediate true attempts broker emit', async () => {
+    const engine = createEngine();
+    const tx = { tx: true };
+
+    await engine.publish(
+      't-tx-immediate',
+      { ok: true },
+      { tx, immediate: true },
+    );
+
+    expect(publishStorage.tx).toBe(tx);
+    expect(publisher.emitted).toHaveLength(1);
+    expect(publishStorage.store.get('id-1')?.status).toBe('published');
+  });
+
+  it('legacy savePublishWithTx is used when implemented and ctx.tx exists', async () => {
+    const engine = createEngine();
+    const ctx = { tx: { tx: true } };
+
+    await engine.publish('t-legacy', { ok: true }, { ctx });
+
+    expect(publishStorage.savePublishWithTxCalls).toBe(1);
+    expect(publishStorage.savePublishCalls).toBe(1);
+    expect(publishStorage.tx).toBe(ctx.tx);
+    expect(publishStorage.ctx).toBeUndefined();
+  });
+
+  it('new savePublish event ctx path is used when legacy method is absent', async () => {
+    const nonLegacyPublishStorage = new NonLegacyPublishStorage();
+    const engine = new CapEngine({
+      publishStorage: nonLegacyPublishStorage,
+      receivedStorage,
+      publisher,
+      subscriber,
+      scheduler,
+      idGenerator: () => `id-${++id}`,
+      now: () => new Date('2026-01-01T00:00:00.000Z'),
+    });
+    const ctx = { tx: { tx: true } };
+
+    await engine.publish('t-new-path', { ok: true }, { ctx });
+
+    expect(nonLegacyPublishStorage.ctx).toBe(ctx);
+    expect(publisher.emitted).toHaveLength(0);
+    expect(nonLegacyPublishStorage.store.get('id-1')?.status).toBe('pending');
+  });
+
+  it('immediate broker failure with ctx is still persisted and not rethrown', async () => {
+    const engine = createEngine();
+    publisher.error = new Error('ctx boom');
+
+    await expect(
+      engine.publish(
+        't-ctx-immediate-fail',
+        { ok: true },
+        { ctx: { tx: { tx: true } }, immediate: true },
+      ),
+    ).resolves.toBeUndefined();
+
+    const event = publishStorage.store.get('id-1');
+    expect(event?.status).toBe('failed');
+    expect(event?.retryCount).toBe(1);
+    expect(event?.lastError).toBe('ctx boom');
   });
 
   it('dispatchOutboxBatch claims and publishes ready records', async () => {
@@ -218,11 +320,17 @@ class FakeSubscriber implements SubscriberPort {
 class InMemoryPublishStorage implements TransactionalPublishStoragePort {
   readonly store = new Map<string, CapPublishEvent<JsonValue>>();
   readonly saved: CapPublishEvent<JsonValue>[] = [];
+  savePublishCalls = 0;
+  savePublishWithTxCalls = 0;
+  ctx?: CapOperationContext;
   tx?: unknown;
 
   savePublish<T extends JsonValue = JsonValue>(
     event: CapPublishEvent<T>,
+    ctx?: CapOperationContext,
   ): Promise<string> {
+    this.savePublishCalls += 1;
+    this.ctx = ctx;
     this.saved.push(event);
     this.store.set(event.id, event);
     return Promise.resolve(event.id);
@@ -232,8 +340,72 @@ class InMemoryPublishStorage implements TransactionalPublishStoragePort {
     event: CapPublishEvent<T>,
     tx: unknown,
   ): Promise<string> {
+    this.savePublishWithTxCalls += 1;
     this.tx = tx;
     return this.savePublish(event);
+  }
+
+  claimUnpublished(
+    options: ClaimUnpublishedOptions,
+  ): Promise<CapPublishEvent[]> {
+    const claimed: CapPublishEvent[] = [];
+    for (const event of this.store.values()) {
+      if (claimed.length >= options.limit) break;
+      if (event.status !== 'pending') continue;
+      event.status = 'processing';
+      event.lockedBy = options.lockedBy;
+      event.lockedUntil = options.lockUntil;
+      claimed.push({ ...event });
+    }
+    return Promise.resolve(claimed);
+  }
+
+  markPublished(id: string, publishedAt?: Date): Promise<void> {
+    const event = this.store.get(id);
+    if (event) {
+      event.status = 'published';
+      event.publishedAt = publishedAt;
+      event.lockedBy = null;
+      event.lockedUntil = null;
+    }
+    return Promise.resolve();
+  }
+
+  markPublishFailed(
+    id: string,
+    error: unknown,
+    options: MarkPublishFailedOptions,
+  ): Promise<void> {
+    const event = this.store.get(id);
+    if (event) {
+      event.retryCount += 1;
+      event.status =
+        event.retryCount >= options.maxRetries ? 'dead_letter' : 'failed';
+      event.nextRetryAt =
+        event.status === 'dead_letter' ? null : options.nextRetryAt;
+      event.lastError = error instanceof Error ? error.message : String(error);
+      event.lockedBy = null;
+      event.lockedUntil = null;
+    }
+    return Promise.resolve();
+  }
+
+  releaseExpiredClaims(): Promise<void> {
+    return Promise.resolve();
+  }
+}
+
+class NonLegacyPublishStorage implements PublishStoragePort {
+  readonly store = new Map<string, CapPublishEvent<JsonValue>>();
+  ctx?: CapOperationContext;
+
+  savePublish<T extends JsonValue = JsonValue>(
+    event: CapPublishEvent<T>,
+    ctx?: CapOperationContext,
+  ): Promise<string> {
+    this.ctx = ctx;
+    this.store.set(event.id, event);
+    return Promise.resolve(event.id);
   }
 
   claimUnpublished(

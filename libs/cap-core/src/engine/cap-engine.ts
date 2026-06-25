@@ -6,9 +6,11 @@ import {
 } from '../utils/cap-message-id.util';
 import { createDedupeKey } from '../utils/dedupe-key.util';
 import { normalizeError } from '../utils/error.util';
+import { resolveOperationContext } from '../utils/operation-context.util';
 import { expJitter } from './backoff';
 import { noopLogger } from './noop-logger';
 import { type CapHeaders } from '../models/cap-headers.type';
+import { type CapOperationContext } from '../models/cap-operation-context';
 import { type CapPublishEvent } from '../models/cap-publish-event';
 import { type CapReceivedEvent } from '../models/cap-received-event';
 import {
@@ -18,8 +20,8 @@ import {
 import { type JsonValue } from '../models/json-value.type';
 import { type CapLogger } from '../ports/logger.port';
 import {
+  isLegacyTransactionalPublishStorage,
   type PublishStoragePort,
-  type TransactionalPublishStoragePort,
 } from '../ports/publish-storage.port';
 import { type PublisherPort } from '../ports/publisher.port';
 import {
@@ -107,19 +109,18 @@ export class CapEngine {
       publishedAt: null,
     };
 
-    const dbId =
-      options.tx && isTransactionalPublishStorage(this.publishStorage)
-        ? await this.publishStorage.savePublishWithTx(evt, options.tx)
-        : await this.publishStorage.savePublish(evt);
+    const ctx = resolveOperationContext(options);
+    const hasTx = hasOperationTransaction(ctx);
+    const dbId = await this.savePublishEvent(evt, ctx);
 
-    if (options.tx && options.immediate !== true) {
+    if (hasTx && options.immediate !== true) {
       this.logger.debug?.(
-        `tx provided; deferring broker emit until scheduler claims #${dbId} ${topic}`,
+        `operation context tx provided; deferring broker emit until scheduler claims #${dbId} ${topic}`,
       );
       return;
     }
 
-    if (options.immediate === true || !options.tx) {
+    if (options.immediate === true || !hasTx) {
       await this.emitPersistedEvent({ ...evt, id: dbId });
     }
   }
@@ -215,6 +216,20 @@ export class CapEngine {
 
   async close(): Promise<void> {
     await this.subscriber.close?.();
+  }
+
+  private async savePublishEvent<TTx>(
+    event: CapPublishEvent<JsonValue>,
+    ctx?: CapOperationContext<TTx>,
+  ): Promise<string> {
+    if (
+      hasOperationTransaction(ctx) &&
+      isLegacyTransactionalPublishStorage<TTx>(this.publishStorage)
+    ) {
+      return this.publishStorage.savePublishWithTx(event, ctx.tx);
+    }
+
+    return this.publishStorage.savePublish(event, ctx);
   }
 
   private async emitPersistedEvent(
@@ -352,13 +367,10 @@ function resolveSchedulerOptions(
   };
 }
 
-function isTransactionalPublishStorage(
-  storage: PublishStoragePort,
-): storage is TransactionalPublishStoragePort {
-  return (
-    typeof (storage as TransactionalPublishStoragePort).savePublishWithTx ===
-    'function'
-  );
+function hasOperationTransaction<TTx>(
+  ctx?: CapOperationContext<TTx>,
+): ctx is CapOperationContext<TTx> & { tx: TTx } {
+  return ctx !== undefined && 'tx' in ctx && ctx.tx !== undefined;
 }
 
 function unwrapMessage<T>(

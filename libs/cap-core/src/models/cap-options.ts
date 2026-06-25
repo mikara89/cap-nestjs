@@ -1,8 +1,10 @@
 import { type CapHeaders } from './cap-headers.type';
+import { type CapOperationContext } from './cap-operation-context';
 
-export interface CapPublishOptions {
+export interface CapPublishOptions<TTx = unknown> {
   headers?: CapHeaders;
-  tx?: unknown;
+  tx?: TTx;
+  ctx?: CapOperationContext<TTx>;
   immediate?: boolean;
 }
 

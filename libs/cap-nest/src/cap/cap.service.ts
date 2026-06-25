@@ -26,7 +26,10 @@ const DEFAULT_SCHEDULER_OPTIONS: ResolvedCapSchedulerOptions = {
   disabled: false,
 };
 
-export type { CapPublishOptions } from '@mikara89/cap-core';
+export type {
+  CapOperationContext,
+  CapPublishOptions,
+} from '@mikara89/cap-core';
 
 @Injectable()
 export class CapService {

@@ -28,18 +28,18 @@ The root workspace package is private. The publishable packages live under
 
 ## Packages
 
-| Package                                    | Purpose                                                                                                   |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| `@mikara89/cap-nest`                       | Core NestJS module, service, decorators, scheduler, abstractions, and in-memory mode.                     |
-| `@mikara89/cap-testing`                    | Framework-agnostic testing helpers, fakes, fixtures, and in-memory engine setup.                         |
-| `@mikara89/cap-express`                    | Express adapter with explicit lifecycle and CAP health router.                                            |
-| `@mikara89/cap-storage-mikro-orm`          | MikroORM storage adapter for outbox and inbox records.                                                    |
-| `@mikara89/cap-transport-azure-servicebus` | Azure Service Bus transport adapter.                                                                      |
+| Package                                        | Purpose                                                                                                   |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `@mikara89/cap-nest`                           | Core NestJS module, service, decorators, scheduler, abstractions, and in-memory mode.                     |
+| `@mikara89/cap-testing`                        | Framework-agnostic testing helpers, fakes, fixtures, and in-memory engine setup.                          |
+| `@mikara89/cap-express`                        | Express adapter with explicit lifecycle and CAP health router.                                            |
+| `@mikara89/cap-storage-mikro-orm`              | MikroORM storage adapter for outbox and inbox records.                                                    |
+| `@mikara89/cap-transport-azure-servicebus`     | Azure Service Bus transport adapter.                                                                      |
 | `@mikara89/cap-transport-nestjs-microservices` | Adapter that publishes through existing NestJS `ClientProxy` registrations and exposes an inbound bridge. |
-| `@mikara89/cap-dashboard-core`             | Framework-agnostic dashboard DTOs and service logic.                                                      |
-| `@mikara89/cap-dashboard-nest`             | NestJS dashboard module, REST API, and static dashboard UI.                                               |
-| `@mikara89/cap-dashboard-express`          | Express router for the dashboard service.                                                                 |
-| `@mikara89/cap-dashboard`                  | Compatibility alias for the Nest dashboard package.                                                       |
+| `@mikara89/cap-dashboard-core`                 | Framework-agnostic dashboard DTOs and service logic.                                                      |
+| `@mikara89/cap-dashboard-nest`                 | NestJS dashboard module, REST API, and static dashboard UI.                                               |
+| `@mikara89/cap-dashboard-express`              | Express router for the dashboard service.                                                                 |
+| `@mikara89/cap-dashboard`                      | Compatibility alias for the Nest dashboard package.                                                       |
 
 `apps/cap-test-app` is a demo and integration test application; it is not a
 published package.
@@ -122,6 +122,20 @@ export class UsersService {
   }
 }
 ```
+
+Publish inside an application transaction by passing the existing transaction
+handle or a CAP operation context:
+
+```ts
+await cap.publish('user.created', payload, { tx: em });
+
+await cap.publish('user.created', payload, { ctx: { tx: em } });
+```
+
+When `tx` or `ctx.tx` is provided, CAP saves the outbox row inside that
+transaction and defers broker emit by default. The scheduler dispatches after
+commit. Use `immediate: true` only when intentionally attempting broker emit in
+the same call.
 
 Subscribe with a handler:
 
@@ -296,6 +310,7 @@ npm run docs:api
 
 - [Documentation index](docs/README.md)
 - [Getting started](docs/getting-started.md)
+- [Transactions](docs/transactions.md)
 - [Architecture](docs/architecture.md)
 - [Adapters](docs/adapters.md)
 - [Dashboard](docs/cap-dashboard.md)
