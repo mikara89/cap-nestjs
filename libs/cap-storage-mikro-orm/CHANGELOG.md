@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.2.0 (2026-06-26)
+
+### Features
+
+- add MikroORM `ctx.tx` support for transaction-aware outbox writes
+- implement informational storage capabilities with conservative driver
+  reporting
+- cover the adapter with the shared publish-storage contract suite
+
+### Compatibility
+
+- keep package root exports framework-neutral and keep Nest wrappers available
+  through explicit `/nest` subpaths
+- keep existing `publish(..., { tx })` usage working with no expected breaking
+  changes for transaction-handle users
+- retain `savePublishWithTx(event, tx)` only as deprecated compatibility and
+  delegate it to `savePublish(event, { tx })`
+
 # 0.7.0-beta.4 (2026-06-24)
 
 **Note:** Version bump only for package @mikara89/cap-storage-mikro-orm

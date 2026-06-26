@@ -19,6 +19,18 @@ Package-specific changelogs are maintained with each publishable package:
 - Added generated API documentation tooling, compile-checked examples, and a
   package export-surface audit.
 
+## 2.2.0 (2026-06-26)
+
+- Added the transaction context foundation with `CapOperationContext`, `ctx`
+  publish support, optional ambient context, and the `CapTransactionManagerPort`
+  extension point.
+- Added MikroORM operation-context support, reusable publish-storage contract
+  tests, and informational storage capability metadata.
+- Kept existing `tx` publish calls working, with `ctx` taking precedence when
+  both options are provided, and retained `savePublishWithTx` only as deprecated
+  compatibility.
+- No breaking changes are expected for existing transaction-handle users.
+
 ## 0.7.0-beta.0
 
 - First beta package line for the CAP for NestJS MVP package set.

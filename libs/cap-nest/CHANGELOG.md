@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.2.0 (2026-06-26)
+
+### Features
+
+- pass transaction context options through `CapService.publish()` and expose the
+  `transaction()` helper backed by core transaction managers
+- re-export core transaction context types for Nest consumers
+
+### Compatibility
+
+- keep existing Nest imports compiling and preserve `publish(..., { tx })`
+  behavior with no expected breaking changes for transaction-handle users
+
 ## [0.7.1-beta.0](https://github.com/mikara89/cap-nodejs/compare/@mikara89/cap-nest@0.7.0...@mikara89/cap-nest@0.7.1-beta.0) (2026-06-24)
 
 **Note:** Version bump only for package @mikara89/cap-nest

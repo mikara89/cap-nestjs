@@ -1,7 +1,8 @@
 # Package Export Surface
 
-CAP Node.js packages define stable public entry points through package
-`exports` maps. Treat those exports as the supported application contract.
+CAP Node.js packages define stable public entry points through package root
+declarations and, where present, package `exports` maps. Treat those entry
+points as the supported application contract.
 
 Package roots stay framework-neutral unless the package is itself a framework
 integration. Optional framework wrappers live behind explicit framework
