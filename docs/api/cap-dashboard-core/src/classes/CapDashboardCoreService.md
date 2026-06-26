@@ -6,7 +6,7 @@
 
 # Class: CapDashboardCoreService
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:53
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:53](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L53)
 
 ## Constructors
 
@@ -14,7 +14,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:53
 
 > **new CapDashboardCoreService**(`options`): `CapDashboardCoreService`
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:62
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:62](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L62)
 
 #### Parameters
 
@@ -32,7 +32,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:62
 
 > **flushOutbox**(): `Promise`\<[`ActionResultDto`](ActionResultDto.md)\>
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:230
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:230](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L230)
 
 #### Returns
 
@@ -44,7 +44,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:230
 
 > **getInboxById**(`id`, `full?`): `Promise`\<[`InboxItemDto`](InboxItemDto.md) \| `undefined`\>
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:182
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:182](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L182)
 
 #### Parameters
 
@@ -66,7 +66,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:182
 
 > **getOutboxById**(`id`, `full?`): `Promise`\<[`OutboxItemDto`](OutboxItemDto.md) \| `undefined`\>
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:100
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:100](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L100)
 
 #### Parameters
 
@@ -88,7 +88,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:100
 
 > **listInbox**(`query`): `Promise`\<[`InboxPageDto`](InboxPageDto.md)\>
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:155
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:155](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L155)
 
 #### Parameters
 
@@ -106,7 +106,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:155
 
 > **listOutbox**(`query`): `Promise`\<[`OutboxPageDto`](OutboxPageDto.md)\>
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:72
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:72](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L72)
 
 #### Parameters
 
@@ -124,7 +124,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:72
 
 > **markInboxProcessed**(`id`): `Promise`\<[`ActionResultDto`](ActionResultDto.md)\>
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:218
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:218](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L218)
 
 #### Parameters
 
@@ -142,7 +142,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:218
 
 > **markOutboxPublished**(`id`): `Promise`\<[`ActionResultDto`](ActionResultDto.md)\>
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:143
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:143](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L143)
 
 #### Parameters
 
@@ -160,7 +160,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:143
 
 > **retryInbox**(`id`, `_opts?`): `Promise`\<[`ActionResultDto`](ActionResultDto.md)\>
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:195
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:195](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L195)
 
 #### Parameters
 
@@ -182,7 +182,7 @@ Defined in: cap-dashboard-core/src/dashboard.service.ts:195
 
 > **retryOutbox**(`id`, `_opts?`): `Promise`\<[`ActionResultDto`](ActionResultDto.md)\>
 
-Defined in: cap-dashboard-core/src/dashboard.service.ts:113
+Defined in: [cap-dashboard-core/src/dashboard.service.ts:113](https://github.com/mikara89/cap-nodejs/blob/main/libs/cap-dashboard-core/src/dashboard.service.ts#L113)
 
 #### Parameters
 

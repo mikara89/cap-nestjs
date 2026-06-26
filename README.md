@@ -44,9 +44,9 @@ The root workspace package is private. The publishable packages live under
 `apps/cap-test-app` is a demo and integration test application; it is not a
 published package.
 
-Current first-party durable storage is MikroORM. Knex, TypeORM, and Prisma
-storage adapters are planned for v2.3 after the storage contract suite is
-hardened.
+Current first-party durable storage is MikroORM. v2.3 starts with storage
+contract hardening before adding planned Knex, TypeORM, and Prisma storage
+adapters.
 
 Current first-party transports are Azure Service Bus and the NestJS
 microservices bridge. RabbitMQ, Kafka, and AWS SNS/SQS transports are planned
@@ -54,8 +54,8 @@ for v2.4 after transport conformance tests and capability metadata are added.
 
 v2.2 adds the transaction context foundation, transaction manager extension
 points, publish storage contract tests, and informational storage capability
-types. Planned v2.3/v2.4 packages are roadmap items, not installable packages
-today.
+types. v2.3 begins by extending storage contract coverage for future adapters.
+Planned v2.3/v2.4 packages are roadmap items, not installable packages today.
 
 ## Requirements
 

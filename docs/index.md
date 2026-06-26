@@ -7,6 +7,8 @@ Key pages:
 - [Getting started](getting-started.md)
 - [Transactions](transactions.md)
 - [Adapters](adapters.md)
+- [Storage adapter author guide](storage-adapter-author-guide.md)
+- [v2.3 storage adapters checklist](migration/v2.3-storage-adapters.md)
 - [Package export surface](package-exports.md)
 - [Roadmap](roadmap.md)
 - [API reference](api/README.md)

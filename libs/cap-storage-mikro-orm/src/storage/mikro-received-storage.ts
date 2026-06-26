@@ -104,12 +104,12 @@ export class MikroReceivedStorage
     return getMikroStorageCapabilities(this.em);
   }
 
-  async markProcessed(id: string): Promise<void> {
+  async markProcessed(id: string, processedAt = new Date()): Promise<void> {
     const entity = await this.em.findOne(CapReceivedEntity, { id });
     if (!entity) return;
     entity.status = 'processed';
     entity.processed = true;
-    entity.processedAt = new Date();
+    entity.processedAt = processedAt;
     entity.nextRetry = undefined;
     await this.em.flush();
   }
@@ -131,8 +131,10 @@ export class MikroReceivedStorage
     await this.em.flush();
   }
 
-  async getRetryDue(limit: number): Promise<CapReceivedEvent<JsonValue>[]> {
-    const now = new Date();
+  async getRetryDue(
+    limit: number,
+    now = new Date(),
+  ): Promise<CapReceivedEvent<JsonValue>[]> {
     const entities = await this.em.find(
       CapReceivedEntity,
       {

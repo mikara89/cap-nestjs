@@ -69,6 +69,15 @@ treated as first-party adapters. The contract uses `savePublish(event, ctx?)` as
 the primary API. `savePublishWithTx(event, tx)` remains deprecated
 compatibility only.
 
+### Received Storage Conformance
+
+v2.3 starts by hardening storage contracts with a reusable received-storage
+contract suite in `@mikara89/cap-testing`. Storage adapters should run
+`defineReceivedStorageContract()` in their test suite and pass capability flags
+for atomic insert-ignore and safe concurrent duplicate insert behavior.
+Unsupported concurrency guarantees should be skipped explicitly by the
+contract.
+
 `ReceivedStoragePort` stores inbox records with dedupe-key idempotency and
 dead-letter-aware retry state:
 
@@ -82,6 +91,10 @@ dead-letter-aware retry state:
 Inbox dedupe remains scoped to consumer `group` plus `dedupeKey`. Broker
 `messageId` is traceability metadata unless the transport also uses it as the
 dedupe key.
+
+See [Storage adapter author guide](storage-adapter-author-guide.md) and
+[v2.3 storage adapters checklist](migration/v2.3-storage-adapters.md) for the
+first-party adapter readiness rules.
 
 ## Transport Responsibilities
 
@@ -204,6 +217,7 @@ portable durable broker acknowledgment.
 - Bind and export the CAP Symbol tokens, not string literals.
 - Implement claim/lease outbox dispatch atomically for production stores.
 - Run the publish-storage contract tests from `@mikara89/cap-testing`.
+- Run the received-storage contract tests from `@mikara89/cap-testing`.
 - Implement `CapabilityAwareStoragePort` when the adapter can report its
   behavior without guessing.
 - Enforce inbox idempotency with a stable `dedupeKey`.

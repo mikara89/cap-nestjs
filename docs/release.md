@@ -90,8 +90,12 @@ versioning only from a branch checkout, not from a detached tag checkout.
 ## Recovering v2.2.0 Tag Publish Failure
 
 The first `v2.2.0` tag workflow failed before publishing because conventional
-Lerna versioning was attempted from a detached tag checkout. After the release
-workflow fix is merged, recover by running the Release workflow manually with:
+Lerna versioning was attempted from a detached tag checkout. Do not rerun the
+failed tag workflow run: it checks out `refs/tags/v2.2.0` and uses the workflow
+file that existed at that tag, so it will keep following the old publish path.
+
+After the release workflow fix is merged, recover by starting a new Release
+workflow run from the fixed branch with:
 
 - `channel`: `stable`
 - `publish_existing_versions`: `true`

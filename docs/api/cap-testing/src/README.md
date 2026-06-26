@@ -20,6 +20,8 @@
 - [CreateReceivedFixtureOptions](interfaces/CreateReceivedFixtureOptions.md)
 - [PublishStorageContractOptions](interfaces/PublishStorageContractOptions.md)
 - [PublishStorageContractSetup](interfaces/PublishStorageContractSetup.md)
+- [ReceivedStorageContractOptions](interfaces/ReceivedStorageContractOptions.md)
+- [ReceivedStorageContractSetup](interfaces/ReceivedStorageContractSetup.md)
 - [TestCapEngine](interfaces/TestCapEngine.md)
 - [TestCapEngineOptions](interfaces/TestCapEngineOptions.md)
 
@@ -33,3 +35,4 @@
 - [createReceivedFixture](functions/createReceivedFixture.md)
 - [createTestCapEngine](functions/createTestCapEngine.md)
 - [definePublishStorageContract](functions/definePublishStorageContract.md)
+- [defineReceivedStorageContract](functions/defineReceivedStorageContract.md)

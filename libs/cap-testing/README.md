@@ -53,3 +53,35 @@ Adapters can also implement `CapabilityAwareStoragePort` from `cap-core` to
 report informational storage behavior. Keep contract capability flags explicit
 even when `getCapabilities()` is implemented, so unsupported behavior remains
 clear in test output.
+
+## Received Storage Contract
+
+Adapter authors can use `defineReceivedStorageContract` to run the shared CAP
+inbox behavior suite against a storage adapter:
+
+```ts
+import { defineReceivedStorageContract } from '@mikara89/cap-testing';
+
+defineReceivedStorageContract(
+  'my received storage',
+  async () => {
+    const storage = createStorage();
+
+    return {
+      storage,
+      cleanup: async () => cleanupStorage(),
+    };
+  },
+  {
+    supportsAtomicInsertIgnore: false,
+    supportsSafeConcurrentInsert: false,
+  },
+);
+```
+
+The received contract verifies insert, `group + dedupeKey` idempotency,
+processed state, retry/dead-letter state, and due retry reads. Concurrency
+capability options make unsupported guarantees visible as skipped tests.
+
+Use this together with the
+[storage adapter author guide](../../docs/storage-adapter-author-guide.md).
