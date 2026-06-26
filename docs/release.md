@@ -57,17 +57,49 @@ Use one release path only:
 - run the Release workflow manually from GitHub Actions
 
 Manual releases support `beta`, `rc`, and `stable` channels. `v*` tags publish
-as stable. Use `graduate` only when promoting existing prereleases to stable.
+as stable from the already-bumped package versions in `package.json`; tag
+pushes do not run conventional Lerna versioning. Use `graduate` only when
+promoting existing prereleases to stable.
 
 The release workflow:
 
 - uses Node 22
+- runs validation without production approval
 - installs with `npm ci`
-- builds libraries
-- verifies package contents
+- audits production dependencies
+- runs lint, build, examples, API docs, package tests, adapter tests, and
+  package dry-run verification
+- verifies the release version against all active publishable
+  `@mikara89/cap-*` packages before publish
+- requires approval from the `npm-production` environment before publishing
 - publishes with Lerna to GitHub Packages
 - authenticates with the workflow `GITHUB_TOKEN`; no `NPM_TOKEN` secret is
   required for this repository-owned package release
+
+For tag-triggered stable releases, the publish step uses:
+
+```bash
+npx lerna publish from-package --yes --registry "$NPM_REGISTRY_URL" --dist-tag latest
+```
+
+For manual releases, set `publish_existing_versions=true` to publish current
+manifest versions with `lerna publish from-package`. If
+`publish_existing_versions=false`, the workflow may use conventional Lerna
+versioning only from a branch checkout, not from a detached tag checkout.
+
+## Recovering v2.2.0 Tag Publish Failure
+
+The first `v2.2.0` tag workflow failed before publishing because conventional
+Lerna versioning was attempted from a detached tag checkout. After the release
+workflow fix is merged, recover by running the Release workflow manually with:
+
+- `channel`: `stable`
+- `publish_existing_versions`: `true`
+- `graduate`: `false`
+
+This publishes the existing `2.2.0` package manifest versions with the `latest`
+dist-tag. Do not delete or recreate the `v2.2.0` tag unless it is absolutely
+necessary and you have confirmed that no packages were published.
 
 ## After Release
 
