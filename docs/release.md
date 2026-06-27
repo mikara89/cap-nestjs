@@ -1,130 +1,112 @@
-# Release Checklist
+# npm Release Guide
 
-Releases are manual or tag-triggered. CI validates the repository; the release
-workflow is the only workflow that publishes packages. Packages are published to
-GitHub Packages at `https://npm.pkg.github.com`. Prerelease package sets can be
-published on the beta or rc channels before a stable tag.
+CAP packages are public on npmjs at `https://registry.npmjs.org/`. Consumers can
+install them without a token or custom `.npmrc`:
 
-## Before Release
+```sh
+npm install @mikara89/cap-core
+```
 
-- Confirm CI is green for the target commit.
-- Confirm there are no committed secrets or local registry credentials.
-- Confirm GitHub private vulnerability reporting is enabled.
-- Confirm GitHub Pages is enabled for the `/docs` folder and the repository
-  About website points to `https://mikara89.github.io/cap-nodejs/`.
-- Confirm the GitHub Packages namespace is ready. The current package names use
-  the `@mikara89` npm scope, matching the current repository owner.
-- Confirm Actions has `packages: write` permission and the repository setting
-  allows GitHub Actions to write packages.
-- Run the static checks:
+GitHub Packages is deprecated for this repository and receives no new releases.
+Historical GitHub Packages versions are not claimed to have been removed.
 
-```powershell
+## Release Policy
+
+- Packages keep the `@mikara89/*` names and are versioned independently.
+- A registry migration is not a reason to change a package version.
+- The workflow publishes current manifest versions only. It does not bump
+  versions, force-publish, create git tags, or create a repository-wide release.
+- An existing npmjs name/version is skipped. Registry errors fail the run.
+- `release-plan.json` is the fail-closed package and registry allowlist.
+- `.github/workflows/release.yml` is the only publishing workflow. It runs only
+  through `workflow_dispatch` and waits at the protected `npm-production`
+  environment before its publish job starts.
+
+Before enabling releases, configure required reviewers on the
+`npm-production` GitHub environment. Keep the runner GitHub-hosted. The workflow
+pins Node 22.14.0 and npm 11.5.1, satisfying npm trusted publishing's Node
+22.14+ and npm 11.5.1+ requirements.
+
+## First npm Bootstrap
+
+The bootstrap is a one-time migration of all 14 current package manifests to
+npmjs. It verifies exact discovery, public npm publish settings, lockfile
+versions, repository metadata, every internal package range, and dependency
+order. It publishes missing current versions with `--access public` and the
+`latest` dist-tag. It does not modify versions or create tags.
+
+1. Create a short-lived npm granular access token that can create and publish
+   public packages in the `@mikara89` scope.
+2. Add it to the `npm-production` GitHub environment as the `NPM_TOKEN` secret.
+3. Open **Actions > Release > Run workflow** on the intended commit.
+4. Set `bootstrap_npm` to `true`.
+5. Enter the exact `bootstrap_confirmation` value `PUBLISH_ALL_TO_NPM`.
+6. Approve the `npm-production` environment after reviewing the validation job
+   and its 14-package candidate list.
+7. Verify all packages and their `latest` dist-tags on npmjs.
+
+If discovery differs from the 14 names in `release-plan.json`, confirmation is
+not exact, an internal dependency is invalid, or npmjs cannot enumerate public
+versions, the workflow stops before publishing. Packages already present at
+their manifest version are skipped.
+
+## Normal Independent Release
+
+Normal runs are intentionally restricted to the five-package allowlist:
+
+- `@mikara89/cap-nest`
+- `@mikara89/cap-storage-mikro-orm`
+- `@mikara89/cap-transport-azure-servicebus`
+- `@mikara89/cap-transport-nestjs-microservices`
+- `@mikara89/cap-dashboard`
+
+Prepare and review the selected package's version, dependency ranges, and
+changelog in a normal pull request. Do not bump unrelated packages. After that
+change is merged, run the Release workflow with `bootstrap_npm` set to `false`
+and choose `release_package`. The workflow verifies that required internal
+versions exist publicly, then publishes only the selected current manifest
+version with the `latest` dist-tag. It skips that release if the exact version
+already exists. Ordinary independent releases do not use a global release tag.
+
+## Move From the Bootstrap Token to Trusted Publishing
+
+Initial publication uses:
+
+```yaml
+NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+```
+
+The workflow never prints the token. After bootstrap, configure a trusted
+publisher on every npm package with these exact values:
+
+- Provider: GitHub Actions
+- Organization or user: `mikara89`
+- Repository: `cap-nodejs`
+- Workflow filename: `release.yml`
+- Environment: `npm-production`
+
+The full workflow path in this repository is `.github/workflows/release.yml`.
+It runs on a GitHub-hosted runner and grants the publish job `id-token: write`.
+After all 14 trusted publishers are configured, remove `NPM_TOKEN` from GitHub
+and revoke the temporary token on npm. Future runs then use npm OIDC trusted
+publishing. Never keep both mechanisms longer than the migration requires.
+
+## Validation
+
+Run the same local gates before a release:
+
+```sh
+npm install
+npm audit --omit=dev
 npm run lint:check
 npm run build
-npm test
-npm run test:e2e -- --runInBand
-npm run test:integration:db
+npm test -- --runInBand
 npm run examples:check
 npm run docs:api
+npm run test:integration:db
 npm run pack:dry-run
 ```
 
-`npm run test:integration:db` runs the real multi-instance claim gate for
-PostgreSQL and MySQL. SQL Server is intentionally not part of the first-party
-multi-instance gate until the MikroORM adapter has a SQL Server-specific claim
-implementation. The MySQL gate asserts no duplicate claims while overlapping
-locks are held; depending on InnoDB range locks, remaining rows may be claimed
-on the next scheduler pass rather than by the second worker immediately.
-
-- Run the external Azure Service Bus gate when a real namespace or emulator is
-  available:
-
-```powershell
-npm run test:integration:servicebus
-```
-
-- Review package dry-run output and confirm each package includes only expected
-  files.
-- Confirm dashboard package output includes `dist/public/index.html`,
-  `dist/public/main.js`, and `dist/public/styles.css`.
-- Review package versions, peer dependency ranges, and changelogs.
-
-## Publish
-
-Use one release path only:
-
-- push a version tag matching `v*`, or
-- run the Release workflow manually from GitHub Actions
-
-Manual releases support `beta`, `rc`, and `stable` channels. `v*` tags publish
-as stable from the already-bumped package versions in `package.json`; tag
-pushes do not run conventional Lerna versioning. Use `graduate` only when
-promoting existing prereleases to stable.
-
-The release workflow:
-
-- uses Node 22
-- runs validation without production approval
-- installs with `npm ci`
-- audits production dependencies
-- runs lint, build, examples, API docs, package tests, adapter tests, and
-  package dry-run verification
-- verifies the release version against all active publishable
-  `@mikara89/cap-*` packages before publish
-- requires approval from the `npm-production` environment before publishing
-- publishes with Lerna to GitHub Packages
-- authenticates with the workflow `GITHUB_TOKEN`; no `NPM_TOKEN` secret is
-  required for this repository-owned package release
-
-For tag-triggered stable releases, the publish step uses:
-
-```bash
-npx lerna publish from-package --yes --registry "$NPM_REGISTRY_URL" --dist-tag latest
-```
-
-For manual releases, set `publish_existing_versions=true` to publish current
-manifest versions with `lerna publish from-package`. If
-`publish_existing_versions=false`, the workflow may use conventional Lerna
-versioning only from a branch checkout, not from a detached tag checkout.
-
-## Recovering v2.2.0 Tag Publish Failure
-
-The first `v2.2.0` tag workflow failed before publishing because conventional
-Lerna versioning was attempted from a detached tag checkout. Do not rerun the
-failed tag workflow run: it checks out `refs/tags/v2.2.0` and uses the workflow
-file that existed at that tag, so it will keep following the old publish path.
-
-After the release workflow fix is merged, recover by starting a new Release
-workflow run from the fixed branch with:
-
-- `channel`: `stable`
-- `publish_existing_versions`: `true`
-- `graduate`: `false`
-
-This publishes the existing `2.2.0` package manifest versions with the `latest`
-dist-tag. Do not delete or recreate the `v2.2.0` tag unless it is absolutely
-necessary and you have confirmed that no packages were published.
-
-## After Release
-
-- Verify packages are available in GitHub Packages.
-- Set package visibility/access in GitHub Packages after the first publish.
-- Verify generated changelogs and tags are correct.
-- Update `docs/roadmap.md` if release scope changes the current stable line,
-  planned releases, or future status.
-
-## Installing From GitHub Packages
-
-Consumers need npm configured for the package scope:
-
-```powershell
-npm config set @mikara89:registry https://npm.pkg.github.com
-```
-
-GitHub Packages may require authentication for installs, including public
-packages. If npm returns `401` or `403`, authenticate with a GitHub personal
-access token that has `read:packages` access:
-
-```powershell
-npm login --scope=@mikara89 --auth-type=legacy --registry=https://npm.pkg.github.com
-```
+Review package dry-run output and confirm it contains only intended files. The
+database gate uses PostgreSQL and MySQL containers and therefore requires a
+working Docker-compatible container runtime.

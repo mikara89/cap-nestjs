@@ -50,12 +50,12 @@ published package.
 Current first-party durable storage adapters are MikroORM, Knex, TypeORM, and
 Prisma.
 
-| Storage adapter | Status | Adapter style | Transaction context |
-| --------------- | ------ | ------------- | ------------------- |
-| MikroORM | Current | ORM-specific adapter | `MikroORM EntityManager` |
-| Knex | Current | SQL query-builder adapter | `Knex.Transaction` |
-| TypeORM | Current | ORM adapter | `TypeORM EntityManager` |
-| Prisma | Current | Raw-SQL Prisma Client adapter; no CAP models are required in the Prisma schema | `Prisma.TransactionClient` |
+| Storage adapter | Status  | Adapter style                                                                  | Transaction context        |
+| --------------- | ------- | ------------------------------------------------------------------------------ | -------------------------- |
+| MikroORM        | Current | ORM-specific adapter                                                           | `MikroORM EntityManager`   |
+| Knex            | Current | SQL query-builder adapter                                                      | `Knex.Transaction`         |
+| TypeORM         | Current | ORM adapter                                                                    | `TypeORM EntityManager`    |
+| Prisma          | Current | Raw-SQL Prisma Client adapter; no CAP models are required in the Prisma schema | `Prisma.TransactionClient` |
 
 Drizzle, Sequelize, and Mongoose remain future storage candidates. A raw SQL
 adapter or shared SQL-core extraction remains deferred until duplication across
@@ -89,14 +89,14 @@ Adapter-specific requirements:
 
 ## Installation
 
-Packages are published to GitHub Packages. Configure npm for the package scope
-before installing:
+Packages are public on npmjs. Installation requires no token or custom
+`.npmrc`. Install the framework-agnostic core package with:
 
 ```sh
-npm config set @mikara89:registry https://npm.pkg.github.com
+npm install @mikara89/cap-core
 ```
 
-Install the core package:
+Install `@mikara89/cap-nest` when using the NestJS integration:
 
 ```sh
 npm install @mikara89/cap-nest
@@ -137,9 +137,10 @@ npm install @mikara89/cap-dashboard-nest
 
 `@mikara89/cap-dashboard` remains available as a compatibility alias.
 
-Package availability depends on GitHub Packages visibility. GitHub Packages may
-require npm authentication with a GitHub personal access token for installs.
-See [Release checklist](docs/release.md).
+Packages are versioned independently. GitHub Packages is deprecated and
+receives no new releases; historical package versions are not claimed to have
+been deleted. See the [npm release guide](docs/release.md) for bootstrap,
+normal release, token, and trusted-publishing procedures.
 
 ## Basic Usage
 

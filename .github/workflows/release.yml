@@ -1,148 +1,73 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
     inputs:
-      channel:
-        description: 'Release channel'
+      release_package:
+        description: 'Normal release package (ignored during npm bootstrap)'
         required: true
-        default: beta
+        default: '@mikara89/cap-nest'
         type: choice
         options:
-          - stable
-          - beta
-          - rc
-      graduate:
-        description: 'Graduate existing prereleases to stable'
+          - '@mikara89/cap-nest'
+          - '@mikara89/cap-storage-mikro-orm'
+          - '@mikara89/cap-transport-azure-servicebus'
+          - '@mikara89/cap-transport-nestjs-microservices'
+          - '@mikara89/cap-dashboard'
+      bootstrap_npm:
+        description: 'Publish all 14 current package versions to npmjs'
         required: true
         default: false
         type: boolean
-      publish_existing_versions:
-        description: 'Publish package.json versions without versioning'
-        required: true
-        default: false
-        type: boolean
+      bootstrap_confirmation:
+        description: 'For bootstrap only, enter PUBLISH_ALL_TO_NPM'
+        required: false
+        default: ''
+        type: string
 
 permissions:
   contents: read
-  packages: read
 
 concurrency:
-  group: release-${{ github.workflow }}
+  group: npm-release-${{ github.repository }}
   cancel-in-progress: false
+
+env:
+  NPM_REGISTRY_URL: https://registry.npmjs.org/
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
-          registry-url: https://npm.pkg.github.com
-          scope: '@mikara89'
-          cache: 'npm'
+          node-version: 22.14.0
+          cache: npm
 
-      - name: Install
+      - name: Install npm with trusted publishing support
+        run: npm install --global npm@11.5.1
+
+      - name: Verify tool versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Install dependencies
         run: npm ci --package-lock=true
 
-      - name: Verify release versions
-        shell: bash
-        run: |
-          node <<'NODE'
-          const fs = require('fs');
-          const path = require('path');
+      - name: Verify release configuration
+        run: node tools/verify-from-package-candidates.js --verify
 
-          const root = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-          if (root.private !== true) {
-            throw new Error('Root package must remain private and must not be published.');
-          }
-          if (root.name && root.name.startsWith('@mikara89/cap-')) {
-            throw new Error('Root package must not be a publishable CAP package.');
-          }
-
-          const refName = process.env.GITHUB_REF_NAME || '';
-          const isTagRelease = process.env.GITHUB_EVENT_NAME === 'push' && refName.startsWith('v');
-          const tagVersion = isTagRelease ? refName.slice(1) : null;
-
-          const workspacePatterns = root.workspaces || [];
-          const workspaceDirs = workspacePatterns.flatMap((pattern) => {
-            if (!pattern.endsWith('/*')) {
-              throw new Error(`Unsupported workspace pattern: ${pattern}`);
-            }
-
-            const base = pattern.slice(0, -2);
-            return fs
-              .readdirSync(base, { withFileTypes: true })
-              .filter((entry) => entry.isDirectory())
-              .map((entry) => path.join(base, entry.name));
-          });
-
-          const packages = workspaceDirs.map((dir) => {
-            const manifestPath = path.join(dir, 'package.json');
-            const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-            return { dir, manifestPath, manifest };
-          });
-
-          const publishable = packages.filter(({ manifest }) => {
-            return manifest.name && manifest.name.startsWith('@mikara89/cap-') && manifest.private !== true;
-          });
-
-          if (publishable.length === 0) {
-            throw new Error('No publishable @mikara89/cap-* workspace packages found.');
-          }
-
-          const versions = new Set(publishable.map(({ manifest }) => manifest.version));
-          if (versions.size !== 1) {
-            throw new Error(`Publishable CAP package versions differ: ${Array.from(versions).join(', ')}`);
-          }
-
-          const releaseVersion = tagVersion || Array.from(versions)[0];
-          if (!releaseVersion) {
-            throw new Error('Could not determine release version.');
-          }
-
-          for (const { manifestPath, manifest } of publishable) {
-            if (manifest.version !== releaseVersion) {
-              throw new Error(`${manifest.name} in ${manifestPath} is ${manifest.version}, expected ${releaseVersion}.`);
-            }
-          }
-
-          const stalePackages = publishable.filter(({ manifest }) => manifest.version === '2.1.1');
-          if (stalePackages.length > 0) {
-            throw new Error(`Active package manifests still at 2.1.1: ${stalePackages.map(({ manifest }) => manifest.name).join(', ')}`);
-          }
-
-          const nonLibWorkspaces = packages.filter(({ dir }) => !dir.startsWith(`libs${path.sep}`));
-          if (nonLibWorkspaces.length > 0) {
-            throw new Error(`Only libs/* workspaces may be published from this repository: ${nonLibWorkspaces.map(({ dir }) => dir).join(', ')}`);
-          }
-
-          const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
-          for (const { dir, manifest } of publishable) {
-            const key = dir.replaceAll(path.sep, '/');
-            const lockPackage = lock.packages && lock.packages[key];
-            if (!lockPackage) {
-              throw new Error(`Missing package-lock metadata for ${key}.`);
-            }
-            if (lockPackage.version !== releaseVersion) {
-              throw new Error(`${key} lockfile version is ${lockPackage.version}, expected ${releaseVersion}.`);
-            }
-          }
-
-          console.log(`Release version ${releaseVersion} verified for ${publishable.length} publishable CAP packages.`);
-          console.log('Root package is private; apps are not workspaces and will not be published.');
-          NODE
+      - name: Enumerate npmjs versions and verify candidates
+        env:
+          RELEASE_PACKAGE: ${{ inputs.release_package }}
+          BOOTSTRAP_NPM: ${{ inputs.bootstrap_npm }}
+          BOOTSTRAP_CONFIRMATION: ${{ inputs.bootstrap_confirmation }}
+        run: node tools/verify-from-package-candidates.js --plan
 
       - name: Audit production dependencies
         run: npm audit --omit=dev
@@ -153,52 +78,19 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Test
+        run: npm test -- --runInBand
+
       - name: Check examples
         run: npm run examples:check
 
       - name: Generate API docs
         run: npm run docs:api
 
-      - name: Test cap-core
-        run: npm run test:lib:cap-core -- --runInBand
+      - name: Run database integration gate
+        run: npm run test:integration:db
 
-      - name: Test cap-testing
-        run: npm run test:lib:cap-testing -- --runInBand
-
-      - name: Test cap-nest
-        run: npm run test:lib:cap-nest -- --runInBand
-
-      - name: Test cap-express
-        run: npm run test:lib:cap-express -- --runInBand
-
-      - name: Test cap-dashboard-core
-        run: npm run test:lib:cap-dashboard-core -- --runInBand
-
-      - name: Test cap-dashboard-nest
-        run: npm run test:lib:cap-dashboard-nest -- --runInBand
-
-      - name: Test cap-dashboard-express
-        run: npm run test:lib:cap-dashboard-express -- --runInBand
-
-      - name: Test cap-storage-mikro-orm
-        run: npx jest --testPathPattern=libs/cap-storage-mikro-orm --runInBand
-
-      - name: Test cap-storage-knex
-        run: npx jest --testPathPattern=libs/cap-storage-knex --runInBand
-
-      - name: Test cap-storage-typeorm
-        run: npx jest --testPathPattern=libs/cap-storage-typeorm --runInBand
-
-      - name: Test cap-storage-prisma
-        run: npm run test:lib:cap-storage-prisma -- --runInBand
-
-      - name: Test cap-transport-azure-servicebus
-        run: npx jest --testPathPattern=libs/cap-transport-azure-servicebus --runInBand
-
-      - name: Test cap-transport-nestjs-microservices
-        run: npx jest --testPathPattern=libs/cap-transport-nestjs-microservices --runInBand
-
-      - name: Verify package contents
+      - name: Verify package archives
         run: npm run pack:dry-run
 
   publish:
@@ -206,99 +98,42 @@ jobs:
     runs-on: ubuntu-latest
     environment: npm-production
     permissions:
-      contents: write
-      packages: write
-    env:
-      NPM_REGISTRY_URL: https://npm.pkg.github.com
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      contents: read
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
-          registry-url: https://npm.pkg.github.com
-          scope: '@mikara89'
-          cache: 'npm'
+          node-version: 22.14.0
+          cache: npm
 
-      - name: Configure git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Install npm with trusted publishing support
+        run: npm install --global npm@11.5.1
 
-      - name: Install
+      - name: Install dependencies
         run: npm ci --package-lock=true
 
-      - name: Publish packages (Lerna)
+      - name: Configure temporary npm token when present
         shell: bash
         env:
-          INPUT_CHANNEL: ${{ inputs.channel || 'stable' }}
-          INPUT_GRADUATE: ${{ inputs.graduate || false }}
-          INPUT_PUBLISH_EXISTING: ${{ inputs.publish_existing_versions || false }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          IS_TAG_PUSH="false"
-          if [ "${GITHUB_EVENT_NAME}" = "push" ] && [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            IS_TAG_PUSH="true"
-          fi
-
-          if [ "${IS_TAG_PUSH}" = "true" ]; then
-            RELEASE_CHANNEL="stable"
-            RELEASE_GRADUATE="false"
-            RELEASE_PUBLISH_EXISTING="true"
+          if [[ -n "${NODE_AUTH_TOKEN:-}" ]]; then
+            umask 077
+            printf '%s\n' '//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}' > "${RUNNER_TEMP}/npmrc"
+            echo "NPM_CONFIG_USERCONFIG=${RUNNER_TEMP}/npmrc" >> "${GITHUB_ENV}"
+            echo 'Temporary npm token authentication configured.'
           else
-            RELEASE_CHANNEL="${INPUT_CHANNEL}"
-            RELEASE_GRADUATE="${INPUT_GRADUATE}"
-            RELEASE_PUBLISH_EXISTING="${INPUT_PUBLISH_EXISTING}"
+            echo 'No npm token configured; npm trusted publishing must be enabled.'
           fi
 
-          if [ "${RELEASE_CHANNEL}" = "stable" ]; then
-            DIST_TAG="latest"
-          elif [ "${RELEASE_CHANNEL}" = "beta" ]; then
-            DIST_TAG="beta"
-          elif [ "${RELEASE_CHANNEL}" = "rc" ]; then
-            DIST_TAG="rc"
-          else
-            echo "Unsupported release channel: ${RELEASE_CHANNEL}" >&2
-            exit 1
-          fi
-
-          if [ "${RELEASE_PUBLISH_EXISTING}" = "true" ]; then
-            if [ "${RELEASE_GRADUATE}" = "true" ]; then
-              echo "publish_existing_versions cannot be combined with graduate." >&2
-              exit 1
-            fi
-
-            npx lerna publish from-package --yes --registry "${NPM_REGISTRY_URL}" --dist-tag "${DIST_TAG}"
-            exit 0
-          fi
-
-          if [ "${IS_TAG_PUSH}" = "true" ] || [ "$(git symbolic-ref --quiet --short HEAD || true)" = "" ]; then
-            echo "Conventional Lerna publishing requires a branch checkout. Use publish_existing_versions=true for tag or detached-HEAD releases." >&2
-            exit 1
-          fi
-
-          LERNA_ARGS=(
-            "--conventional-commits"
-            "--create-release"
-            "github"
-            "--yes"
-            "--registry"
-            "${NPM_REGISTRY_URL}"
-          )
-
-          if [ "${RELEASE_GRADUATE}" = "true" ]; then
-            LERNA_ARGS+=("--conventional-graduate" "--dist-tag" "latest")
-          elif [ "${RELEASE_CHANNEL}" = "stable" ]; then
-            LERNA_ARGS+=("--dist-tag" "latest")
-          elif [ "${RELEASE_CHANNEL}" = "beta" ]; then
-            LERNA_ARGS+=("--conventional-prerelease" "--preid" "beta" "--dist-tag" "beta")
-          elif [ "${RELEASE_CHANNEL}" = "rc" ]; then
-            LERNA_ARGS+=("--conventional-prerelease" "--preid" "rc" "--dist-tag" "rc")
-          fi
-
-          npx lerna publish "${LERNA_ARGS[@]}"
+      - name: Publish missing package versions
+        env:
+          RELEASE_PACKAGE: ${{ inputs.release_package }}
+          BOOTSTRAP_NPM: ${{ inputs.bootstrap_npm }}
+          BOOTSTRAP_CONFIRMATION: ${{ inputs.bootstrap_confirmation }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: node tools/verify-from-package-candidates.js --publish

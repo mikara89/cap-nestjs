@@ -19,6 +19,8 @@ Package-specific changelogs are maintained with each publishable package:
 
 ## Unreleased
 
+- Migrated the only active package publishing target from GitHub Packages to
+  public npmjs packages, with guarded bootstrap and trusted-publishing support.
 - Added public repository documentation and GitHub community templates for open
   source readiness.
 - Added generated API documentation tooling, compile-checked examples, and a
