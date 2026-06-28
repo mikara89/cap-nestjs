@@ -30,16 +30,15 @@
     "lint": "eslint \"src/**/*.ts\" --fix"
   },
   "dependencies": {
+    "@mikara89/cap-core": "^2.2.0",
     "@azure/service-bus": "^7.9.0"
   },
   "peerDependencies": {
-    "@mikara89/cap-core": "^2.2.0",
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "reflect-metadata": "^0.2.0"
   },
   "devDependencies": {
-    "@mikara89/cap-core": "file:../cap-core",
     "@types/node": "^22.0.0",
     "typescript": "^5.7.0"
   },

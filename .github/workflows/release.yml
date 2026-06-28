@@ -3,24 +3,31 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      release_package:
-        description: 'Normal release package (ignored during npm bootstrap)'
+      operation:
+        description: 'Release operation'
         required: true
-        default: '@mikara89/cap-nest'
+        default: release
         type: choice
         options:
-          - '@mikara89/cap-nest'
-          - '@mikara89/cap-storage-mikro-orm'
-          - '@mikara89/cap-transport-azure-servicebus'
-          - '@mikara89/cap-transport-nestjs-microservices'
-          - '@mikara89/cap-dashboard'
-      bootstrap_npm:
-        description: 'Publish all 14 current package versions to npmjs'
+          - release
+          - graduate
+          - bootstrap
+      channel:
+        description: 'npm release channel'
+        required: true
+        default: stable
+        type: choice
+        options:
+          - stable
+          - beta
+          - rc
+      coordinated_major:
+        description: 'Force an explicit major/premajor across every package'
         required: true
         default: false
         type: boolean
-      bootstrap_confirmation:
-        description: 'For bootstrap only, enter PUBLISH_ALL_TO_NPM'
+      confirmation:
+        description: 'Required for bootstrap or coordinated major'
         required: false
         default: ''
         type: string
@@ -38,9 +45,17 @@ env:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    outputs:
+      head_sha: ${{ steps.head.outputs.sha }}
     steps:
-      - name: Checkout
+      - name: Checkout complete history
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Record validated HEAD
+        id: head
+        run: echo "sha=$(git rev-parse HEAD)" >> "${GITHUB_OUTPUT}"
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -51,23 +66,31 @@ jobs:
       - name: Install npm with trusted publishing support
         run: npm install --global npm@11.5.1
 
-      - name: Verify tool versions
-        run: |
-          node --version
-          npm --version
-
       - name: Install dependencies
         run: npm ci --package-lock=true
 
-      - name: Verify release configuration
-        run: node tools/verify-from-package-candidates.js --verify
+      - name: Verify Lerna release configuration
+        run: npm run release:verify
 
-      - name: Enumerate npmjs versions and verify candidates
-        env:
-          RELEASE_PACKAGE: ${{ inputs.release_package }}
-          BOOTSTRAP_NPM: ${{ inputs.bootstrap_npm }}
-          BOOTSTRAP_CONFIRMATION: ${{ inputs.bootstrap_confirmation }}
-        run: node tools/verify-from-package-candidates.js --plan
+      - name: Test release tooling
+        run: npm run test:release-tooling
+
+      - name: Calculate and print the Lerna release plan
+        run: >
+          node tools/release-tool.js plan
+          --operation "${{ inputs.operation }}"
+          --channel "${{ inputs.channel }}"
+          --coordinated-major "${{ inputs.coordinated_major }}"
+          --confirmation "${{ inputs.confirmation }}"
+          --output release-plan.generated.json
+
+      - name: Preserve approved release plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: lerna-release-plan
+          path: release-plan.generated.json
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Audit production dependencies
         run: npm audit --omit=dev
@@ -78,14 +101,14 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Test
-        run: npm test -- --runInBand
-
       - name: Check examples
         run: npm run examples:check
 
       - name: Generate API docs
         run: npm run docs:api
+
+      - name: Run tests
+        run: npm test -- --runInBand
 
       - name: Run database integration gate
         run: npm run test:integration:db
@@ -98,11 +121,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: npm-production
     permissions:
-      contents: read
+      contents: write
       id-token: write
     steps:
-      - name: Checkout
+      - name: Checkout main with complete history
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -116,7 +142,18 @@ jobs:
       - name: Install dependencies
         run: npm ci --package-lock=true
 
+      - name: Download approved release plan
+        uses: actions/download-artifact@v4
+        with:
+          name: lerna-release-plan
+
+      - name: Configure release commit identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
       - name: Configure temporary npm token when present
+        if: ${{ inputs.operation == 'bootstrap' }}
         shell: bash
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -125,15 +162,17 @@ jobs:
             umask 077
             printf '%s\n' '//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}' > "${RUNNER_TEMP}/npmrc"
             echo "NPM_CONFIG_USERCONFIG=${RUNNER_TEMP}/npmrc" >> "${GITHUB_ENV}"
-            echo 'Temporary npm token authentication configured.'
+            echo 'Temporary npm token authentication configured for bootstrap.'
           else
-            echo 'No npm token configured; npm trusted publishing must be enabled.'
+            echo 'No bootstrap token configured; npm OIDC trusted publishing must already be enabled.'
           fi
 
-      - name: Publish missing package versions
+      - name: Use npm OIDC for non-bootstrap releases
+        if: ${{ inputs.operation != 'bootstrap' }}
+        run: echo 'Using npm trusted publishing; temporary npm tokens are bootstrap-only.'
+
+      - name: Execute approved Lerna plan
         env:
-          RELEASE_PACKAGE: ${{ inputs.release_package }}
-          BOOTSTRAP_NPM: ${{ inputs.bootstrap_npm }}
-          BOOTSTRAP_CONFIRMATION: ${{ inputs.bootstrap_confirmation }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: node tools/verify-from-package-candidates.js --publish
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXPECTED_HEAD_SHA: ${{ needs.validate.outputs.head_sha }}
+        run: node tools/release-tool.js execute --plan release-plan.generated.json

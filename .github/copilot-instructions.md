@@ -114,9 +114,12 @@ package imports at `dist`.
 
 - `ci.yml` validates only. It must not publish.
 - `release.yml` is the only publishing workflow.
-- Release is manual or tag-triggered with tags matching `v*`.
-- Release uses Node 22, `npm ci`, explicit `npm run build:libs`, package
-  dry-run, and Lerna publish.
+- Release is manual, uses Lerna independent mode, and waits for the protected
+  `npm-production` environment after printing the calculated plan.
+- Release uses Node 22, `npm ci`, full validation, package dry-run, independent
+  annotated tags, npm OIDC, and Lerna publish.
+- Package manifests remain at published versions until Lerna calculates a
+  normal, prerelease, graduation, or coordinated-major release.
 - Package contents must be checked before publish, especially dashboard
   `dist/public` assets.
 

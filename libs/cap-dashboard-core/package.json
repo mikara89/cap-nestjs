@@ -29,11 +29,10 @@
     "test": "jest",
     "lint": "eslint \"src/**/*.ts\" --fix"
   },
-  "peerDependencies": {
+  "dependencies": {
     "@mikara89/cap-core": "^2.2.0"
   },
   "devDependencies": {
-    "@mikara89/cap-core": "file:../cap-core",
     "@types/node": "^22.0.0",
     "typescript": "^5.7.0"
   }

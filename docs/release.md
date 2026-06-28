@@ -1,112 +1,219 @@
-# npm Release Guide
+# npm and GitHub Release Guide
 
-CAP packages are public on npmjs at `https://registry.npmjs.org/`. Consumers can
-install them without a token or custom `.npmrc`:
+CAP publishes only to `https://registry.npmjs.org/`. Lerna 9 in independent
+mode is the sole version calculator, changelog generator, tag creator, npm
+publisher, and GitHub release source.
+
+The verified toolchain is Lerna 9.0.7 with
+`conventional-changelog-conventionalcommits` 7.0.2. The explicit preset is
+required because Lerna's bundled Angular preset does not treat a bang header as
+a breaking change in this installed version.
+
+## Release invariants
+
+- Package manifests always contain the last published version before a normal
+  release. Contributors never prepare speculative synchronized versions.
+- `fix:` produces a patch, `feat:` produces a minor, and a bang header or
+  `BREAKING CHANGE:` footer produces a major.
+- Commits without release semantics are filtered before Lerna runs. Lerna still
+  calculates every selected version.
+- Internal CAP packages use ordinary semver dependencies. This lets Lerna bump
+  only dependents whose published range would become incompatible.
+- Independent tags and GitHub releases use the complete
+  `@mikara89/package@version` name, including beta or RC suffixes.
+- Stable packages use `latest`; beta and RC packages use only their matching
+  `beta` or `rc` dist-tag.
+- `.github/workflows/release.yml` is manual, serialized by concurrency, and
+  publishes only after the protected `npm-production` environment is approved.
+
+## One-time baseline bootstrap
+
+npmjs currently records `2.2.0` for all 14 packages with npmjs registry
+`gitHead` `65f0c11f2cac774da8bd7068e277d25c6ed588b3`. This value comes from
+`https://registry.npmjs.org/` metadata, not GitHub Packages. The npmjs tarballs
+for all 14 packages—including Knex, TypeORM, and Prisma—already exist. Bootstrap
+downloads them, verifies their SRI and SHA-1 hashes and embedded package
+identity, confirms the recorded commit contains the matching package/version,
+and then restores the independent annotated tags Lerna expects:
+
+```text
+@mikara89/cap-core@2.2.0
+@mikara89/cap-testing@2.2.0
+...one @mikara89/<package>@2.2.0 tag per published package
+```
+
+Each tag points to the npmjs-recorded `gitHead`. Bootstrap fails if an existing
+tag points anywhere else, if the commit is absent, or if the matching package
+did not exist at that commit. An existing npmjs version is never rebuilt or
+republished from changed local source.
+
+For a genuinely new package, the planner records the validated HEAD as its
+artifact source and publishes it with:
 
 ```sh
-npm install @mikara89/cap-core
+npx lerna publish from-package --yes \
+  --registry https://registry.npmjs.org/ --dist-tag latest \
+  --git-head <validated-main-sha>
 ```
 
-GitHub Packages is deprecated for this repository and receives no new releases.
-Historical GitHub Packages versions are not claimed to have been removed.
+Lerna publishes only npm-missing versions in dependency order and never derives
+new bootstrap versions. The workflow re-downloads and verifies a new artifact,
+requires its npmjs `gitHead` to equal the approved source commit, and creates
+that package's baseline tag only after publication succeeds. If a package
+existed in historical `v2.2.0` but is missing from npmjs, automation refuses to
+rebuild it: the exact historical artifact must be mirrored instead.
 
-## Release Policy
+Run the workflow with:
 
-- Packages keep the `@mikara89/*` names and are versioned independently.
-- A registry migration is not a reason to change a package version.
-- The workflow publishes current manifest versions only. It does not bump
-  versions, force-publish, create git tags, or create a repository-wide release.
-- An existing npmjs name/version is skipped. Registry errors fail the run.
-- `release-plan.json` is the fail-closed package and registry allowlist.
-- `.github/workflows/release.yml` is the only publishing workflow. It runs only
-  through `workflow_dispatch` and waits at the protected `npm-production`
-  environment before its publish job starts.
+- `operation=bootstrap`
+- `channel=stable`
+- `coordinated_major=false`
+- `confirmation=PUBLISH_ALL_TO_NPM`
 
-Before enabling releases, configure required reviewers on the
-`npm-production` GitHub environment. Keep the runner GitHub-hosted. The workflow
-pins Node 22.14.0 and npm 11.5.1, satisfying npm trusted publishing's Node
-22.14+ and npm 11.5.1+ requirements.
+Use a temporary granular `NPM_TOKEN` only if trusted publishing cannot create
+the initial packages. After bootstrap, configure every npm package's trusted
+publisher for repository `mikara89/cap-nodejs`, workflow `release.yml`, and
+environment `npm-production`; then remove and revoke the token.
 
-## First npm Bootstrap
+The transition from the old fixed `v2.2.0` tag is deliberate: the global tag
+remains historical, while the 14 independent tags at the npm `gitHead` become
+Lerna's per-package Conventional Commits boundary. Already released commits are
+therefore excluded from future recommendations.
 
-The bootstrap is a one-time migration of all 14 current package manifests to
-npmjs. It verifies exact discovery, public npm publish settings, lockfile
-versions, repository metadata, every internal package range, and dependency
-order. It publishes missing current versions with `--access public` and the
-`latest` dist-tag. It does not modify versions or create tags.
+## Normal releases
 
-1. Create a short-lived npm granular access token that can create and publish
-   public packages in the `@mikara89` scope.
-2. Add it to the `npm-production` GitHub environment as the `NPM_TOKEN` secret.
-3. Open **Actions > Release > Run workflow** on the intended commit.
-4. Set `bootstrap_npm` to `true`.
-5. Enter the exact `bootstrap_confirmation` value `PUBLISH_ALL_TO_NPM`.
-6. Approve the `npm-production` environment after reviewing the validation job
-   and its 14-package candidate list.
-7. Verify all packages and their `latest` dist-tags on npmjs.
+Run `operation=release`, `coordinated_major=false`, and choose a channel.
+The stable command is:
 
-If discovery differs from the 14 names in `release-plan.json`, confirmation is
-not exact, an internal dependency is invalid, or npmjs cannot enumerate public
-versions, the workflow stops before publishing. Packages already present at
-their manifest version are skipped.
-
-## Normal Independent Release
-
-Normal runs are intentionally restricted to the five-package allowlist:
-
-- `@mikara89/cap-nest`
-- `@mikara89/cap-storage-mikro-orm`
-- `@mikara89/cap-transport-azure-servicebus`
-- `@mikara89/cap-transport-nestjs-microservices`
-- `@mikara89/cap-dashboard`
-
-Prepare and review the selected package's version, dependency ranges, and
-changelog in a normal pull request. Do not bump unrelated packages. After that
-change is merged, run the Release workflow with `bootstrap_npm` set to `false`
-and choose `release_package`. The workflow verifies that required internal
-versions exist publicly, then publishes only the selected current manifest
-version with the `latest` dist-tag. It skips that release if the exact version
-already exists. Ordinary independent releases do not use a global release tag.
-
-## Move From the Bootstrap Token to Trusted Publishing
-
-Initial publication uses:
-
-```yaml
-NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+```sh
+npx lerna publish --conventional-commits --create-release github --yes \
+  --registry https://registry.npmjs.org/ --dist-tag latest
 ```
 
-The workflow never prints the token. After bootstrap, configure a trusted
-publisher on every npm package with these exact values:
+Beta adds `--conventional-prerelease --preid beta --dist-tag beta`; RC adds
+`--conventional-prerelease --preid rc --dist-tag rc`. Verified Lerna
+configuration ignores package-local tests, fixtures, Markdown, and TypeScript
+configuration files and disables automatic transitive-dependent selection. The
+planner rejects publishable package changes that have no release-signaling
+commit, then lets Lerna select packages and calculate versions. It explicitly
+forces only stable-release dependents whose internal range would otherwise
+become invalid. A prerelease never pulls unchanged stable packages into beta or
+RC merely to widen their ranges. No-change requests succeed without publishing.
 
-- Provider: GitHub Actions
-- Organization or user: `mikara89`
-- Repository: `cap-nodejs`
-- Workflow filename: `release.yml`
-- Environment: `npm-production`
+Expected progression:
 
-The full workflow path in this repository is `.github/workflows/release.yml`.
-It runs on a GitHub-hosted runner and grants the publish job `id-token: write`.
-After all 14 trusted publishers are configured, remove `NPM_TOKEN` from GitHub
-and revoke the temporary token on npm. Future runs then use npm OIDC trusted
-publishing. Never keep both mechanisms longer than the migration requires.
+```text
+2.3.0
+2.4.0-beta.0
+2.4.0-beta.1
+2.4.0-rc.0
+2.4.0-rc.1
+2.4.0
+```
+
+Changing beta to RC must keep the same base version. A stable release never
+implicitly graduates a prerelease.
+
+## Graduation
+
+Run:
+
+- `operation=graduate`
+- `channel=stable`
+- `coordinated_major=false`
+
+The workflow uses `--conventional-graduate`, selects only packages currently
+on prerelease versions, removes the suffix without another feature bump, and
+publishes with `latest`. Graduation fails when no prerelease exists.
+
+## Coordinated major
+
+This mode is only for a breaking contract shared by every package. Every
+coordinated operation requires:
+
+```text
+coordinated_major=true
+confirmation=PUBLISH_COORDINATED_MAJOR
+```
+
+- Stable uses explicit `major --force-publish=*` and `latest`.
+- Beta uses explicit `premajor --preid beta --force-publish=*` and `beta`.
+- RC uses explicit `prerelease --preid rc --force-publish=*` and is accepted
+  only when every package already belongs to the coordinated beta line.
+- Graduation uses `--conventional-graduate=*` with
+  `--force-conventional-graduate` and requires every package to be a
+  coordinated prerelease participant.
+
+The planner verifies every proposed major/premajor before approval; it never
+assumes that `--force-publish` changes the semantic bump.
+
+## Approval and repository security
+
+The validation job checks out full history, records HEAD, tests the release
+tooling, prints packages, old/proposed versions, dist-tag, tags, GitHub releases,
+and runs every product/package gate. Planning and execution both require a clean
+worktree. Its integrity-protected plan is uploaded for one day.
+
+The publish job starts only after `npm-production` approval. It checks out
+`main` with full history, requires local HEAD and `origin/main` to equal the
+validated SHA, and performs a dry-run push before Lerna can create versions.
+Configure branch protection or repository rules so
+`github-actions[bot]` may push the Lerna version commit and annotated tags.
+Lerna pushes before npm publication, so a denied branch push cannot leave npm
+ahead of Git.
+
+The job grants `contents: write` for commits, tags, and GitHub releases,
+`id-token: write` for npm OIDC, and passes `GH_TOKEN` from
+`secrets.GITHUB_TOKEN`.
+
+As audited on 2026-06-28, GitHub's public branch endpoint reports
+`main.protected=false` and the repository rulesets endpoint returns no rulesets.
+With the workflow's explicit `contents: write`, `GITHUB_TOKEN` can therefore
+push the Lerna version commit, push annotated package tags, and create GitHub
+releases. The release preflight also requires a successful branch-push dry run.
+
+Re-audit those settings before enabling protection. If a branch or tag ruleset
+later blocks the Actions token, either grant a narrowly scoped GitHub App a
+documented ruleset bypass or change to a release-PR workflow in which the
+version commit is reviewed and merged before `lerna publish from-git`. Do not
+solve this with an unreviewed long-lived personal access token.
+
+## Recovery
+
+Never create a new version merely to retry a partial release.
+
+- If npm fails after Lerna pushed the version commit and tags, fix
+  authentication/registry availability and retry:
+
+  ```sh
+  npx lerna publish from-git --yes \
+    --registry https://registry.npmjs.org/ --dist-tag latest
+  ```
+
+  Use `beta` or `rc` instead of `latest` for prerelease tags.
+
+- If bootstrap publication is partial, rerun the same bootstrap operation;
+  `from-package` skips versions already on npm.
+- If npm succeeded but a GitHub release is missing, recreate it from the
+  existing annotated tag with `gh release create <tag> --verify-tag`. Do not
+  change package versions or tags.
 
 ## Validation
-
-Run the same local gates before a release:
 
 ```sh
 npm install
 npm audit --omit=dev
+npm run release:verify
+npm run release:baseline
+npm run test:release-tooling
 npm run lint:check
 npm run build
-npm test -- --runInBand
 npm run examples:check
 npm run docs:api
+npm test -- --runInBand
 npm run test:integration:db
 npm run pack:dry-run
 ```
 
-Review package dry-run output and confirm it contains only intended files. The
-database gate uses PostgreSQL and MySQL containers and therefore requires a
-working Docker-compatible container runtime.
+The database gate requires a Docker-compatible runtime. Review dry-pack
+manifests before approval.

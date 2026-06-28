@@ -28,19 +28,18 @@
     "prepack": "npm run build",
     "test": "jest"
   },
-  "peerDependencies": {
+  "dependencies": {
     "@mikara89/cap-core": "^2.2.0",
     "@mikara89/cap-dashboard-core": "^2.2.0",
-    "@mikara89/cap-nest": "^2.2.0",
+    "@mikara89/cap-nest": "^2.2.0"
+  },
+  "peerDependencies": {
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
     "rxjs": "^7.8.0"
   },
   "devDependencies": {
-    "@mikara89/cap-core": "file:../cap-core",
-    "@mikara89/cap-dashboard-core": "file:../cap-dashboard-core",
-    "@mikara89/cap-nest": "file:../cap-nest",
     "@nestjs/testing": "^11.0.1",
     "jest": "^29.0.0",
     "rxjs": "^7.8.1",

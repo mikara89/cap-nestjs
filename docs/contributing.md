@@ -183,6 +183,7 @@ with conventional commit support:
 ```txt
 feat(cap-nest): add subscriber option
 fix(dashboard): handle missing inbox record
+feat(cap-core)!: replace a public contract
 docs: clarify adapter setup
 test(storage): cover retry scheduling
 ```

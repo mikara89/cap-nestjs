@@ -32,13 +32,13 @@
     "test": "npm run generate:test-clients && jest",
     "lint": "eslint \"src/**/*.ts\" --fix"
   },
+  "dependencies": {
+    "@mikara89/cap-core": "^2.2.0"
+  },
   "peerDependencies": {
-    "@mikara89/cap-core": "^2.2.0",
     "@prisma/client": "^6.0.0"
   },
   "devDependencies": {
-    "@mikara89/cap-core": "file:../cap-core",
-    "@mikara89/cap-testing": "file:../cap-testing",
     "@prisma/client": "^6.0.0",
     "@types/node": "^22.0.0",
     "prisma": "^6.0.0",

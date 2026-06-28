@@ -19,6 +19,12 @@ Package-specific changelogs are maintained with each publishable package:
 
 ## Unreleased
 
+- Restored Lerna independent versioning as the release authority, including
+  Conventional Commits planning, independent tags and GitHub releases,
+  prerelease/graduation channels, coordinated-major safeguards, and baseline
+  bootstrap/recovery tooling.
+- Restored all package manifests and changelogs to the npm-published 2.2.0
+  baseline instead of pre-writing synchronized 2.3.0 versions.
 - Migrated the only active package publishing target from GitHub Packages to
   public npmjs packages, with guarded bootstrap and trusted-publishing support.
 - Added public repository documentation and GitHub community templates for open
@@ -26,7 +32,7 @@ Package-specific changelogs are maintained with each publishable package:
 - Added generated API documentation tooling, compile-checked examples, and a
   package export-surface audit.
 
-## 2.3.0 (2026-06-27)
+## 2.2.0 (2026-06-27)
 
 - Expanded first-party storage reach with framework-free Knex, TypeORM, and
   model-free raw-SQL Prisma adapters alongside MikroORM.
@@ -41,8 +47,6 @@ Package-specific changelogs are maintained with each publishable package:
   that extraction is worthwhile.
 - Kept RabbitMQ, Kafka, and AWS SNS/SQS as planned v2.4 transports; Google
   Pub/Sub and NATS remain v2.5+ candidates.
-
-## 2.2.0 (2026-06-26)
 
 - Added the transaction context foundation with `CapOperationContext`, `ctx`
   publish support, optional ambient context, and the `CapTransactionManagerPort`

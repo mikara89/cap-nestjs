@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.3.0
+## 2.2.0 (2026-06-27)
 
 - Release the framework-free Prisma outbox and inbox adapter as a current
   first-party storage option.
@@ -11,9 +11,3 @@
 - Cover PostgreSQL and MySQL claim behavior with DB integration tests; keep
   SQLite as a local and single-process option.
 - Keep shared SQL-core extraction deferred.
-
-## 2.2.0
-
-- Add the framework-free Prisma publish and received storage adapter.
-- Add raw-SQL schema initialization for PostgreSQL, MySQL/MariaDB, and SQLite.
-- Add interactive transaction support through `Prisma.TransactionClient`.

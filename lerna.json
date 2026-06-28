@@ -1,15 +1,24 @@
 {
-  "packages": [
-    "libs/*"
-  ],
+  "packages": ["libs/*"],
   "version": "independent",
   "npmClient": "npm",
   "command": {
     "version": {
-      "conventionalCommits": true
-    },
-    "publish": {
-      "conventionalCommits": true
+      "conventionalCommits": true,
+      "createRelease": "github",
+      "allowBranch": "main",
+      "changelogPreset": "conventionalcommits",
+      "excludeDependents": true,
+      "ignoreChanges": [
+        "**/*.spec.ts",
+        "**/*.test.ts",
+        "**/test/**",
+        "**/tests/**",
+        "**/__tests__/**",
+        "**/fixtures/**",
+        "**/*.md",
+        "**/tsconfig*.json"
+      ]
     }
   },
   "hoist": false
