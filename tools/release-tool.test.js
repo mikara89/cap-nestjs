@@ -16,6 +16,7 @@ const {
   buildReleaseCommand,
   coordinatedMajorConfirmation,
   coordinatedTagCommit,
+  createBootstrapTags,
   distTagFor,
   hasReleaseRelevantCommit,
   isReleaseCommit,
@@ -23,6 +24,7 @@ const {
   packageTag,
   requiredDependents,
   recoveryCommand,
+  sourceFilesChanged,
   validatePlanFile,
 } = require('./release-tool');
 
@@ -849,4 +851,81 @@ test('release workflow exposes only validated Lerna modes and protects publicati
   );
   assert.match(ci, /npm run release:verify/);
   assert.match(ci, /npm run test:release-tooling/);
+});
+
+test('sourceFilesChanged ignores metadata-only diffs', () =>
+  withFixture(
+    [{ id: 'a', name: '@fixture/a', version: '1.0.0' }],
+    (cwd) => {
+      assert.equal(
+        sourceFilesChanged(
+          'HEAD',
+          'HEAD',
+          { relativeDir: 'libs/a' },
+          cwd,
+        ),
+        false,
+      );
+    },
+  ));
+
+test('head-anchored bootstrap tags HEAD, normal release selects zero, fix/feat/breaking each select one', () => {
+  // — Setup: two packages, a depends on b with a compatible range —
+  const cwd = createFixture([
+    {
+      id: 'a',
+      name: '@fixture/a',
+      version: '1.0.0',
+      dependencies: { '@fixture/b': '^1.0.0' },
+    },
+    { id: 'b', name: '@fixture/b', version: '1.0.0' },
+  ]);
+
+  const head = command('git', ['rev-parse', 'HEAD'], cwd).trim();
+  const tagA = packageTag('@fixture/a', '1.0.0');
+  const tagB = packageTag('@fixture/b', '1.0.0');
+
+  // Verify initial tags (placed by createFixture) point to HEAD
+  assert.equal(
+    command('git', ['rev-list', '-n', '1', `${tagA}^{}`], cwd).trim(),
+    head,
+  );
+  assert.equal(
+    command('git', ['rev-list', '-n', '1', `${tagB}^{}`], cwd).trim(),
+    head,
+  );
+
+  // — Immediate normal release: zero candidates —
+  const zero = runVersion(cwd, ['--conventional-commits']);
+  assert.equal(zero['@fixture/a'].version, '1.0.0');
+  assert.equal(zero['@fixture/b'].version, '1.0.0');
+  assert.equal(zero['@fixture/a'].dependencies?.['@fixture/b'], '^1.0.0');
+
+  // — Fix commit touching one package: one patch candidate —
+  addCommit(cwd, 'a', 'fix: correct behavior');
+  const patchPlan = runVersion(cwd, ['--conventional-commits']);
+  assert.equal(patchPlan['@fixture/a'].version, '1.0.1');
+  assert.equal(patchPlan['@fixture/b'].version, '1.0.0');
+  assert.equal(patchPlan['@fixture/a'].dependencies?.['@fixture/b'], '^1.0.0');
+
+  // Undo the fix commit so the feat starts from the same baseline
+  command('git', ['reset', '--hard', head], cwd);
+
+  // — Feat commit touching one package: one minor candidate —
+  addCommit(cwd, 'b', 'feat: add behavior');
+  const minorPlan = runVersion(cwd, ['--conventional-commits']);
+  assert.equal(minorPlan['@fixture/a'].version, '1.0.0');
+  assert.equal(minorPlan['@fixture/b'].version, '1.1.0');
+  assert.equal(minorPlan['@fixture/a'].dependencies?.['@fixture/b'], '^1.0.0');
+
+  // Undo
+  command('git', ['reset', '--hard', head], cwd);
+
+  // — Breaking commit touching one package: one major candidate —
+  addCommit(cwd, 'a', 'feat!: break contract');
+  const majorPlan = runVersion(cwd, ['--conventional-commits']);
+  assert.equal(majorPlan['@fixture/a'].version, '2.0.0');
+  assert.equal(majorPlan['@fixture/b'].version, '1.0.0');
+  // Compatible dependent stays unchanged; dependency range stays compatible
+  assert.equal(majorPlan['@fixture/a'].dependencies?.['@fixture/b'], '^1.0.0');
 });

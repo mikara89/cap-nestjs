@@ -490,6 +490,47 @@ function commitFiles(sha, pkg, cwd = rootDir) {
     .filter(Boolean);
 }
 
+/**
+ * Returns true when any artifact-relevant source file (excluding metadata like
+ * package.json, CHANGELOG, README, and tsconfig files) differs between two
+ * commits for a package. Used by the head-anchored bootstrap to decide whether
+ * an existing npmjs baseline tag can be placed at the current HEAD instead of
+ * the older recorded gitHead.
+ */
+function sourceFilesChanged(baseCommit, headCommit, pkg, cwd = rootDir) {
+  const result = run(
+    'git',
+    [
+      'diff',
+      '--name-only',
+      baseCommit,
+      headCommit,
+      '--',
+      pkg.relativeDir,
+    ],
+    { cwd, allowFailure: true },
+  );
+  // When either ref is unavailable (e.g. mock SHAs in tests), conservatively
+  // report files as changed so the caller falls back to the recorded gitHead.
+  if (result.status !== 0) return true;
+  const files = result.stdout
+    .split(/\r?\n/u)
+    .map((f) => f.trim())
+    .filter(Boolean);
+  const metadataPatterns = [
+    /[/\\]package\.json$/u,
+    /[/\\]CHANGELOG\.md$/u,
+    /[/\\]README\.md$/u,
+    /[/\\]tsconfig.*\.json$/u,
+    /[/\\]\.npmignore$/u,
+  ];
+  return files.some(
+    (f) =>
+      !isIgnoredReleasePath(f) &&
+      !metadataPatterns.some((pattern) => pattern.test(f)),
+  );
+}
+
 function validateReleaseSignals(packages, cwd = rootDir) {
   const changed = [];
   for (const pkg of packages) {
@@ -792,7 +833,24 @@ async function buildBootstrapPackages(packages, options = {}) {
         `${pkg.name} manifest is ${pkg.version}, but npm latest is ${latest}; restore the current published baseline before bootstrap.`,
       );
     }
-    const target = published?.gitHead || currentHead;
+    let target = published?.gitHead || currentHead;
+    // When source files haven't changed between the npmjs-recorded commit
+    // and HEAD, anchor the tag at HEAD. This prevents administrative commits
+    // (version bumps and their reverts) from becoming spurious semantic
+    // changes, ensuring a normal release immediately after bootstrap selects
+    // zero packages.
+    if (
+      published?.gitHead &&
+      published.gitHead !== currentHead &&
+      !sourceFilesChanged(
+        published.gitHead,
+        currentHead,
+        pkg,
+        options.cwd || rootDir,
+      )
+    ) {
+      target = currentHead;
+    }
     if (published && !published.gitHead)
       fail(
         `${pkg.name}@${pkg.version} has no npm gitHead; baseline tag target is unknowable.`,
@@ -1332,6 +1390,7 @@ module.exports = {
   recoveryCommand,
   requiredDependents,
   registry,
+  sourceFilesChanged,
   stableBase,
   validatePlanFile,
   verifyRegistryArtifact,
